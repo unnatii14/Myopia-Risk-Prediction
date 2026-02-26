@@ -1,0 +1,329 @@
+Presence_of_RE,Sex,Age,Height,Weight,BMI_Category,Medical_Level,First_Relative,Electronic_Devices,Sunlight,Type_of_RE,Degree_RE,Diagnosis_Age,Correction_Method,Laser_Surgery,Height_Meter,H_Square,BMI
+No,Female,17,163.0,42.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.63,2.66,15.81
+No,Female,17,162.0,42.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.62,2.62,16.00
+No,Female,17,163.0,49.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.63,2.66,18.44
+No,Female,17,154.0,44.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.54,2.37,18.55
+No,Female,17,158.0,48.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,>5 h,No error,N/A,N/A,N/A,N/A,1.58,2.50,19.23
+No,Female,17,159.0,49.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.59,2.53,19.38
+No,Female,17,154.0,48.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.54,2.37,20.24
+No,Female,17,151.0,52.0,Healthy 18.5-24.9,Pre Med,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.51,2.28,22.81
+No,Female,17,170.0,67.0,Healthy 18.5-24.9,Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,23.18
+No,Female,17,155.0,59.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,24.56
+No,Female,18,160.0,#NULL!,#NULL!,Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.60,2.56,#NULL!
+No,Female,18,170.0,45.0,Underweight <18.5,Pre Med,No,>8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,15.57
+No,Female,18,166.0,46.0,Underweight <18.5,Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.66,2.76,16.69
+No,Female,18,160.0,45.0,Underweight <18.5,Pre Med,No,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.60,2.56,17.58
+No,Female,18,160.0,48.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,>5 h,No error,N/A,N/A,N/A,N/A,1.60,2.56,18.75
+No,Female,18,154.0,46.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.54,2.37,19.40
+No,Female,18,164.0,54.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.64,2.69,20.08
+No,Female,18,156.0,49.0,Healthy 18.5-24.9,Pre Med,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.56,2.43,20.13
+No,Female,18,156.0,50.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.56,2.43,20.55
+No,Female,18,156.0,50.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.56,2.43,20.55
+No,Female,18,147.0,47.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.47,2.16,21.75
+No,Female,18,164.0,59.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.64,2.69,21.94
+No,Female,18,164.0,60.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.64,2.69,22.31
+No,Female,18,162.0,59.0,Healthy 18.5-24.9,Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.62,2.62,22.48
+No,Female,18,156.0,57.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.56,2.43,23.42
+No,Female,18,158.0,59.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.58,2.50,23.63
+No,Female,18,164.0,64.0,Healthy 18.5-24.9,Pre Med,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.64,2.69,23.80
+No,Female,18,167.0,73.0,"Overweight, 25-29.9",Pre Med,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.67,2.79,26.18
+No,Female,18,152.0,65.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.52,2.31,28.13
+No,Female,18,168.0,81.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.68,2.82,28.70
+No,Female,18,151.0,68.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.51,2.28,29.82
+No,Female,18,166.0,88.0,"Obese, 30 and More",Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.66,2.76,31.93
+No,Female,18,166.0,88.0,"Obese, 30 and More",Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.66,2.76,31.93
+No,Female,18,155.0,78.0,"Obese, 30 and More",Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,32.47
+No,Female,19,158.0,39.0,Underweight <18.5,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.58,2.50,15.62
+No,Female,19,155.0,42.0,Underweight <18.5,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,17.48
+No,Female,19,167.0,50.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.67,2.79,17.93
+No,Female,19,157.0,46.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.57,2.46,18.66
+No,Female,19,155.0,45.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,18.73
+No,Female,19,148.0,42.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.48,2.19,19.17
+No,Female,19,168.0,57.0,Healthy 18.5-24.9,Pre Med,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.68,2.82,20.20
+No,Female,19,156.0,49.5,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.56,2.43,20.34
+No,Female,19,169.0,60.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.69,2.86,21.01
+No,Female,19,166.0,61.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.66,2.76,22.14
+No,Female,19,165.0,60.0,Healthy 18.5-24.9,Pre Clin,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,22.04
+No,Female,19,160.0,60.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.60,2.56,23.44
+No,Female,20,153.0,55.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.53,2.34,23.50
+No,Female,20,158.0,65.0,"Overweight, 25-29.9",Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.58,2.50,26.04
+No,Female,20,165.0,76.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,27.92
+No,Female,20,159.0,46.0,Underweight <18.5,Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.59,2.53,18.20
+No,Female,20,160.0,47.0,Underweight <18.5,Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.60,2.56,18.36
+No,Female,20,164.0,62.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.64,2.69,23.05
+No,Female,20,164.0,64.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.64,2.69,23.80
+No,Female,20,156.0,68.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.56,2.43,27.94
+No,Female,20,155.0,75.0,"Obese, 30 and More",Pre Clin,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,31.22
+No,Female,20,154.0,81.0,"Obese, 30 and More",Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.54,2.37,34.15
+No,Female,21,153.0,39.0,Underweight <18.5,Pre Clin,Yes,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.53,2.34,16.66
+No,Female,21,159.0,43.0,Underweight <18.5,Pre Clin,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.59,2.53,17.01
+No,Female,21,156.0,48.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.56,2.43,19.72
+No,Female,21,159.0,57.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.59,2.53,22.55
+No,Female,21,165.0,70.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,25.71
+No,Female,21,170.0,78.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,26.99
+No,Female,21,155.0,65.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,27.06
+No,Female,21,155.0,65.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,27.06
+No,Female,21,159.0,69.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.59,2.53,27.29
+No,Female,21,164.0,76.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.64,2.69,28.26
+No,Female,21,160.0,69.0,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.60,2.56,26.95
+No,Female,21,155.0,71.0,"Overweight, 25-29.9",Clin,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,29.55
+No,Female,21,160.0,80.0,"Obese, 30 and More",Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.60,2.56,31.25
+No,Female,22,163.0,49.0,Underweight <18.5,Clin,Yes,5-8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.63,2.66,18.44
+No,Female,22,163.0,55.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.63,2.66,20.70
+No,Female,22,160.0,55.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.60,2.56,21.48
+No,Female,22,150.0,50.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.50,2.25,22.22
+No,Female,22,165.0,78.0,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,28.65
+No,Female,23,159.0,67.0,"Overweight, 25-29.9",Pre Clin,Yes,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.59,2.53,26.50
+No,Female,23,153.0,43.0,Underweight <18.5,Clin,Yes,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.53,2.34,18.37
+No,Female,23,155.0,49.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.55,2.40,20.40
+No,Female,24,169.0,80.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.69,2.86,28.01
+No,Male,17,175.0,52.0,Underweight <18.5,Pre Med,No,0-2 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.75,3.06,16.98
+No,Male,17,170.0,52.0,Underweight <18.5,Pre Med,No,0-2 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,17.99
+No,Male,17,170.0,53.0,Underweight <18.5,Pre Med,Yes,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,18.34
+No,Male,17,178.0,76.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.78,3.17,23.99
+No,Male,18,170.0,59.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,20.42
+No,Male,18,174.0,62.0,Healthy 18.5-24.9,Pre Med,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.74,3.03,20.48
+No,Male,18,173.0,67.0,Healthy 18.5-24.9,Pre Med,Yes,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.73,2.99,22.39
+No,Male,18,170.0,68.0,Healthy 18.5-24.9,Pre Med,Yes,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,23.53
+No,Male,18,174.0,77.0,"Overweight, 25-29.9",Pre Med,Yes,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.74,3.03,25.43
+No,Male,18,177.0,80.0,"Overweight, 25-29.9",Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.77,3.13,25.54
+No,Male,18,178.0,88.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.78,3.17,27.77
+No,Male,19,182.0,60.0,Underweight <18.5,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.82,3.31,18.11
+No,Male,19,182.0,60.0,Underweight <18.5,Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.82,3.31,18.11
+No,Male,19,176.0,61.0,Healthy 18.5-24.9,Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.76,3.10,19.69
+No,Male,19,176.0,61.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.76,3.10,19.69
+No,Male,19,174.0,63.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.74,3.03,20.81
+No,Male,19,170.0,65.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,22.49
+No,Male,19,182.0,78.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.82,3.31,23.55
+No,Male,19,174.0,72.0,Healthy 18.5-24.9,Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.74,3.03,23.78
+No,Male,19,175.0,75.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.75,3.06,24.49
+No,Male,19,170.0,74.0,"Overweight, 25-29.9",Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,25.61
+No,Male,19,176.0,81.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.76,3.10,26.15
+No,Male,19,175.0,90.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.75,3.06,29.39
+No,Male,19,180.0,93.0,"Overweight, 25-29.9",Pre Clin,No,5-8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.80,3.24,28.70
+No,Male,20,165.0,55.0,Healthy 18.5-24.9,Pre Med,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,20.20
+No,Male,20,165.0,73.0,"Overweight, 25-29.9",Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,26.81
+No,Male,20,165.0,73.0,"Overweight, 25-29.9",Pre Med,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,26.81
+No,Male,20,177.0,88.0,"Overweight, 25-29.9",Pre Med,Yes,2-5 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.77,3.13,28.09
+No,Male,20,181.0,67.0,Healthy 18.5-24.9,Pre Clin,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.81,3.28,20.45
+No,Male,20,173.0,70.0,Healthy 18.5-24.9,Pre Clin,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.73,2.99,23.39
+No,Male,20,175.0,77.5,"Overweight, 25-29.9",Pre Clin,No,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.75,3.06,25.31
+No,Male,20,176.0,87.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.76,3.10,28.09
+No,Male,20,165.0,77.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,28.28
+No,Male,20,170.0,94.0,"Obese, 30 and More",Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.70,2.89,32.53
+No,Male,21,174.0,68.4,Healthy 18.5-24.9,Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.74,3.03,22.59
+No,Male,21,183.0,80.0,Healthy 18.5-24.9,Pre Clin,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.83,3.35,23.89
+No,Male,21,173.0,75.0,"Overweight, 25-29.9",Pre Clin,No,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.73,2.99,25.06
+No,Male,21,173.0,75.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.73,2.99,25.06
+No,Male,21,173.0,77.0,"Overweight, 25-29.9",Pre Clin,Yes,2-5 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.73,2.99,25.73
+No,Male,21,167.0,77.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.67,2.79,27.61
+No,Male,21,178.0,77.0,Healthy 18.5-24.9,Clin,No,>8 h,>5 h,No error,N/A,N/A,N/A,N/A,1.78,3.17,24.30
+No,Male,21,174.0,88.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.74,3.03,29.07
+No,Male,22,169.0,50.0,Underweight <18.5,Pre Clin,Yes,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.69,2.86,17.51
+No,Male,22,175.0,58.0,Healthy 18.5-24.9,Clin,Yes,2-5 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.75,3.06,18.94
+No,Male,22,178.0,80.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.78,3.17,25.25
+No,Male,22,178.0,92.0,"Overweight, 25-29.9",Clin,No,>8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.78,3.17,29.04
+No,Male,23,167.0,100.0,"Obese, 30 and More",Clin,Yes,>8 h,3-5 h,No error,N/A,N/A,N/A,N/A,1.67,2.79,35.86
+No,Male,24,165.0,66.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.65,2.72,24.24
+No,Male,24,172.0,78.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,No error,N/A,N/A,N/A,N/A,1.72,2.96,26.37
+Yes,Female,#NULL!,153.0,55.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Not a candidate,1.53,2.34,23.50
+Yes,Female,#NULL!,164.0,90.0,"Obese, 30 and More",Clin,Yes,>8 h,Less than 3 h,Hyperopia alone,1-3 degrees,10-15 y,Glasses,Prefer other methods,1.64,2.69,33.46
+Yes,Female,17,162.0,#NULL!,#NULL!,Pre Med,No,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,0-5 y,Glasses,Prefer other methods,1.62,2.62,#NULL!
+Yes,Female,17,158.0,43.0,Underweight <18.5,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Thinking Later,1.58,2.50,17.22
+Yes,Female,17,167.0,68.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Glasses,Thinking Later,1.67,2.79,24.38
+Yes,Female,17,161.0,64.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.61,2.59,24.69
+Yes,Female,17,167.0,75.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Hyperopia + Astigma,1-3 degrees,15-20 y,Glasses,Thinking Later,1.67,2.79,26.89
+Yes,Female,17,155.0,95.0,"Obese, 30 and More",Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,15-20 y,Glasses,Prefer other methods,1.55,2.40,39.54
+Yes,Female,18,158.0,40.0,Underweight <18.5,Pre Med,Yes,>8 h,3-5 h,Myopia alone,1-3 degrees,15-20 y,Contact Lenses,Not a candidate,1.58,2.50,16.02
+Yes,Female,18,163.0,43.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,0-5 y,Glasses,Thinking Later,1.63,2.66,16.18
+Yes,Female,18,157.0,40.0,Underweight <18.5,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,10-15 y,Contact Lenses,Thinking Later,1.57,2.46,16.23
+Yes,Female,18,158.0,41.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,15-20 y,Glasses,Not a candidate,1.58,2.50,16.42
+Yes,Female,18,163.0,47.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,5-10 y,Contact Lenses,Thinking Later,1.63,2.66,17.69
+Yes,Female,18,159.0,45.0,Underweight <18.5,Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,10-15 y,Glasses,Thinking Later,1.59,2.53,17.80
+Yes,Female,18,165.0,50.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,Hyperopia alone,3-6 degrees,0-5 y,Glasses,Not a candidate,1.65,2.72,18.37
+Yes,Female,18,164.0,50.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Thinking Later,1.64,2.69,18.59
+Yes,Female,18,168.0,53.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,5-10 y,Glasses,Not a candidate,1.68,2.82,18.78
+Yes,Female,18,152.0,44.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Contact Lenses,Thinking Later,1.52,2.31,19.04
+Yes,Female,18,165.0,53.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Astigmatism alone,#NULL!,15-20 y,Glasses,#NULL!,1.65,2.72,19.47
+Yes,Female,18,162.0,52.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.62,2.62,19.81
+Yes,Female,18,157.0,49.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.57,2.46,19.88
+Yes,Female,18,159.0,52.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,3-5 h,Myopia + Astigmatism,1-3 degrees,15-20 y,Glasses,Prefer other methods,1.59,2.53,20.57
+Yes,Female,18,159.0,52.0,Healthy 18.5-24.9,Pre Med,Yes,2-5 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.59,2.53,20.57
+Yes,Female,18,163.0,55.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,5-10 y,Glasses,Thinking Later,1.63,2.66,20.70
+Yes,Female,18,164.0,57.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,15-20 y,Glasses,Thinking Later,1.64,2.69,21.19
+Yes,Female,18,162.0,56.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,5-10 y,Contact Lenses,Not a candidate,1.62,2.62,21.34
+Yes,Female,18,156.0,52.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Hyperopia + Astigma,Less than 1 degree,10-15 y,Glasses,Thinking Later,1.56,2.43,21.37
+Yes,Female,18,156.0,52.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,>5 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Glasses,Thinking Later,1.56,2.43,21.37
+Yes,Female,18,154.0,52.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.54,2.37,21.93
+Yes,Female,18,166.0,61.0,Healthy 18.5-24.9,Pre Med,No,2-5 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Thinking Later,1.66,2.76,22.14
+Yes,Female,18,160.0,58.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Contact Lenses,Thinking Later,1.60,2.56,22.66
+Yes,Female,18,158.0,57.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.58,2.50,22.83
+Yes,Female,18,163.0,62.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,5-10 y,Glasses,Thinking Later,1.63,2.66,23.34
+Yes,Female,18,163.0,62.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,5-10 y,Glasses,Thinking Later,1.63,2.66,23.34
+Yes,Female,18,163.0,64.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Prefer other methods,1.63,2.66,24.09
+Yes,Female,18,162.0,64.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Hyperopia + Astigma,Less than 1 degree,5-10 y,Glasses,Prefer other methods,1.62,2.62,24.39
+Yes,Female,18,163.0,65.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Hyperopia + Astigma,Less than 1 degree,5-10 y,Glasses,Prefer other methods,1.63,2.66,24.46
+Yes,Female,18,154.0,60.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Glasses,Thinking Later,1.54,2.37,25.30
+Yes,Female,18,161.0,70.0,"Overweight, 25-29.9",Pre Med,Yes,2-5 h,3-5 h,Hyperopia + Astigma,3-6 degrees,10-15 y,Glasses,Thinking Later,1.61,2.59,27.01
+Yes,Female,18,145.0,58.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,0-5 y,Glasses,Thinking Later,1.45,2.10,27.59
+Yes,Female,18,157.0,68.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,3-5 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Glasses,Thinking Later,1.57,2.46,27.59
+Yes,Female,18,179.0,90.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,5-10 y,Contact Lenses,Cost,1.79,3.20,28.09
+Yes,Female,18,154.0,67.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.54,2.37,28.25
+Yes,Female,18,159.0,72.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,5-10 y,Glasses,Thinking Later,1.59,2.53,28.48
+Yes,Female,18,158.0,76.0,"Obese, 30 and More",Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,15-20 y,Glasses,Thinking Later,1.58,2.50,30.44
+Yes,Female,18,153.0,75.0,"Obese, 30 and More",Pre Med,Yes,5-8 h,3-5 h,Myopia alone,1-3 degrees,5-10 y,Glasses,Thinking Later,1.53,2.34,32.04
+Yes,Female,18,155.0,90.0,"Obese, 30 and More",Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,10-15 y,Glasses,Thinking Later,1.55,2.40,37.46
+Yes,Female,19,161.0,43.0,Underweight <18.5,Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,5-10 y,Glasses,Thinking Later,1.61,2.59,16.59
+Yes,Female,19,159.0,42.0,Underweight <18.5,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.59,2.53,16.61
+Yes,Female,19,155.0,42.0,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Contact Lenses,Thinking Later,1.55,2.40,17.48
+Yes,Female,19,168.0,55.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.68,2.82,19.49
+Yes,Female,19,163.0,52.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Contact Lenses,Thinking Later,1.63,2.66,19.57
+Yes,Female,19,149.0,44.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.49,2.22,19.82
+Yes,Female,19,168.0,56.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,#NULL!,Glasses,Thinking Later,1.68,2.82,19.84
+Yes,Female,19,157.0,50.2,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Thinking Later,1.57,2.46,20.37
+Yes,Female,19,176.0,65.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,5-10 y,Glasses,Not a candidate,1.76,3.10,20.98
+Yes,Female,19,156.0,52.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,10-15 y,Glasses,Prefer other methods,1.56,2.43,21.37
+Yes,Female,19,159.0,55.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.59,2.53,21.76
+Yes,Female,19,157.0,56.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,3-5 h,Astigmatism alone,#NULL!,15-20 y,Glasses,Prefer other methods,1.57,2.46,22.72
+Yes,Female,19,157.0,56.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Glasses,Thinking Later,1.57,2.46,22.72
+Yes,Female,19,158.0,57.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,15-20 y,No Corrections,Prefer other methods,1.58,2.50,22.83
+Yes,Female,19,158.0,62.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,10-15 y,Glasses,Thinking Later,1.58,2.50,24.84
+Yes,Female,19,159.0,63.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Hyperopia + Astigma,1-3 degrees,10-15 y,Glasses,Thinking Later,1.59,2.53,24.92
+Yes,Female,19,165.0,72.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,15-20 y,Glasses,Thinking Later,1.65,2.72,26.45
+Yes,Female,19,168.0,76.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Astigmatism alone,#NULL!,10-15 y,Glasses,Prefer other methods,1.68,2.82,26.93
+Yes,Female,19,158.0,70.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Contact Lenses,Thinking Later,1.58,2.50,28.04
+Yes,Female,19,159.0,72.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Contact Lenses,Thinking Later,1.59,2.53,28.48
+Yes,Female,19,160.0,75.0,"Overweight, 25-29.9",Pre Med,No,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Laser Surgery,I did,1.60,2.56,29.30
+Yes,Female,19,170.0,85.0,"Overweight, 25-29.9",Pre Med,No,>8 h,Less than 3 h,Hyperopia + Astigma,1-3 degrees,0-5 y,Glasses,Thinking Later,1.70,2.89,29.41
+Yes,Female,19,155.0,90.0,"Obese, 30 and More",Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,10-15 y,Contact Lenses,Thinking Later,1.55,2.40,37.46
+Yes,Female,19,157.0,43.0,Underweight <18.5,Pre Clin,Yes,5-8 h,3-5 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Glasses,Not a candidate,1.57,2.46,17.44
+Yes,Female,19,158.0,50.0,Healthy 18.5-24.9,Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Not a candidate,1.58,2.50,20.03
+Yes,Female,19,159.0,56.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Glasses,Thinking Later,1.59,2.53,22.15
+Yes,Female,19,158.0,75.0,"Obese, 30 and More",Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Prefer other methods,1.58,2.50,30.04
+Yes,Female,20,155.0,49.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Not a candidate,1.55,2.40,20.40
+Yes,Female,20,157.0,51.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Glasses,Thinking Later,1.57,2.46,20.69
+Yes,Female,20,159.0,64.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,5-10 y,Contact Lenses,Thinking Later,1.59,2.53,25.32
+Yes,Female,20,165.0,70.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,Less than 3 h,Astigmatism alone,1-3 degrees,5-10 y,Glasses,Prefer other methods,1.65,2.72,25.71
+Yes,Female,20,155.0,#NULL!,#NULL!,Pre Clin,Yes,5-8 h,>5 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Laser Surgery,I did,1.55,2.40,#NULL!
+Yes,Female,20,156.0,#NULL!,#NULL!,Pre Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,5-10 y,Laser Surgery,I did,1.56,2.43,#NULL!
+Yes,Female,20,155.0,#NULL!,#NULL!,Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,5-10 y,Glasses,Thinking Later,1.55,2.40,#NULL!
+Yes,Female,20,160.0,43.0,Underweight <18.5,Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Laser Surgery,#NULL!,1.60,2.56,16.80
+Yes,Female,20,165.0,48.0,Underweight <18.5,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Contact Lenses,Prefer other methods,1.65,2.72,17.63
+Yes,Female,20,167.0,50.0,Underweight <18.5,Pre Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,10-15 y,Glasses,Thinking Later,1.67,2.79,17.93
+Yes,Female,20,163.0,49.0,Underweight <18.5,Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Glasses,Thinking Later,1.63,2.66,18.44
+Yes,Female,20,155.0,45.0,Healthy 18.5-24.9,Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Thinking Later,1.55,2.40,18.73
+Yes,Female,20,151.0,44.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Prefer other methods,1.51,2.28,19.30
+Yes,Female,20,153.0,46.0,Healthy 18.5-24.9,Pre Clin,No,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Prefer other methods,1.53,2.34,19.65
+Yes,Female,20,155.0,49.0,Healthy 18.5-24.9,Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,#NULL!,15-20 y,Glasses,Prefer other methods,1.55,2.40,20.40
+Yes,Female,20,161.0,53.0,Healthy 18.5-24.9,Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.61,2.59,20.45
+Yes,Female,20,165.0,56.0,Healthy 18.5-24.9,Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Contact Lenses,Thinking Later,1.65,2.72,20.57
+Yes,Female,20,155.0,50.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,15-20 y,Contact Lenses,Thinking Later,1.55,2.40,20.81
+Yes,Female,20,159.0,54.0,Healthy 18.5-24.9,Pre Clin,Yes,5-8 h,3-5 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Not a candidate,1.59,2.53,21.36
+Yes,Female,20,163.0,57.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Prefer other methods,1.63,2.66,21.45
+Yes,Female,20,163.0,60.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,3-5 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Not a candidate,1.63,2.66,22.58
+Yes,Female,20,165.0,63.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,Less than 1 degree,10-15 y,Glasses,Thinking Later,1.65,2.72,23.14
+Yes,Female,20,158.0,59.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Astigmatism alone,#NULL!,10-15 y,Glasses,Thinking Later,1.58,2.50,23.63
+Yes,Female,20,154.0,57.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,3-5 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Glasses,Thinking Later,1.54,2.37,24.03
+Yes,Female,20,164.5,68.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Glasses,Thinking Later,1.65,2.71,25.13
+Yes,Female,20,157.0,62.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Thinking Later,1.57,2.46,25.15
+Yes,Female,20,150.0,57.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.50,2.25,25.33
+Yes,Female,20,151.0,60.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Contact Lenses,Thinking Later,1.51,2.28,26.31
+Yes,Female,20,159.0,83.0,"Obese, 30 and More",Pre Clin,Yes,>8 h,3-5 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Thinking Later,1.59,2.53,32.83
+Yes,Female,20,155.0,79.0,"Obese, 30 and More",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Contact Lenses,Thinking Later,1.55,2.40,32.88
+Yes,Female,21,163.0,56.8,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,15-20 y,Glasses,Prefer other methods,1.63,2.66,21.38
+Yes,Female,21,161.0,56.8,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,3-5 h,Myopia alone,3-6 degrees,15-20 y,Glasses,Thinking Later,1.61,2.59,21.91
+Yes,Female,21,158.0,42.0,Underweight <18.5,Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Glasses,Thinking Later,1.58,2.50,16.82
+Yes,Female,21,153.0,44.0,Healthy 18.5-24.9,Pre Clin,Yes,5-8 h,Less than 3 h,Hyperopia alone,1-3 degrees,15-20 y,Contact Lenses,Thinking Later,1.53,2.34,18.80
+Yes,Female,21,158.0,50.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.58,2.50,20.03
+Yes,Female,21,163.0,56.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Laser Surgery,I did,1.63,2.66,21.08
+Yes,Female,21,166.0,60.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Laser Surgery,I did,1.66,2.76,21.77
+Yes,Female,21,160.0,56.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,>6 degrees,5-10 y,Laser Surgery,I did,1.60,2.56,21.88
+Yes,Female,21,167.0,63.0,Healthy 18.5-24.9,Pre Clin,Yes,2-5 h,3-5 h,Hyperopia + Astigma,1-3 degrees,10-15 y,Glasses,Thinking Later,1.67,2.79,22.59
+Yes,Female,21,160.0,59.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,>20 y,Contact Lenses,Thinking Later,1.60,2.56,23.05
+Yes,Female,21,152.0,59.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,10-15 y,Glasses,Not a candidate,1.52,2.31,25.54
+Yes,Female,21,157.0,63.0,"Overweight, 25-29.9",Pre Clin,Yes,2-5 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Contact Lenses,Thinking Later,1.57,2.46,25.56
+Yes,Female,21,169.0,74.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,0-5 y,Glasses,Thinking Later,1.69,2.86,25.91
+Yes,Female,21,169.0,74.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,5-10 y,Glasses,Thinking Later,1.69,2.86,25.91
+Yes,Female,21,164.0,71.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.64,2.69,26.40
+Yes,Female,21,155.0,89.0,"Obese, 30 and More",Pre Clin,Yes,5-8 h,Less than 3 h,Astigmatism alone,#NULL!,5-10 y,Glasses,Thinking Later,1.55,2.40,37.04
+Yes,Female,21,158.0,37.0,Underweight <18.5,Clin,Yes,5-8 h,Less than 3 h,Myopia alone,>6 degrees,5-10 y,Glasses,Thinking Later,1.58,2.50,14.82
+Yes,Female,21,163.0,43.0,Underweight <18.5,Clin,Yes,>8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,No Corrections,Not a candidate,1.63,2.66,16.18
+Yes,Female,21,160.0,45.0,Underweight <18.5,Clin,Yes,>8 h,3-5 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Glasses,Thinking Later,1.60,2.56,17.58
+Yes,Female,21,167.0,51.0,Underweight <18.5,Clin,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,0-5 y,Contact Lenses,Thinking Later,1.67,2.79,18.29
+Yes,Female,21,163.0,51.0,Healthy 18.5-24.9,Clin,Yes,>8 h,3-5 h,Astigmatism alone,#NULL!,0-5 y,Glasses,Thinking Later,1.63,2.66,19.20
+Yes,Female,21,159.0,50.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,Hyperopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.59,2.53,19.78
+Yes,Female,21,151.0,51.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,Contact Lenses,Thinking Later,1.51,2.28,22.37
+Yes,Female,21,160.0,78.0,"Obese, 30 and More",Clin,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,5-10 y,Glasses,Thinking Later,1.60,2.56,30.47
+Yes,Female,21,160.0,80.0,"Obese, 30 and More",Clin,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Not a candidate,1.60,2.56,31.25
+Yes,Female,22,159.0,40.0,Underweight <18.5,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.59,2.53,15.82
+Yes,Female,22,157.0,44.0,Underweight <18.5,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Thinking Later,1.57,2.46,17.85
+Yes,Female,22,151.0,41.0,Underweight <18.5,Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,#NULL!,Glasses,Prefer other methods,1.51,2.28,17.98
+Yes,Female,22,164.0,66.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Glasses,Thinking Later,1.64,2.69,24.54
+Yes,Female,22,170.0,89.0,"Obese, 30 and More",Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Glasses,Prefer other methods,1.70,2.89,30.80
+Yes,Female,22,161.0,45.0,Underweight <18.5,Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.61,2.59,17.36
+Yes,Female,22,158.0,44.0,Underweight <18.5,Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Thinking Later,1.58,2.50,17.63
+Yes,Female,22,150.0,41.0,Underweight <18.5,Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,10-15 y,Contact Lenses,Prefer other methods,1.50,2.25,18.22
+Yes,Female,22,162.0,50.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Not a candidate,1.62,2.62,19.05
+Yes,Female,22,165.0,59.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,3-5 h,Hyperopia + Astigma,1-3 degrees,10-15 y,Glasses,Thinking Later,1.65,2.72,21.67
+Yes,Female,22,165.0,60.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,Hyperopia alone,3-6 degrees,10-15 y,Glasses,Not a candidate,1.65,2.72,22.04
+Yes,Female,22,167.0,62.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,Astigmatism alone,#NULL!,>20 y,No Corrections,Not a candidate,1.67,2.79,22.23
+Yes,Female,22,164.0,60.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,3-5 h,Myopia + Astigmatism,1-3 degrees,15-20 y,Glasses,Thinking Later,1.64,2.69,22.31
+Yes,Female,22,160.0,58.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,5-10 y,Glasses,Not a candidate,1.60,2.56,22.66
+Yes,Female,22,164.0,72.0,"Overweight, 25-29.9",Clin,Yes,>8 h,3-5 h,Myopia alone,3-6 degrees,5-10 y,Glasses,Prefer other methods,1.64,2.69,26.77
+Yes,Female,22,166.0,76.0,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Prefer other methods,1.66,2.76,27.58
+Yes,Female,22,163.0,79.0,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,Hyperopia alone,#NULL!,10-15 y,Glasses,#NULL!,1.63,2.66,29.73
+Yes,Female,22,150.0,86.0,"Obese, 30 and More",Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Glasses,Thinking Later,1.50,2.25,38.22
+Yes,Female,23,158.0,80.0,"Obese, 30 and More",Pre Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.58,2.50,32.05
+Yes,Female,23,157.0,42.0,Underweight <18.5,Clin,Yes,5-8 h,3-5 h,Myopia alone,Less than 1 degree,>20 y,No Corrections,Prefer other methods,1.57,2.46,17.04
+Yes,Female,23,149.0,47.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Thinking Later,1.49,2.22,21.17
+Yes,Female,23,159.0,56.0,Healthy 18.5-24.9,Clin,Yes,2-5 h,3-5 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.59,2.53,22.15
+Yes,Female,23,153.0,53.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Contact Lenses,Thinking Later,1.53,2.34,22.64
+Yes,Female,23,151.0,56.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,3-6 degrees,5-10 y,Laser Surgery,I did,1.51,2.28,24.56
+Yes,Female,23,156.0,62.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,5-10 y,Laser Surgery,I did,1.56,2.43,25.48
+Yes,Female,23,165.0,72.0,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,>20 y,No Corrections,Not a candidate,1.65,2.72,26.45
+Yes,Female,23,161.0,70.0,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,>20 y,Glasses,Prefer other methods,1.61,2.59,27.01
+Yes,Female,23,165.0,74.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,>20 y,Glasses,Not a candidate,1.65,2.72,27.18
+Yes,Female,23,168.0,80.0,"Overweight, 25-29.9",Clin,No,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Prefer other methods,1.68,2.82,28.34
+Yes,Female,24,166.0,61.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,5-10 y,Contact Lenses,Thinking Later,1.66,2.76,22.14
+Yes,Female,24,164.0,77.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,3-5 h,Hyperopia alone,Less than 1 degree,10-15 y,No Corrections,Not a candidate,1.64,2.69,28.63
+Yes,Female,25,152.0,63.0,"Overweight, 25-29.9",Clin,Yes,>8 h,3-5 h,Myopia + Astigmatism,1-3 degrees,15-20 y,Glasses,Thinking Later,1.52,2.31,27.27
+Yes,Male,17,184.0,79.0,Healthy 18.5-24.9,Pre Med,No,>8 h,Less than 3 h,Hyperopia + Astigma,3-6 degrees,15-20 y,Glasses,Cost,1.84,3.39,23.33
+Yes,Male,18,175.0,65.0,Healthy 18.5-24.9,Pre Med,No,>8 h,3-5 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.75,3.06,21.22
+Yes,Male,18,175.0,72.0,Healthy 18.5-24.9,Pre Med,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,5-10 y,Glasses,Not a candidate,1.75,3.06,23.51
+Yes,Male,18,175.0,75.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.75,3.06,24.49
+Yes,Male,18,165.0,77.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,3-5 h,Myopia + Astigmatism,Less than 1 degree,0-5 y,Glasses,Thinking Later,1.65,2.72,28.28
+Yes,Male,18,170.0,82.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Hyperopia alone,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.70,2.89,28.37
+Yes,Male,19,165.0,44.5,Underweight <18.5,Pre Med,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.65,2.72,16.35
+Yes,Male,19,170.0,70.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Hyperopia alone,Less than 1 degree,10-15 y,Glasses,Thinking Later,1.70,2.89,24.22
+Yes,Male,19,181.0,85.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,5-10 y,Laser Surgery,I did,1.81,3.28,25.95
+Yes,Male,19,173.0,80.0,"Overweight, 25-29.9",Pre Med,No,2-5 h,3-5 h,Hyperopia alone,1-3 degrees,15-20 y,Laser Surgery,I did,1.73,2.99,26.73
+Yes,Male,19,188.0,95.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Glasses,Thinking Later,1.88,3.53,26.88
+Yes,Male,20,173.0,70.0,Healthy 18.5-24.9,Pre Med,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,No Corrections,Cost,1.73,2.99,23.39
+Yes,Male,20,180.0,78.0,Healthy 18.5-24.9,Pre Clin,Yes,>8 h,3-5 h,Myopia alone,1-3 degrees,5-10 y,Glasses,Not a candidate,1.80,3.24,24.07
+Yes,Male,20,175.0,74.0,Healthy 18.5-24.9,Pre Clin,Yes,2-5 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.75,3.06,24.16
+Yes,Male,20,174.0,82.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.74,3.03,27.08
+Yes,Male,20,181.0,91.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.81,3.28,27.78
+Yes,Male,20,178.0,90.0,"Overweight, 25-29.9",Pre Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,>6 degrees,5-10 y,Glasses,Thinking Later,1.78,3.17,28.41
+Yes,Male,20,181.0,94.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,#NULL!,Glasses,Thinking Later,1.81,3.28,28.69
+Yes,Male,20,167.0,60.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,Hyperopia + Astigma,1-3 degrees,10-15 y,Glasses,Thinking Later,1.67,2.79,21.51
+Yes,Male,21,175.0,80.0,"Overweight, 25-29.9",Pre Med,Yes,>8 h,>5 h,Hyperopia alone,3-6 degrees,15-20 y,Contact Lenses,Cost,1.75,3.06,26.12
+Yes,Male,21,178.0,90.0,"Overweight, 25-29.9",Pre Med,Yes,5-8 h,Less than 3 h,Hyperopia + Astigma,3-6 degrees,5-10 y,Glasses,Thinking Later,1.78,3.17,28.41
+Yes,Male,21,165.0,71.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Thinking Later,1.65,2.72,26.08
+Yes,Male,21,166.0,72.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Thinking Later,1.66,2.76,26.13
+Yes,Male,21,169.0,77.0,"Overweight, 25-29.9",Pre Clin,Yes,5-8 h,Less than 3 h,Hyperopia + Astigma,1-3 degrees,>20 y,Glasses,Thinking Later,1.69,2.86,26.96
+Yes,Male,21,165.0,85.0,"Obese, 30 and More",Pre Clin,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,>20 y,Glasses,Prefer other methods,1.65,2.72,31.22
+Yes,Male,21,172.0,115.0,"Obese, 30 and More",Pre Clin,Yes,5-8 h,3-5 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.72,2.96,38.87
+Yes,Male,21,168.0,118.0,"Obese, 30 and More",Pre Clin,Yes,>8 h,3-5 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.68,2.82,41.81
+Yes,Male,21,165.0,140.0,"Obese, 30 and More",Pre Clin,Yes,2-5 h,Less than 3 h,Myopia alone,1-3 degrees,5-10 y,Glasses,Cost,1.65,2.72,51.42
+Yes,Male,21,170.0,73.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,10-15 y,Contact Lenses,Not a candidate,1.70,2.89,25.26
+Yes,Male,22,176.0,58.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,3-5 h,Myopia + Astigmatism,1-3 degrees,15-20 y,Glasses,Thinking Later,1.76,3.10,18.72
+Yes,Male,22,169.0,54.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Prefer other methods,1.69,2.86,18.91
+Yes,Male,22,177.0,60.0,Healthy 18.5-24.9,Clin,Yes,5-8 h,3-5 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Thinking Later,1.77,3.13,19.15
+Yes,Male,22,177.0,60.0,Healthy 18.5-24.9,Clin,Yes,2-5 h,3-5 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.77,3.13,19.15
+Yes,Male,22,171.0,67.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,Myopia alone,3-6 degrees,10-15 y,Glasses,Not a candidate,1.71,2.92,22.91
+Yes,Male,22,170.0,77.0,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,Myopia alone,#NULL!,10-15 y,Glasses,Thinking Later,1.70,2.89,26.64
+Yes,Male,22,173.0,85.0,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,10-15 y,Glasses,Thinking Later,1.73,2.99,28.40
+Yes,Male,22,177.0,90.2,"Overweight, 25-29.9",Clin,Yes,>8 h,Less than 3 h,Myopia alone,1-3 degrees,15-20 y,Glasses,Thinking Later,1.77,3.13,28.79
+Yes,Male,23,170.0,55.0,Healthy 18.5-24.9,Clin,Yes,>8 h,Less than 3 h,Myopia + Astigmatism,1-3 degrees,5-10 y,Glasses,Cost,1.70,2.89,19.03
+Yes,Male,23,170.0,80.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,Myopia alone,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.70,2.89,27.68
+Yes,Male,23,175.0,85.0,"Overweight, 25-29.9",Clin,Yes,5-8 h,Less than 3 h,Myopia + Astigmatism,Less than 1 degree,15-20 y,Glasses,Thinking Later,1.75,3.06,27.76
