@@ -1,0 +1,33 @@
+{
+  "risk_model": {
+    "name": "XGBoost",
+    "auc": 0.8814,
+    "f1": 0.5668,
+    "accuracy": 0.812,
+    "target": "Progression_Risk (High=1, Low/Moderate=0)",
+    "threshold": 0.5
+  },
+  "re_model": {
+    "name": "XGBoost",
+    "auc": 0.5019,
+    "f1": 0.2429,
+    "accuracy": 0.576,
+    "target": "Has_RE (Yes=1, No=0)",
+    "threshold": 0.5
+  },
+  "diopter_model": {
+    "name": "GradientBoostingRegressor",
+    "mae": 1.748,
+    "rmse": 2.143,
+    "r2": -0.146,
+    "target": "Degree_RE_Diopters (absolute value)",
+    "note": "Only run for children who test positive on has_re_model"
+  },
+  "dataset": {
+    "total_samples": 5000,
+    "train_samples": 4000,
+    "test_samples": 1000,
+    "features": 35,
+    "data_leakage_fix": "Degree_RE_Diopters removed from features"
+  }
+}
