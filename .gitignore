@@ -1,0 +1,46 @@
+# ─── Dependencies ────────────────────────────────────────────
+node_modules/
+frontend/node_modules/
+
+# ─── Frontend build output ───────────────────────────────────
+dist/
+frontend/dist/
+frontend/.vite/
+frontend/*.local
+
+# ─── Python ──────────────────────────────────────────────────
+.venv/
+__pycache__/
+*.pyc
+*.pyo
+*.pyd
+.ipynb_checkpoints/
+
+# ─── Environment / secrets ───────────────────────────────────
+.env
+.env.local
+.env.*.local
+*.pem
+
+# ─── Logs ────────────────────────────────────────────────────
+npm-debug.log*
+yarn-debug.log*
+yarn-error.log*
+*.log
+
+# ─── TypeScript ──────────────────────────────────────────────
+*.tsbuildinfo
+
+# ─── OS ──────────────────────────────────────────────────────
+.DS_Store
+Thumbs.db
+desktop.ini
+
+# ─── Editor ──────────────────────────────────────────────────
+.vscode/
+.idea/
+*.swp
+*.swo
+
+# ─── Orphan root-level lock file (package.json lives in frontend/) ──
+/package-lock.json
