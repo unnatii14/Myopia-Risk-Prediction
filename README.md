@@ -439,7 +439,6 @@ Mayopia/
 | `pone.0250468.pdf` | Big-data epidemiology of RE — EMR + spectacle lens records, Ireland |
 | `A_1008280620621.pdf` | RELIEFF feature selection algorithm |
 | `school prediction.pdf` | School-based myopia prediction reference |
-| `Myopia research - Jalpesh sir.docx` | Project proposal — aim, methodology, expected outcomes |
 
 ## Key External Links
 
