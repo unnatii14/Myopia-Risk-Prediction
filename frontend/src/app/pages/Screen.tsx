@@ -3,7 +3,7 @@ import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { 
   User, Users, Clock, Sun, Smartphone, Book, 
-  GraduationCap, School, ChevronRight, ChevronLeft 
+  ChevronRight, ChevronLeft 
 } from "lucide-react";
 import { Slider } from "../components/ui/slider";
 
@@ -13,8 +13,7 @@ interface FormData {
   sex: "male" | "female" | "";
   height: number;
   weight: number;
-  state: string;
-  
+
   // Step 2
   familyHistory: boolean | null;
   parentsMyopic: "none" | "one" | "both" | "";
@@ -25,11 +24,6 @@ interface FormData {
   outdoorTime: number;
   sports: "regular" | "occasional" | "rare" | "";
   vitaminD: boolean | null;
-  
-  // Step 4
-  schoolType: "government" | "private" | "international" | "";
-  tuition: boolean | null;
-  competitiveExam: boolean | null;
 }
 
 const initialFormData: FormData = {
@@ -37,7 +31,6 @@ const initialFormData: FormData = {
   sex: "",
   height: 0,
   weight: 0,
-  state: "",
   familyHistory: null,
   parentsMyopic: "",
   screenTime: 4,
@@ -45,9 +38,6 @@ const initialFormData: FormData = {
   outdoorTime: 1,
   sports: "",
   vitaminD: null,
-  schoolType: "",
-  tuition: null,
-  competitiveExam: null,
 };
 
 export default function Screen() {
@@ -56,7 +46,7 @@ export default function Screen() {
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [direction, setDirection] = useState(1);
 
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -128,7 +118,7 @@ export default function Screen() {
             Myopia Risk Screening
           </h2>
           <div className="flex items-start">
-            {["Child Info", "Family History", "Daily Habits", "School & Study"].map((label, i) => (
+            {["Child Info", "Family History", "Daily Habits"].map((label, i) => (
               <div key={i} className="flex items-start flex-1 last:flex-none">
                 <div className="flex flex-col items-center">
                   <motion.div
@@ -148,7 +138,7 @@ export default function Screen() {
                     i + 1 === currentStep ? "text-[var(--primary-green)]" : "text-[var(--text-muted)]"
                   }`}>{label}</span>
                 </div>
-                {i < 3 && (
+                {i < 2 && (
                   <div className={`flex-1 h-0.5 mt-5 mx-1 transition-all duration-500 ${
                     i + 1 < currentStep ? "bg-[var(--primary-green)]" : "bg-gray-200"
                   }`} />
@@ -254,21 +244,6 @@ export default function Screen() {
                     </p>
                   </div>
                 )}
-
-                {/* State */}
-                <div>
-                  <label className="block text-sm font-medium mb-2">State</label>
-                  <select
-                    value={formData.state}
-                    onChange={(e) => updateFormData("state", e.target.value)}
-                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
-                  >
-                    <option value="">Select state</option>
-                    {["Maharashtra", "Karnataka", "Tamil Nadu", "Delhi", "Gujarat", "Uttar Pradesh", "West Bengal", "Telangana", "Rajasthan", "Kerala"].map((state) => (
-                      <option key={state} value={state}>{state}</option>
-                    ))}
-                  </select>
-                </div>
               </div>
             )}
 
@@ -468,94 +443,7 @@ export default function Screen() {
               </div>
             )}
 
-            {/* STEP 4 - SCHOOL & ACADEMIC */}
-            {currentStep === 4 && (
-              <div className="space-y-8">
-                <div className="flex items-center gap-3 mb-6">
-                  <GraduationCap className="w-8 h-8 text-[var(--primary-green)]" />
-                  <h3 className="text-3xl font-bold text-[var(--text-dark)]">
-                    School and study pressure
-                  </h3>
-                </div>
 
-                {/* School Type */}
-                <div>
-                  <label className="block text-sm font-medium mb-4">
-                    School type
-                  </label>
-                  <div className="grid grid-cols-3 gap-4">
-                    {[
-                      { value: "government", label: "Government", emoji: "🏫" },
-                      { value: "private", label: "Private", emoji: "🏢" },
-                      { value: "international", label: "International", emoji: "🌐" },
-                    ].map((option) => (
-                      <button
-                        key={option.value}
-                        onClick={() => updateFormData("schoolType", option.value)}
-                        className={`p-6 rounded-2xl border-2 transition-all ${
-                          formData.schoolType === option.value
-                            ? "border-[var(--primary-green)] bg-[var(--secondary-green)]/10"
-                            : "border-gray-200 hover:border-[var(--secondary-green)]"
-                        }`}
-                      >
-                        <div className="text-3xl mb-2">{option.emoji}</div>
-                        <div className="font-medium text-sm">{option.label}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Tuition */}
-                <div>
-                  <label className="block text-sm font-medium mb-4">
-                    Attends tuition/coaching classes?
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      { value: true, label: "Yes" },
-                      { value: false, label: "No" },
-                    ].map((option) => (
-                      <button
-                        key={option.label}
-                        onClick={() => updateFormData("tuition", option.value)}
-                        className={`p-4 rounded-2xl border-2 transition-all ${
-                          formData.tuition === option.value
-                            ? "border-[var(--primary-green)] bg-[var(--secondary-green)]/10"
-                            : "border-gray-200 hover:border-[var(--secondary-green)]"
-                        }`}
-                      >
-                        <div className="font-medium">{option.label}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-
-                {/* Competitive Exam */}
-                <div>
-                  <label className="block text-sm font-medium mb-4">
-                    Preparing for competitive exams (JEE, NEET, etc.)?
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    {[
-                      { value: true, label: "Yes" },
-                      { value: false, label: "No" },
-                    ].map((option) => (
-                      <button
-                        key={option.label}
-                        onClick={() => updateFormData("competitiveExam", option.value)}
-                        className={`p-4 rounded-2xl border-2 transition-all ${
-                          formData.competitiveExam === option.value
-                            ? "border-[var(--primary-green)] bg-[var(--secondary-green)]/10"
-                            : "border-gray-200 hover:border-[var(--secondary-green)]"
-                        }`}
-                      >
-                        <div className="font-medium">{option.label}</div>
-                      </button>
-                    ))}
-                  </div>
-                </div>
-              </div>
-            )}
           </motion.div>
         </AnimatePresence>
 
