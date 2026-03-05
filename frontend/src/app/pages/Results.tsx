@@ -1,10 +1,11 @@
 import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
+import { jsPDF } from "jspdf";
 import { 
   Download, AlertTriangle, CheckCircle, Sun, 
   Smartphone, Users, Calendar, ExternalLink,
-  Eye, Activity, TrendingUp
+  Eye, Loader2
 } from "lucide-react";
 import RiskGauge from "../components/RiskGauge";
 import {
@@ -14,12 +15,13 @@ import {
   AccordionTrigger,
 } from "../components/ui/accordion";
 
+const API_URL = "http://localhost:5001";
+
 interface ScreeningData {
   age: number;
   sex: string;
   height: number;
   weight: number;
-  state: string;
   familyHistory: boolean | null;
   parentsMyopic: string;
   screenTime: number;
@@ -27,9 +29,16 @@ interface ScreeningData {
   outdoorTime: number;
   sports: string;
   vitaminD: boolean | null;
-  schoolType: string;
-  tuition: boolean | null;
-  competitiveExam: boolean | null;
+}
+
+interface PredictionResult {
+  risk_score: number;
+  risk_level: "LOW" | "MODERATE" | "HIGH";
+  risk_probability: number;
+  has_re: boolean;
+  re_probability: number;
+  diopters: number | null;
+  severity: string | null;
 }
 
 export default function Results() {
@@ -37,6 +46,143 @@ export default function Results() {
   const [data, setData] = useState<ScreeningData | null>(null);
   const [riskScore, setRiskScore] = useState(0);
   const [riskLevel, setRiskLevel] = useState<"LOW" | "MODERATE" | "HIGH">("LOW");
+  const [prediction, setPrediction] = useState<PredictionResult | null>(null);
+  const [loading, setLoading] = useState(true);
+  const [apiError, setApiError] = useState<string | null>(null);
+
+  const downloadPdf = () => {
+    if (!data) return;
+    const doc = new jsPDF({ unit: "mm", format: "a4" });
+    const pageW = doc.internal.pageSize.getWidth();
+    const margin = 18;
+    const col = pageW - margin * 2;
+
+    // ── Header bar ──
+    doc.setFillColor(42, 120, 90);
+    doc.rect(0, 0, pageW, 28, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(18);
+    doc.setFont("helvetica", "bold");
+    doc.text("MyopiaGuard - Risk Assessment Report", margin, 18);
+
+    // ── Date / meta ──
+    doc.setFontSize(9);
+    doc.setFont("helvetica", "normal");
+    doc.text(`Generated: ${new Date().toLocaleDateString("en-IN")}   |   Powered by XGBoost ML - AUC 0.88`, margin, 24);
+
+    let y = 38;
+    doc.setTextColor(30, 30, 30);
+
+    // ── Child profile ──
+    doc.setFillColor(237, 247, 241);
+    doc.roundedRect(margin, y, col, 26, 3, 3, "F");
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Child Profile", margin + 4, y + 8);
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    doc.text(`Age: ${data.age} years`, margin + 4, y + 16);
+    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, y + 16);
+    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, y + 16);
+    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, y + 16);
+    y += 34;
+
+    // ── Risk result box ──
+    const riskColors: Record<string, [number, number, number]> = {
+      HIGH: [231, 111, 81],
+      MODERATE: [244, 162, 97],
+      LOW: [82, 183, 136],
+    };
+    const [r, g, b] = riskColors[riskLevel] ?? [100, 150, 100];
+    doc.setFillColor(r, g, b);
+    doc.roundedRect(margin, y, col, 28, 3, 3, "F");
+    doc.setTextColor(255, 255, 255);
+    doc.setFontSize(22);
+    doc.setFont("helvetica", "bold");
+    doc.text(`${riskLevel} RISK - ${riskScore}%`, margin + 4, y + 18);
+    doc.setFontSize(10);
+    doc.setFont("helvetica", "normal");
+    doc.text("Myopia Progression Risk Score", margin + 4, y + 25);
+    y += 36;
+    doc.setTextColor(30, 30, 30);
+
+    // ── Three-stage summary ──
+    const stages = [
+      ["Stage 1 - Refractive Error", `${riskScore > 60 ? "YES" : "POSSIBLE"} | ${Math.round(riskScore * 0.8)}%`],
+      ["Stage 2 - Progression Risk", `${riskLevel} | ${riskScore}%`],
+      ["Stage 3 - Est. Severity", riskLevel === "HIGH" ? "-3.2D (Moderate)" : riskLevel === "MODERATE" ? "-1.5D (Mild)" : "-0.5D (Very Mild)"],
+    ];
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Clinical Stage Summary", margin, y); y += 6;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    stages.forEach(([label, val]) => {
+      doc.setFillColor(248, 250, 248);
+      doc.roundedRect(margin, y, col, 10, 2, 2, "F");
+      doc.text(label, margin + 3, y + 7);
+      doc.text(val, margin + col - 3, y + 7, { align: "right" });
+      y += 13;
+    });
+    y += 4;
+
+    // ── Input factors ──
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Reported Risk Factors", margin, y); y += 6;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    const factors: [string, string][] = [
+      ["Screen time", `${data.screenTime} hrs/day (recommended <2)`],
+      ["Outdoor time", `${data.outdoorTime} hrs/day (recommended 2+ hrs)`],
+      ["Near work", `${data.nearWork} hrs/day`],
+      ["Parents myopic", data.parentsMyopic === "both" ? "Both parents" : data.parentsMyopic === "one" ? "One parent" : "None"],
+      ["Family history", data.familyHistory ? "Yes" : "No"],
+      ["Sports participation", data.sports || "Not specified"],
+      ["Vitamin D", data.vitaminD ? "Taking supplement" : "Not taking"],
+    ];
+    factors.forEach(([k, v]) => {
+      doc.setFillColor(252, 252, 252);
+      doc.roundedRect(margin, y, col, 9, 2, 2, "F");
+      doc.setFont("helvetica", "bold");
+      doc.text(k, margin + 3, y + 6);
+      doc.setFont("helvetica", "normal");
+      doc.text(v, margin + 70, y + 6);
+      y += 11;
+    });
+    y += 6;
+
+    // ── Recommendations ──
+    if (y > 230) { doc.addPage(); y = 20; }
+    doc.setFontSize(11);
+    doc.setFont("helvetica", "bold");
+    doc.text("Personalised Recommendations", margin, y); y += 6;
+    doc.setFont("helvetica", "normal");
+    doc.setFontSize(10);
+    const recs: string[] = [];
+    if (data.outdoorTime < 2) recs.push("Increase outdoor time to at least 2 hours per day (daylight exposure is the #1 protector).");
+    if (data.screenTime > 2) recs.push("Reduce recreational screen time below 2 hours/day. Apply the 20-20-20 rule.");
+    recs.push(riskLevel === "HIGH" ? "Book an eye exam immediately - recommended every 3-6 months for high-risk children." : "Schedule an annual comprehensive eye examination.");
+    recs.push("Ask your eye doctor about myopia control options: atropine 0.01%, ortho-K lenses, or myopia-control spectacles.");
+    if (data.parentsMyopic === "both") recs.push("Both parents are myopic - inform your doctor. Monitor closely.");
+    recs.forEach((rec, i) => {
+      const lines = doc.splitTextToSize(`${i + 1}. ${rec}`, col - 4);
+      doc.text(lines, margin + 3, y);
+      y += lines.length * 5.5 + 3;
+    });
+    y += 4;
+
+    // ── Disclaimer ──
+    if (y > 260) { doc.addPage(); y = 20; }
+    doc.setFillColor(255, 251, 230);
+    doc.roundedRect(margin, y, col, 18, 2, 2, "F");
+    doc.setFontSize(8);
+    doc.setTextColor(120, 90, 20);
+    const disclaimer = "DISCLAIMER: This AI assessment is not a medical diagnosis. It provides a risk estimate based on lifestyle and family history. Please consult a qualified ophthalmologist for proper examination and diagnosis.";
+    doc.text(doc.splitTextToSize(disclaimer, col - 6), margin + 3, y + 6);
+
+    doc.save(`MyopiaGuard_Report_${data.age}yr_${new Date().toISOString().slice(0,10)}.pdf`);
+  };
 
   useEffect(() => {
     const stored = sessionStorage.getItem("screeningData");
@@ -45,58 +191,60 @@ export default function Results() {
       return;
     }
 
-    const parsedData = JSON.parse(stored);
+    const parsedData: ScreeningData = JSON.parse(stored);
     setData(parsedData);
 
-    // Calculate risk score based on factors
-    const score = calculateRiskScore(parsedData);
-    setRiskScore(score);
-
-    if (score < 40) setRiskLevel("LOW");
-    else if (score < 70) setRiskLevel("MODERATE");
-    else setRiskLevel("HIGH");
+    // Call the ML backend
+    fetch(`${API_URL}/predict`, {
+      method: "POST",
+      headers: { "Content-Type": "application/json" },
+      body: JSON.stringify(parsedData),
+    })
+      .then((res) => {
+        if (!res.ok) throw new Error(`API error ${res.status}`);
+        return res.json();
+      })
+      .then((result: PredictionResult) => {
+        setPrediction(result);
+        setRiskScore(result.risk_score);
+        setRiskLevel(result.risk_level);
+        setLoading(false);
+      })
+      .catch((err) => {
+        console.error("API call failed:", err);
+        setApiError("Could not reach prediction server. Showing rule-based estimate.");
+        // Fallback to rule-based scoring
+        const score = fallbackRiskScore(parsedData);
+        setRiskScore(score);
+        setRiskLevel(score < 40 ? "LOW" : score < 70 ? "MODERATE" : "HIGH");
+        setLoading(false);
+      });
   }, [navigate]);
 
-  const calculateRiskScore = (data: ScreeningData): number => {
-    let score = 30; // Base score
-
-    // Age factor (younger = higher risk for progression)
-    if (data.age <= 8) score += 15;
-    else if (data.age <= 10) score += 10;
-    else if (data.age <= 12) score += 5;
-
-    // Family history
-    if (data.parentsMyopic === "both") score += 25;
-    else if (data.parentsMyopic === "one") score += 15;
-    else if (data.familyHistory) score += 10;
-
-    // Screen time
-    if (data.screenTime > 6) score += 20;
-    else if (data.screenTime > 4) score += 15;
-    else if (data.screenTime > 2) score += 8;
-
-    // Outdoor time (protective)
-    if (data.outdoorTime < 1) score += 20;
-    else if (data.outdoorTime < 2) score += 10;
-    else if (data.outdoorTime >= 3) score -= 10;
-
-    // Near work
-    if (data.nearWork > 6) score += 15;
-    else if (data.nearWork > 4) score += 8;
-
-    // Academic pressure
-    if (data.competitiveExam) score += 10;
-    if (data.tuition) score += 5;
-    if (data.schoolType === "international" || data.schoolType === "private") score += 5;
-
-    // Protective factors
-    if (data.vitaminD) score -= 5;
-    if (data.sports === "regular") score -= 5;
-
-    return Math.min(Math.max(score, 0), 100);
+  const fallbackRiskScore = (d: ScreeningData): number => {
+    let s = 30;
+    if (d.age <= 8) s += 15; else if (d.age <= 10) s += 10; else if (d.age <= 12) s += 5;
+    if (d.parentsMyopic === "both") s += 25;
+    else if (d.parentsMyopic === "one") s += 15;
+    else if (d.familyHistory) s += 10;
+    if (d.screenTime > 6) s += 20; else if (d.screenTime > 4) s += 15; else if (d.screenTime > 2) s += 8;
+    if (d.outdoorTime < 1) s += 20; else if (d.outdoorTime < 2) s += 10; else if (d.outdoorTime >= 3) s -= 10;
+    if (d.nearWork > 6) s += 15; else if (d.nearWork > 4) s += 8;
+    if (d.vitaminD) s -= 5;
+    if (d.sports === "regular") s -= 5;
+    return Math.min(Math.max(s, 0), 100);
   };
 
-  if (!data) return null;
+  if (!data || loading) {
+    return (
+      <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white flex flex-col items-center justify-center gap-4">
+        <Loader2 className="w-12 h-12 text-[var(--primary-green)] animate-spin" />
+        <p className="text-lg font-medium text-[var(--text-muted)]">
+          {loading ? "Analysing with AI model…" : "Loading…"}
+        </p>
+      </div>
+    );
+  }
 
   const topRiskFactors = [
     ...(data.screenTime > 2 ? [{
@@ -183,15 +331,15 @@ export default function Results() {
                 <p>
                   <strong>Sex:</strong> {data.sex === "male" ? "Male" : "Female"}
                 </p>
-                <p>
-                  <strong>State:</strong> {data.state}
-                </p>
                 <p className="text-xs pt-2">
                   <strong>Date:</strong> {new Date().toLocaleDateString("en-IN")}
                 </p>
               </div>
 
-              <button className="mt-6 flex items-center gap-2 px-4 py-2 border-2 border-[var(--primary-green)] text-[var(--primary-green)] rounded-full hover:bg-[var(--primary-green)] hover:text-white transition-all">
+              <button
+                onClick={downloadPdf}
+                className="mt-6 flex items-center gap-2 px-4 py-2 border-2 border-[var(--primary-green)] text-[var(--primary-green)] rounded-full hover:bg-[var(--primary-green)] hover:text-white transition-all"
+              >
                 <Download className="w-4 h-4" />
                 Download PDF
               </button>
@@ -263,8 +411,15 @@ export default function Results() {
             </div>
           </div>
 
+          {apiError && (
+            <div className="mt-4 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
+              ⚠️ {apiError}
+            </div>
+          )}
           <div className="mt-6 pt-6 border-t border-gray-200 text-xs text-[var(--text-muted)] text-center">
-            Powered by XGBoost ML Model · AUC 0.88 · Trained on 5,000+ Indian children
+            {prediction
+              ? "Powered by XGBoost ML Model · AUC 0.88 · Trained on 5,000+ Indian children · Live ML Prediction"
+              : "Rule-based estimate (ML server offline) · For real predictions, start the backend"}
           </div>
         </motion.div>
 
