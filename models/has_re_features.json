@@ -1,0 +1,40 @@
+{
+  "model_type": "XGBoost",
+  "feature_count": 29,
+  "feature_columns": [
+    "Age",
+    "BMI",
+    "Screen_Time_Hours",
+    "Near_Work_Hours",
+    "Outdoor_Time_Hours",
+    "Age_Screen",
+    "Screen_Near_Total",
+    "Outdoor_Deficit",
+    "Screen_Outdoor_Ratio",
+    "High_Risk_Parent",
+    "Family_History_Binary",
+    "Family_Load",
+    "Location_Type_Urban",
+    "School_Type_Encoded",
+    "Tuition_Binary",
+    "Comp_Exam_Binary",
+    "Vitamin_D_Binary",
+    "Sports_Encoded",
+    "State_Delhi",
+    "State_Gujarat",
+    "State_Karnataka",
+    "State_Kerala",
+    "State_Maharashtra",
+    "State_Punjab",
+    "State_Rajasthan",
+    "State_Tamil Nadu",
+    "State_Telangana",
+    "State_Uttar Pradesh",
+    "State_West Bengal"
+  ],
+  "sklearn_version": "1.7.2",
+  "metrics": {
+    "auc": 0.9431083333333333,
+    "threshold": 0.5
+  }
+}
