@@ -41,7 +41,7 @@ with open(os.path.join(MODEL_DIR, "has_re_features.json")) as f:
     RE_FEATURE_META = json.load(f)
     RE_FEATURE_COLS = RE_FEATURE_META['feature_columns']
     
-print(f"✅  Stage 1 (Has_RE) model loaded - AUC: {RE_FEATURE_META['metrics']['auc']:.4f}")
+print(f"[OK]  Stage 1 (Has_RE) model: {RE_FEATURE_META.get('model_type','XGBoost')}  AUC={RE_FEATURE_META['metrics']['auc']:.4f}")
 
 # Diopter severity model may fail to load if sklearn version mismatches.
 # It is optional — Stage 1+2 still work without it.
@@ -50,15 +50,15 @@ scaler_reg    = None
 try:
     diopter_model = joblib.load(os.path.join(MODEL_DIR, "diopter_regression_model.pkl"))
     scaler_reg    = joblib.load(os.path.join(MODEL_DIR, "scaler_regression.pkl"))
-    print("✅  Diopter severity model loaded.")
+    print("[OK]  Diopter severity model loaded.")
 except Exception as _e:
-    print(f"⚠️  Diopter model skipped (sklearn version mismatch): {_e}")
+    print(f"[WARN]  Diopter model skipped (sklearn version mismatch): {_e}")
     print("    Stage 3 (diopter estimate) will use rule-based fallback.")
 
 with open(os.path.join(MODEL_DIR, "feature_columns.json")) as f:
     FEATURE_COLS = json.load(f)
 
-print(f"✅  Models loaded. Feature count: {len(FEATURE_COLS)}")
+print(f"[OK]  Models loaded. Feature count: {len(FEATURE_COLS)}")
 
 # ─────────────────────────────────────────────────────────────
 # State encoding tables
@@ -236,96 +236,75 @@ def rule_based_risk(d: dict) -> float:
 
 def build_feature_row(d: dict) -> np.ndarray:
     """
-    Convert raw frontend form data → model feature vector.
-    Mirrors the feature engineering in the training notebook exactly.
+    Build feature vector for Stage 2 (Risk Progression) model.
+    Matches risk_cols used in retrain_improved.py — GradientBoosting model.
     """
-    age    = float(d.get("age", 10))
-    sex    = 1 if d.get("sex") == "male" else 0
-    height = float(d.get("height", 150))
-    weight = float(d.get("weight", 40))
-    bmi    = weight / ((height / 100) ** 2) if height > 0 else 22.0
-    bmi    = round(bmi, 2)
-    bmi_cat = compute_bmi_category(bmi)
-
-    # Location type: default Urban for web-based screening
-    location_type = 1 if d.get("locationType", "urban") == "urban" else 0
-
-    school_map  = {"government": 0, "private": 1, "international": 2}
-    school_type = school_map.get(d.get("schoolType", "government"), 0)
-
-    family_history  = 1 if d.get("familyHistory") else 0
-    parents_map     = {"none": 0, "one": 1, "both": 2}
-    parents_myopia  = parents_map.get(d.get("parentsMyopic", "none"), 0)
+    age          = float(d.get("age", 10))
+    height       = float(d.get("height", 150))
+    weight       = float(d.get("weight", 40))
+    bmi          = weight / ((height / 100) ** 2) if height > 0 else 22.0
+    bmi          = round(bmi, 2)
+    bmi_cat      = compute_bmi_category(bmi)
 
     screen_time  = float(d.get("screenTime", 4))
     near_work    = float(d.get("nearWork", 4))
     outdoor_time = float(d.get("outdoorTime", 1))
 
+    family_hist    = 1 if d.get("familyHistory") else 0
+    parents_map    = {"none": 0, "one": 1, "both": 2}
+    parents_myopic = parents_map.get(d.get("parentsMyopic", "none"), 0)
+
+    location_urban = 1 if d.get("locationType", "urban") == "urban" else 0
+    school_map     = {"government": 0, "private": 1, "international": 2}
+    school_type    = school_map.get(d.get("schoolType", "government"), 0)
+
     tuition      = 1 if d.get("tuition") else 0
     comp_exam    = 1 if d.get("competitiveExam") else 0
     vitamin_d    = 1 if d.get("vitaminD") else 0
 
-    sports_map  = {"rare": 0, "occasional": 1, "regular": 2}
-    sports      = sports_map.get(d.get("sports", "occasional"), 1)
+    sports_map = {"rare": 0, "occasional": 1, "regular": 2}
+    sports     = sports_map.get(d.get("sports", "occasional"), 1)
 
-    # ── Engineered composite features ────────────────────────
-    screen_near_work     = screen_time + near_work
-    outdoor_activity     = outdoor_time * sports
-    # Cap digital_exposure to the training data's realistic maximum (~20).
-    # outdoor_time=0 would give 100+, which is way outside the training
-    # distribution (mean≈4.9, std≈5.3) and causes XGBoost to mispredict.
-    _outdoor_floor       = max(outdoor_time, 0.5)          # floor at 30 min
-    digital_exposure     = min(screen_time / (_outdoor_floor + 0.1), 20.0)
-    academic_stress      = tuition * comp_exam
-    risk_score_feat      = (
-        family_history * 2
-        + screen_time / 2
-        + near_work / 2
-        + (10 - outdoor_time)
-        + tuition
-        + comp_exam
-    )
+    # ── Enhanced interaction features (same as retrain_improved.py) ──
+    age_screen           = age * screen_time
+    screen_near_total    = screen_time + near_work
+    outdoor_deficit      = max(0, 2 - outdoor_time)
+    screen_outdoor_ratio = screen_time / (outdoor_time + 0.1)
 
-    # ── State encoding ────────────────────────────────────────
-    state         = d.get("state", "Maharashtra")
-    state_encoded = STATE_ENCODE_MAP.get(state, 5)  # default Maharashtra=5
+    # Genetic / family load
+    high_risk_parent = 1 if parents_myopic >= 2 else 0
+    family_load      = parents_myopic * 2 + family_hist
 
+    # ── State one-hots ────────────────────────────────────────
+    state = d.get("state", "Maharashtra")
     state_onehots = {col: 0 for col in STATE_ONEHOT_COLS}
     col_key = f"State_{state}"
     if col_key in state_onehots:
         state_onehots[col_key] = 1
-    # Andhra Pradesh → all zeros (reference category)
 
-    # ── Assemble base dict ────────────────────────────────────
     row = {
-        "Age"                     : age,
-        "Sex"                     : sex,
-        "Height_cm"               : height,
-        "Weight_kg"               : weight,
-        "BMI"                     : bmi,
-        "BMI_Category"            : bmi_cat,
-        "Location_Type"           : location_type,
-        "School_Type"             : school_type,
-        "Family_History_Myopia"   : family_history,
-        "Parents_With_Myopia"     : parents_myopia,
-        "Screen_Time_Hours"       : screen_time,
-        "Near_Work_Hours"         : near_work,
-        "Outdoor_Time_Hours"      : outdoor_time,
-        "Tuition_Classes"         : tuition,
-        "Competitive_Exam_Prep"   : comp_exam,
-        "Vitamin_D_Supplementation": vitamin_d,
-        "Sports_Participation"    : sports,
-        "Screen_Near_Work"        : screen_near_work,
-        "Outdoor_Activity_Role"   : outdoor_activity,
-        "Digital_Exposure"        : digital_exposure,
-        "Academic_Stress"         : academic_stress,
-        "Risk_Score"              : risk_score_feat,
-        "State_Encoded"           : state_encoded,
+        "Age"                 : age,
+        "BMI"                 : bmi,
+        "BMI_Category_Encoded": bmi_cat,
+        "Screen_Time_Hours"   : screen_time,
+        "Near_Work_Hours"     : near_work,
+        "Outdoor_Time_Hours"  : outdoor_time,
+        "Age_Screen"          : age_screen,
+        "Screen_Near_Total"   : screen_near_total,
+        "Outdoor_Deficit"     : outdoor_deficit,
+        "Screen_Outdoor_Ratio": screen_outdoor_ratio,
+        "High_Risk_Parent"    : high_risk_parent,
+        "Family_History_Binary": family_hist,
+        "Family_Load"         : family_load,
+        "Location_Type_Urban" : location_urban,
+        "School_Type_Encoded" : school_type,
+        "Tuition_Binary"      : tuition,
+        "Comp_Exam_Binary"    : comp_exam,
+        "Vitamin_D_Binary"    : vitamin_d,
+        "Sports_Encoded"      : sports,
         **state_onehots,
     }
 
-    # Build vector in the exact column order the scaler was fitted on.
-    # NOTE: feature_columns.json contains 'State_Encoded' TWICE (notebook quirk).
     values = [row.get(col, 0) for col in FEATURE_COLS]
     return np.array(values, dtype=float).reshape(1, -1)
 
@@ -400,28 +379,20 @@ def predict():
         rule_prob = rule_based_risk(data)
 
         # ── Adaptive hybrid scoring ───────────────────────────
-        # ROOT CAUSE (diagnosed): the XGBoost model has a non-monotonic
-        # response curve — it gives HIGHER scores for outdoor=1.5h than
-        # outdoor=0h, and at certain Digital_Exposure scaled values (+2.22)
-        # routes to a near-zero leaf even for extreme high-risk inputs.
-        # Evidence: sweep shows outdoor=0→57%, outdoor=1.5→72%, outdoor=0.1→4%.
-        #
-        # FIX: Rule-based score (derived from WHO / published clinical evidence)
-        # is the PRIMARY signal.  ML refines it upward when it's confident.
-        # ML is set as secondary because it has poor monotonicity on key features.
+        # Model: GradientBoosting (AUC=0.893). More reliable than old XGBoost.
+        # Hybrid still used since clinical rules encode WHO evidence directly.
         if ml_prob >= 0.65:
-            # ML confidently HIGH → share credit 45% ML / 55% rule
-            risk_prob = 0.45 * ml_prob + 0.55 * rule_prob
+            # ML confidently HIGH → trust ML 60%, rule 40%
+            risk_prob = 0.60 * ml_prob + 0.40 * rule_prob
         elif ml_prob >= 0.35:
-            # ML uncertain middle zone → lean on rules 75%
-            risk_prob = 0.25 * ml_prob + 0.75 * rule_prob
+            # ML uncertain → balanced 50/50
+            risk_prob = 0.50 * ml_prob + 0.50 * rule_prob
         else:
-            # ML giving LOW (likely artifact / extreme input) → trust rule 90%
-            risk_prob = 0.10 * ml_prob + 0.90 * rule_prob
+            # ML giving LOW → lean on rules 80%
+            risk_prob = 0.20 * ml_prob + 0.80 * rule_prob
 
-        # Hard floor: clinical rules always set a minimum (prevent ML from
-        # dragging a clearly high-risk case below 80% of clinical estimate)
-        risk_prob = max(risk_prob, 0.80 * rule_prob)
+        # Hard floor: clinical rules set a minimum
+        risk_prob = max(risk_prob, 0.75 * rule_prob)
 
         risk_pct  = int(round(risk_prob * 100))
 

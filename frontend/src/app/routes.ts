@@ -6,6 +6,8 @@ import FAQ from "./pages/FAQ";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import RootLayout from "./layouts/RootLayout";
+import Login from "./pages/Login";
+import Signup from "./pages/Signup";
 
 export const router = createBrowserRouter([
   {
@@ -31,6 +33,14 @@ export const router = createBrowserRouter([
       {
         path: "about",
         Component: About,
+      },
+      {
+        path: "login",
+        Component: Login,
+      },
+      {
+        path: "signup",
+        Component: Signup,
       },
       {
         path: "*",
