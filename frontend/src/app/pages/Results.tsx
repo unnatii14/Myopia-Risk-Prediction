@@ -68,7 +68,7 @@ export default function Results() {
     // ── Date / meta ──
     doc.setFontSize(9);
     doc.setFont("helvetica", "normal");
-    doc.text(`Generated: ${new Date().toLocaleDateString("en-IN")}   |   Powered by XGBoost ML - AUC 0.88`, margin, 24);
+    doc.text(`Generated: ${new Date().toLocaleDateString("en-IN")}   |   Powered by GradientBoosting ML - AUC 0.893`, margin, 24);
 
     let y = 38;
     doc.setTextColor(30, 30, 30);
@@ -108,9 +108,19 @@ export default function Results() {
 
     // ── Three-stage summary ──
     const stages = [
-      ["Stage 1 - Refractive Error", `${riskScore > 60 ? "YES" : "POSSIBLE"} | ${Math.round(riskScore * 0.8)}%`],
+      ["Stage 1 - Refractive Error",
+        prediction
+          ? `${prediction.has_re ? "YES" : "NO"} | ${Math.round(prediction.re_probability * 100)}%`
+          : `${riskScore > 60 ? "POSSIBLE" : "UNLIKELY"} | ${Math.round(riskScore * 0.8)}%`
+      ],
       ["Stage 2 - Progression Risk", `${riskLevel} | ${riskScore}%`],
-      ["Stage 3 - Est. Severity", riskLevel === "HIGH" ? "-3.2D (Moderate)" : riskLevel === "MODERATE" ? "-1.5D (Mild)" : "-0.5D (Very Mild)"],
+      ["Stage 3 - Est. Severity",
+        prediction?.diopters != null
+          ? `-${prediction.diopters}D (${prediction.severity})`
+          : prediction && !prediction.has_re
+          ? "No RE detected"
+          : riskLevel === "HIGH" ? "-3.2D (Moderate)" : riskLevel === "MODERATE" ? "-1.5D (Mild)" : "-0.5D (Very Mild)"
+      ],
     ];
     doc.setFontSize(11);
     doc.setFont("helvetica", "bold");
@@ -381,11 +391,13 @@ export default function Results() {
                 <p className="text-xs text-[var(--text-muted)] mb-1">Stage 1</p>
                 <p className="font-bold text-[var(--text-dark)]">Refractive Error Likely</p>
                 <p className="text-sm">
-                  <span className={riskScore > 60 ? "text-[var(--warning-coral)]" : "text-[var(--secondary-green)]"}>
-                    {riskScore > 60 ? "YES" : "POSSIBLE"}
+                  <span className={prediction?.has_re ? "text-[var(--warning-coral)]" : "text-[var(--secondary-green)]"}>
+                    {prediction ? (prediction.has_re ? "YES" : "NO") : (riskScore > 60 ? "POSSIBLE" : "UNLIKELY")}
                   </span>
                   {" · "}
-                  <span className="text-[var(--text-muted)]">{Math.round(riskScore * 0.8)}%</span>
+                  <span className="text-[var(--text-muted)]">
+                    {prediction ? `${Math.round(prediction.re_probability * 100)}%` : `${Math.round(riskScore * 0.8)}%`}
+                  </span>
                 </p>
               </div>
 
@@ -405,7 +417,11 @@ export default function Results() {
                 <p className="text-xs text-[var(--text-muted)] mb-1">Stage 3</p>
                 <p className="font-bold text-[var(--text-dark)]">Est. Severity</p>
                 <p className="text-sm text-[var(--text-muted)]">
-                  {riskLevel === "HIGH" ? "~-3.2D · Moderate" : riskLevel === "MODERATE" ? "~-1.5D · Mild" : "~-0.5D · Very Mild"}
+                  {prediction?.diopters != null
+                    ? `~-${prediction.diopters}D · ${prediction.severity ?? ""}`
+                    : prediction && !prediction.has_re
+                    ? "No RE detected"
+                    : riskLevel === "HIGH" ? "~-3.2D · Moderate" : riskLevel === "MODERATE" ? "~-1.5D · Mild" : "~-0.5D · Very Mild"}
                 </p>
               </div>
             </div>
@@ -418,7 +434,7 @@ export default function Results() {
           )}
           <div className="mt-6 pt-6 border-t border-gray-200 text-xs text-[var(--text-muted)] text-center">
             {prediction
-              ? "Powered by XGBoost ML Model · AUC 0.88 · Trained on 5,000+ Indian children · Live ML Prediction"
+              ? "Powered by GradientBoosting ML Model · AUC 0.893 · Trained on 5,000+ Indian children · Live ML Prediction"
               : "Rule-based estimate (ML server offline) · For real predictions, start the backend"}
           </div>
         </motion.div>
