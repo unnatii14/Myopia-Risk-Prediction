@@ -1,13 +1,28 @@
-import { Eye, Menu, X } from "lucide-react";
+import { Eye, Menu, X, LogOut, ChevronDown } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
-import { useEffect, useState } from "react";
+import { useEffect, useRef, useState } from "react";
+import { useAuth } from "../context/AuthContext";
 
 export default function Navbar() {
   const location = useLocation();
   const navigate = useNavigate();
+  const { user, logout } = useAuth();
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
+  const [userMenuOpen, setUserMenuOpen] = useState(false);
+  const userMenuRef = useRef<HTMLDivElement>(null);
+
+  // Close user dropdown on outside click
+  useEffect(() => {
+    const handler = (e: MouseEvent) => {
+      if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
+        setUserMenuOpen(false);
+      }
+    };
+    document.addEventListener("mousedown", handler);
+    return () => document.removeEventListener("mousedown", handler);
+  }, []);
 
   useEffect(() => {
     const handleScroll = () => {
@@ -85,6 +100,63 @@ export default function Navbar() {
             </div>
 
             <div className="flex items-center gap-4">
+              {user ? (
+                /* ---- Logged-in user avatar + dropdown ---- */
+                <div className="relative" ref={userMenuRef}>
+                  <button
+                    onClick={() => setUserMenuOpen((v) => !v)}
+                    className="hidden md:flex items-center gap-2 px-3 py-2 rounded-full hover:bg-[var(--background-mint)] transition-colors"
+                  >
+                    <div className="w-8 h-8 rounded-full bg-[var(--primary-green)] flex items-center justify-center text-white text-sm font-bold">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <span className="text-sm font-semibold text-[var(--text-dark)] max-w-[120px] truncate">
+                      {user.name}
+                    </span>
+                    <ChevronDown className={`w-4 h-4 text-[var(--text-muted)] transition-transform ${userMenuOpen ? "rotate-180" : ""}`} />
+                  </button>
+
+                  <AnimatePresence>
+                    {userMenuOpen && (
+                      <motion.div
+                        initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                        animate={{ opacity: 1, y: 0, scale: 1 }}
+                        exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                        transition={{ duration: 0.15 }}
+                        className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl border border-[var(--border)] overflow-hidden z-50"
+                      >
+                        <div className="px-4 py-3 border-b border-[var(--border)]">
+                          <p className="text-sm font-bold text-[var(--text-dark)] truncate">{user.name}</p>
+                          <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
+                        </div>
+                        <button
+                          onClick={() => { setUserMenuOpen(false); logout(); navigate("/"); }}
+                          className="flex items-center gap-2 w-full px-4 py-3 text-sm text-[var(--warning-coral)] hover:bg-red-50 transition-colors"
+                        >
+                          <LogOut className="w-4 h-4" />
+                          Log Out
+                        </button>
+                      </motion.div>
+                    )}
+                  </AnimatePresence>
+                </div>
+              ) : (
+                /* ---- Guest links ---- */
+                <>
+                  <Link
+                    to="/login"
+                    className="hidden md:block text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors font-medium text-sm"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    className="hidden md:block px-5 py-2.5 border-2 border-[var(--primary-green)] text-[var(--primary-green)] hover:bg-[var(--primary-green)] hover:text-white rounded-full transition-colors font-medium text-sm"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
               <Link
                 to="/screen"
                 className="hidden sm:block px-6 py-3 bg-[var(--primary-green)] text-white rounded-full hover:bg-[var(--secondary-green)] transition-colors font-medium"
@@ -139,6 +211,44 @@ export default function Navbar() {
               >
                 About
               </Link>
+              {user ? (
+                /* Mobile: logged-in user info + logout */
+                <div className="border border-[var(--border)] rounded-2xl px-4 py-3 space-y-2">
+                  <div className="flex items-center gap-3">
+                    <div className="w-9 h-9 rounded-full bg-[var(--primary-green)] flex items-center justify-center text-white text-sm font-bold flex-shrink-0">
+                      {user.name.charAt(0).toUpperCase()}
+                    </div>
+                    <div className="min-w-0">
+                      <p className="text-sm font-bold text-[var(--text-dark)] truncate">{user.name}</p>
+                      <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
+                    </div>
+                  </div>
+                  <button
+                    onClick={() => { setMobileMenuOpen(false); logout(); navigate("/"); }}
+                    className="flex items-center gap-2 text-sm text-[var(--warning-coral)] font-medium w-full"
+                  >
+                    <LogOut className="w-4 h-4" />
+                    Log Out
+                  </button>
+                </div>
+              ) : (
+                <>
+                  <Link
+                    to="/login"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full text-left px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] rounded-xl transition-colors"
+                  >
+                    Log In
+                  </Link>
+                  <Link
+                    to="/signup"
+                    onClick={() => setMobileMenuOpen(false)}
+                    className="block w-full text-center px-6 py-3 border-2 border-[var(--primary-green)] text-[var(--primary-green)] hover:bg-[var(--primary-green)] hover:text-white rounded-full transition-colors font-medium"
+                  >
+                    Sign Up
+                  </Link>
+                </>
+              )}
               <Link
                 to="/screen"
                 onClick={() => setMobileMenuOpen(false)}

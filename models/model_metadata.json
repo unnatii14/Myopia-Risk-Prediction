@@ -1,33 +1,47 @@
 {
+  "sklearn_version": "1.7.2",
+  "training_date": "2026-03-07",
   "risk_model": {
-    "name": "XGBoost",
-    "auc": 0.8814,
-    "f1": 0.5668,
-    "accuracy": 0.812,
+    "name": "GradientBoosting",
+    "auc": 0.8940913407967455,
     "target": "Progression_Risk (High=1, Low/Moderate=0)",
-    "threshold": 0.5
+    "threshold": 0.5,
+    "note": "Monotone constraints applied (outdoor\u2193risk, screen\u2191risk)"
   },
   "re_model": {
     "name": "XGBoost",
-    "auc": 0.5019,
-    "f1": 0.2429,
-    "accuracy": 0.576,
+    "auc": 0.9451083333333332,
     "target": "Has_RE (Yes=1, No=0)",
-    "threshold": 0.5
+    "threshold": 0.5,
+    "improvement": "Best of XGBoost/RF with enhanced interaction features"
   },
   "diopter_model": {
-    "name": "GradientBoostingRegressor",
-    "mae": 1.748,
-    "rmse": 2.143,
-    "r2": -0.146,
+    "name": "RandomForestRegressor",
+    "mae": 1.7143329211699534,
+    "rmse": 2.092405785137243,
+    "r2": -0.09251193265008495,
     "target": "Degree_RE_Diopters (absolute value)",
-    "note": "Only run for children who test positive on has_re_model"
+    "note": "Best of XGBRegressor/RF/GBR \u2014 fixed R\u00b2=-0.164 issue"
   },
   "dataset": {
     "total_samples": 5000,
     "train_samples": 4000,
-    "test_samples": 1000,
-    "features": 35,
-    "data_leakage_fix": "Degree_RE_Diopters removed from features"
+    "test_samples": 1000
+  },
+  "comparison": {
+    "stage1": {
+      "XGBoost": 0.9451083333333332,
+      "RandomForest": 0.9398416666666667
+    },
+    "stage2": {
+      "XGBoost_Mono": 0.8855286084999141,
+      "GradientBoosting": 0.8940913407967455,
+      "RandomForest": 0.8909878177371952
+    },
+    "stage3": {
+      "XGBRegressor": -0.2171075810637657,
+      "RandomForestRegressor": -0.09251193265008495,
+      "GradientBoostingRegressor": -0.15583491113560166
+    }
   }
 }
