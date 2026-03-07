@@ -86,11 +86,7 @@ Predict myopia risk for a child
   "sports": "occasional",
   "familyHistory": true,
   "parentsMyopic": "both",
-  "vitaminD": false,
-  "schoolType": "private",
-  "tuition": true,
-  "competitiveExam": true,
-  "state": "Maharashtra"
+  "vitaminD": false
 }
 ```
 
