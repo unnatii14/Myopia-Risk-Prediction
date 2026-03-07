@@ -1,0 +1,37 @@
+version: '3.8'
+
+services:
+  backend:
+    build: ./backend
+    ports:
+      - "5001:5001"
+    environment:
+      - FLASK_ENV=production
+      - CORS_ORIGINS=http://localhost:80,http://localhost:3000
+    volumes:
+      - ./models:/app/models:ro
+      - ./backend/logs:/app/logs
+    healthcheck:
+      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      interval: 30s
+      timeout: 10s
+      retries: 3
+      start_period: 10s
+    restart: unless-stopped
+
+  frontend:
+    build: ./frontend
+    ports:
+      - "80:80"
+    depends_on:
+      - backend
+    environment:
+      - VITE_API_URL=http://localhost:5001
+    restart: unless-stopped
+
+volumes:
+  model_data:
+
+networks:
+  default:
+    name: mayopia-network
