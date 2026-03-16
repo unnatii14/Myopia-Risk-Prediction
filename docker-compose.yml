@@ -1,5 +1,3 @@
-version: '3.8'
-
 services:
   backend:
     build: ./backend
@@ -9,10 +7,10 @@ services:
       - FLASK_ENV=production
       - CORS_ORIGINS=http://localhost:80,http://localhost:3000
     volumes:
-      - ./models:/app/models:ro
+      - ./models:/models:ro
       - ./backend/logs:/app/logs
     healthcheck:
-      test: ["CMD", "curl", "-f", "http://localhost:5001/health"]
+      test: ["CMD", "python", "-c", "import urllib.request; urllib.request.urlopen('http://localhost:5001/health')"]
       interval: 30s
       timeout: 10s
       retries: 3

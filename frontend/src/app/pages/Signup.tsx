@@ -5,6 +5,8 @@ import { Eye, EyeOff, Mail, Lock, User, UserPlus } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
 import { useAuth } from "../context/AuthContext";
 
+const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+
 export default function Signup() {
   const navigate = useNavigate();
   const { login } = useAuth();
@@ -51,7 +53,7 @@ export default function Signup() {
     setErrors({});
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5000/api/auth/signup", {
+      const res = await fetch(`${API_BASE_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
