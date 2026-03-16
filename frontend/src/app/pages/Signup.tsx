@@ -21,6 +21,7 @@ export default function Signup() {
     email?: string;
     password?: string;
     confirmPassword?: string;
+    general?: string;
   }>({});
   const [loading, setLoading] = useState(false);
 
@@ -40,7 +41,7 @@ export default function Signup() {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) {
@@ -49,14 +50,24 @@ export default function Signup() {
     }
     setErrors({});
     setLoading(true);
-    // Simulate signup — replace with real API call
-    setTimeout(() => {
-      setLoading(false);
-      // Persist name keyed by email so Login can look it up
-      localStorage.setItem(`myopia_reg_${form.email}`, form.name);
-      login(form.name, form.email);
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/signup", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors({ general: data.error || "Signup failed. Please try again." });
+        return;
+      }
+      login(data.name, data.email, data.token);
       navigate("/");
-    }, 1400);
+    } catch {
+      setErrors({ general: "Could not reach server. Please try again." });
+    } finally {
+      setLoading(false);
+    }
   };
 
   const strength = (pw: string) => {
@@ -118,6 +129,11 @@ export default function Signup() {
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            {errors.general && (
+              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                {errors.general}
+              </div>
+            )}
             {/* Full Name */}
             <div>
               <label
