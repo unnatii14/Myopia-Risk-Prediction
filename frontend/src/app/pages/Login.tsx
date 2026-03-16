@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate } from "react-router";
+import { Link, useNavigate, useLocation } from "react-router";
 import { motion } from "motion/react";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
@@ -7,10 +7,11 @@ import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
   const navigate = useNavigate();
+  const location = useLocation();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
-  const [errors, setErrors] = useState<{ email?: string; password?: string }>({});
+  const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [loading, setLoading] = useState(false);
 
   const validate = () => {
@@ -24,7 +25,7 @@ export default function Login() {
     return errs;
   };
 
-  const handleSubmit = (e: React.FormEvent) => {
+  const handleSubmit = async (e: React.FormEvent) => {
     e.preventDefault();
     const errs = validate();
     if (Object.keys(errs).length) {
@@ -33,15 +34,25 @@ export default function Login() {
     }
     setErrors({});
     setLoading(true);
-    // Simulate login — replace with real API call
-    setTimeout(() => {
+    try {
+      const res = await fetch("http://localhost:5000/api/auth/login", {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, password: form.password }),
+      });
+      const data = await res.json();
+      if (!res.ok) {
+        setErrors({ general: data.error || "Login failed. Please try again." });
+        return;
+      }
+      login(data.name, data.email, data.token);
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
+      navigate(from, { replace: true });
+    } catch {
+      setErrors({ general: "Could not reach server. Please try again." });
+    } finally {
       setLoading(false);
-      // Look up name stored at signup, fall back to email prefix
-      const stored = localStorage.getItem(`myopia_reg_${form.email}`);
-      const name = stored ? stored : form.email.split("@")[0];
-      login(name, form.email);
-      navigate("/");
-    }, 1200);
+    }
   };
 
   return (
@@ -80,6 +91,11 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            {errors.general && (
+              <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
+                {errors.general}
+              </div>
+            )}
             {/* Email */}
             <div>
               <label
