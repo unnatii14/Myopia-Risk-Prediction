@@ -2,8 +2,8 @@ import { useEffect, useState } from "react";
 import { motion } from "motion/react";
 import { useNavigate } from "react-router";
 import { jsPDF } from "jspdf";
-import { 
-  Download, AlertTriangle, CheckCircle, Sun, 
+import {
+  Download, AlertTriangle, CheckCircle, Sun,
   Smartphone, Users, Calendar, ExternalLink,
   Eye, Loader2
 } from "lucide-react";
@@ -14,8 +14,10 @@ import {
   AccordionItem,
   AccordionTrigger,
 } from "../components/ui/accordion";
+import { useAuth } from "../context/AuthContext";
 
-const API_URL = "http://localhost:5001";
+const API_URL  = "http://localhost:5001";
+const NODE_URL = "http://localhost:5000";
 
 interface ScreeningData {
   age: number;
@@ -43,12 +45,26 @@ interface PredictionResult {
 
 export default function Results() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [data, setData] = useState<ScreeningData | null>(null);
   const [riskScore, setRiskScore] = useState(0);
   const [riskLevel, setRiskLevel] = useState<"LOW" | "MODERATE" | "HIGH">("LOW");
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+
+  // Save screening result to MongoDB (only when user is logged in)
+  const saveRecord = (screeningData: ScreeningData, pred: PredictionResult) => {
+    if (!user?.token) return;
+    fetch(`${NODE_URL}/api/myopia/save`, {
+      method: "POST",
+      headers: {
+        "Content-Type": "application/json",
+        Authorization: `Bearer ${user.token}`,
+      },
+      body: JSON.stringify({ screeningData, prediction: pred }),
+    }).catch(() => {/* silently ignore — saving is best-effort */});
+  };
 
   const downloadPdf = () => {
     if (!data) return;
@@ -219,15 +235,22 @@ export default function Results() {
         setRiskScore(result.risk_score);
         setRiskLevel(result.risk_level);
         setLoading(false);
+        saveRecord(parsedData, { ...result, source: "ml" } as PredictionResult & { source: string });
       })
       .catch((err) => {
         console.error("API call failed:", err);
         setApiError("Could not reach prediction server. Showing rule-based estimate.");
         // Fallback to rule-based scoring
         const score = fallbackRiskScore(parsedData);
+        const level: "LOW" | "MODERATE" | "HIGH" = score < 40 ? "LOW" : score < 70 ? "MODERATE" : "HIGH";
         setRiskScore(score);
-        setRiskLevel(score < 40 ? "LOW" : score < 70 ? "MODERATE" : "HIGH");
+        setRiskLevel(level);
         setLoading(false);
+        saveRecord(parsedData, {
+          risk_score: score, risk_level: level, risk_probability: score / 100,
+          has_re: score > 60, re_probability: score * 0.8 / 100,
+          diopters: null, severity: null, source: "rule-based",
+        } as PredictionResult & { source: string });
       });
   }, [navigate]);
 
