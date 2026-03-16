@@ -15,9 +15,11 @@ import time
 import numpy as np
 import pandas as pd
 from logger import setup_logger, RequestLogger
+from auth import auth_bp
 
 app = Flask(__name__)
 CORS(app)  # Allow requests from the React frontend
+app.register_blueprint(auth_bp, url_prefix="/auth")
 
 # Setup logging
 logger = setup_logger('api', log_file='logs/api.log', level='INFO')
