@@ -8,6 +8,7 @@ import NotFound from "./pages/NotFound";
 import RootLayout from "./layouts/RootLayout";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import PrivateRoute from "./components/PrivateRoute";
 
 export const router = createBrowserRouter([
   {
@@ -18,13 +19,19 @@ export const router = createBrowserRouter([
         index: true,
         Component: Landing,
       },
+      // Protected — must be logged in
       {
-        path: "screen",
-        Component: Screen,
-      },
-      {
-        path: "results",
-        Component: Results,
+        Component: PrivateRoute,
+        children: [
+          {
+            path: "screen",
+            Component: Screen,
+          },
+          {
+            path: "results",
+            Component: Results,
+          },
+        ],
       },
       {
         path: "faq",
