@@ -1,4 +1,4 @@
-import { Eye, Menu, X, LogOut, ChevronDown } from "lucide-react";
+import { Eye, Menu, X, LogOut, ChevronDown, Clock, Activity, Ruler } from "lucide-react";
 import { Link, useLocation, useNavigate } from "react-router";
 import { motion, AnimatePresence } from "motion/react";
 import { useEffect, useRef, useState } from "react";
@@ -11,13 +11,18 @@ export default function Navbar() {
   const [scrolled, setScrolled] = useState(false);
   const [mobileMenuOpen, setMobileMenuOpen] = useState(false);
   const [userMenuOpen, setUserMenuOpen] = useState(false);
-  const userMenuRef = useRef<HTMLDivElement>(null);
+  const [toolsMenuOpen, setToolsMenuOpen] = useState(false);
+  const userMenuRef  = useRef<HTMLDivElement>(null);
+  const toolsMenuRef = useRef<HTMLDivElement>(null);
 
-  // Close user dropdown on outside click
+  // Close dropdowns on outside click
   useEffect(() => {
     const handler = (e: MouseEvent) => {
       if (userMenuRef.current && !userMenuRef.current.contains(e.target as Node)) {
         setUserMenuOpen(false);
+      }
+      if (toolsMenuRef.current && !toolsMenuRef.current.contains(e.target as Node)) {
+        setToolsMenuOpen(false);
       }
     };
     document.addEventListener("mousedown", handler);
@@ -85,6 +90,84 @@ export default function Navbar() {
               >
                 Research
               </button>
+
+              {/* Tools dropdown */}
+              <div className="relative" ref={toolsMenuRef}>
+                <button
+                  onClick={() => setToolsMenuOpen(v => !v)}
+                  className="flex items-center gap-1 text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors"
+                >
+                  Calculator & IMI
+                  <ChevronDown className={`w-3.5 h-3.5 transition-transform ${toolsMenuOpen ? "rotate-180" : ""}`} />
+                </button>
+                <AnimatePresence>
+                  {toolsMenuOpen && (
+                    <motion.div
+                      initial={{ opacity: 0, y: 8, scale: 0.95 }}
+                      animate={{ opacity: 1, y: 0, scale: 1 }}
+                      exit={{ opacity: 0, y: 8, scale: 0.95 }}
+                      transition={{ duration: 0.15 }}
+                      className="absolute left-0 top-full mt-2 w-72 bg-white rounded-2xl shadow-xl border border-[var(--border)] overflow-hidden z-50"
+                    >
+                      <Link
+                        to="/screen"
+                        onClick={() => setToolsMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--background-mint)] transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[var(--primary-green)]/10 flex items-center justify-center flex-shrink-0">
+                          <Activity className="w-4 h-4" style={{ color: "var(--primary-green)" }} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--text-dark)]">Myopia Calculator</p>
+                          <p className="text-xs text-[var(--text-muted)]">AI risk score in 3 minutes</p>
+                        </div>
+                      </Link>
+                      <div className="h-px bg-[var(--border)]" />
+                      <Link
+                        to="/progression"
+                        onClick={() => setToolsMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--background-mint)] transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[var(--primary-green)]/10 flex items-center justify-center flex-shrink-0">
+                          <Ruler className="w-4 h-4" style={{ color: "var(--primary-green)" }} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--text-dark)]">Myopia Progression Calculator</p>
+                          <p className="text-xs text-[var(--text-muted)]">Project SE (diopters) to age 18</p>
+                        </div>
+                      </Link>
+                      <div className="h-px bg-[var(--border)]" />
+                      <Link
+                        to="/axial"
+                        onClick={() => setToolsMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--background-mint)] transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[var(--primary-green)]/10 flex items-center justify-center flex-shrink-0">
+                          <Ruler className="w-4 h-4" style={{ color: "var(--primary-green)" }} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--text-dark)]">Axial Elongation Progression</p>
+                          <p className="text-xs text-[var(--text-muted)]">Project axial length (mm) to age 18</p>
+                        </div>
+                      </Link>
+                      <div className="h-px bg-[var(--border)]" />
+                      <Link
+                        to="/onset"
+                        onClick={() => setToolsMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--background-mint)] transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[var(--primary-green)]/10 flex items-center justify-center flex-shrink-0">
+                          <Clock className="w-4 h-4" style={{ color: "var(--primary-green)" }} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--text-dark)]">Onset Predictor</p>
+                          <p className="text-xs text-[var(--text-muted)]">When will myopia start?</p>
+                        </div>
+                      </Link>
+                    </motion.div>
+                  )}
+                </AnimatePresence>
+              </div>
               <Link
                 to="/faq"
                 className="text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors"
@@ -157,13 +240,6 @@ export default function Navbar() {
                   </Link>
                 </>
               )}
-              <Link
-                to="/screen"
-                className="hidden sm:block px-6 py-3 bg-[var(--primary-green)] text-white rounded-full hover:bg-[var(--secondary-green)] transition-colors font-medium"
-              >
-                Check My Child's Risk
-              </Link>
-              
               <button
                 onClick={() => setMobileMenuOpen(!mobileMenuOpen)}
                 className="md:hidden p-2 text-[var(--text-dark)]"
@@ -211,6 +287,56 @@ export default function Navbar() {
               >
                 About
               </Link>
+              {/* Tools section in mobile */}
+              <div className="border border-[var(--border)] rounded-2xl overflow-hidden">
+                <p className="px-4 py-2 text-xs font-bold text-[var(--text-muted)] uppercase tracking-wider bg-[var(--background-mint)]">
+                  Calculator & IMI
+                </p>
+                <Link
+                  to="/screen"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] transition-colors border-t border-[var(--border)]"
+                >
+                  <Activity className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary-green)" }} />
+                  <div>
+                    <p className="text-sm font-semibold">Myopia Calculator</p>
+                    <p className="text-xs text-[var(--text-muted)]">AI risk score in 3 minutes</p>
+                  </div>
+                </Link>
+                <Link
+                  to="/progression"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] transition-colors border-t border-[var(--border)]"
+                >
+                  <Ruler className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary-green)" }} />
+                  <div>
+                    <p className="text-sm font-semibold">Myopia Progression Calculator</p>
+                    <p className="text-xs text-[var(--text-muted)]">Project SE (diopters) to age 18</p>
+                  </div>
+                </Link>
+                <Link
+                  to="/axial"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] transition-colors border-t border-[var(--border)]"
+                >
+                  <Ruler className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary-green)" }} />
+                  <div>
+                    <p className="text-sm font-semibold">Axial Elongation Progression</p>
+                    <p className="text-xs text-[var(--text-muted)]">Project axial length (mm) to age 18</p>
+                  </div>
+                </Link>
+                <Link
+                  to="/onset"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] transition-colors border-t border-[var(--border)]"
+                >
+                  <Clock className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary-green)" }} />
+                  <div>
+                    <p className="text-sm font-semibold">Onset Predictor</p>
+                    <p className="text-xs text-[var(--text-muted)]">When will myopia start?</p>
+                  </div>
+                </Link>
+              </div>
               {user ? (
                 /* Mobile: logged-in user info + logout */
                 <div className="border border-[var(--border)] rounded-2xl px-4 py-3 space-y-2">
@@ -249,13 +375,6 @@ export default function Navbar() {
                   </Link>
                 </>
               )}
-              <Link
-                to="/screen"
-                onClick={() => setMobileMenuOpen(false)}
-                className="block w-full text-center px-6 py-3 bg-[var(--primary-green)] text-white rounded-full hover:bg-[var(--secondary-green)] transition-colors font-medium"
-              >
-                Check My Child's Risk
-              </Link>
             </div>
           </motion.div>
         )}
