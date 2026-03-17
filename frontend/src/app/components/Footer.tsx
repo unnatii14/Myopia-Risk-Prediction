@@ -11,7 +11,7 @@ export default function Footer() {
           </p>
         </div>
 
-        <div className="grid grid-cols-1 md:grid-cols-4 gap-8 mb-8">
+        <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
             <h4 className="font-semibold mb-4">About MyopiaGuard</h4>
             <p className="text-sm text-[var(--text-muted)]">
@@ -66,14 +66,6 @@ export default function Footer() {
             </ul>
           </div>
 
-          <div>
-            <h4 className="font-semibold mb-4">Partner Institutions</h4>
-            <ul className="space-y-2 text-sm text-[var(--text-muted)]">
-              <li>LVPEI</li>
-              <li>PREMo Study</li>
-              <li>WHO Guidelines</li>
-            </ul>
-          </div>
         </div>
 
         <div className="pt-8 border-t border-[var(--border)] text-center text-sm text-[var(--text-muted)]">
