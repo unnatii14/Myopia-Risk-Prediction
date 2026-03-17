@@ -57,6 +57,52 @@ docker-compose up --build
 
 Access at `http://localhost` (frontend) and `http://localhost:5001` (API)
 
+## Deploy (Recommended: Vercel + Render)
+
+This repo is configured for the fastest free setup:
+
+- Frontend: Vercel (`frontend/vercel.json`)
+- Backend API: Render (`render.yaml`)
+
+### 1) Deploy Backend on Render (10-15 min)
+
+1. Push this repository to GitHub.
+2. In Render, choose **New +** -> **Blueprint**.
+3. Connect the GitHub repo and select the branch.
+4. Render will detect `render.yaml` and create `mayopia-backend`.
+5. In service environment variables, set:
+
+```env
+CORS_ORIGINS=https://your-frontend-domain.vercel.app
+```
+
+6. Deploy and confirm health endpoint works:
+
+```text
+https://your-render-service.onrender.com/health
+```
+
+### 2) Deploy Frontend on Vercel (5-10 min)
+
+1. In Vercel, choose **Add New...** -> **Project**.
+2. Import the same GitHub repository.
+3. Set **Root Directory** to `frontend`.
+4. Add environment variable:
+
+```env
+VITE_API_URL=https://your-render-service.onrender.com
+```
+
+5. Deploy.
+6. Open the deployed site and test signup/login + prediction flow.
+
+### 3) First-Run Checks (5-10 min)
+
+1. Confirm browser network calls hit Render URL (not localhost).
+2. Confirm CORS has no errors.
+3. Check `/health` and one `/predict` request.
+4. Note: Render free tier can sleep; first call after idle may be slow.
+
 ## API Endpoints
 
 ### `GET /health`
@@ -65,8 +111,8 @@ Health check endpoint
 **Response:** `200 OK`
 ```json
 {
-  "status": "healthy",
-  "timestamp": "2026-03-07T10:30:00Z"
+  "status": "ok",
+  "features": 30
 }
 ```
 
@@ -93,17 +139,13 @@ Predict myopia risk for a child
 **Response:** `200 OK`
 ```json
 {
-  "status": "success",
+  "risk_score": 87,
   "risk_level": "HIGH",
-  "risk_percentage": 87.5,
-  "has_refractive_error": true,
-  "has_re_confidence": 0.72,
-  "estimated_diopters": -3.2,
-  "recommendations": [
-    "Limit screen time to <2 hours/day",
-    "Increase outdoor time to ≥2 hours/day",
-    "Schedule eye examination with ophthalmologist"
-  ]
+  "risk_probability": 0.874,
+  "has_re": true,
+  "re_probability": 0.721,
+  "diopters": 3.2,
+  "severity": "Moderate"
 }
 ```
 
@@ -159,6 +201,14 @@ Create `backend/.env`:
 FLASK_ENV=development
 FLASK_DEBUG=True
 LOG_LEVEL=INFO
+```
+
+Production (Render) uses dashboard environment variables. Recommended:
+
+```env
+FLASK_ENV=production
+LOG_LEVEL=INFO
+CORS_ORIGINS=https://your-frontend-domain.vercel.app
 ```
 
 ## License

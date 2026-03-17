@@ -3,13 +3,11 @@ import { Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Eye, EyeOff, Mail, Lock, User, UserPlus } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
-import { useAuth } from "../context/AuthContext";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [form, setForm] = useState({
@@ -53,7 +51,7 @@ export default function Signup() {
     setErrors({});
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/signup`, {
+      const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
@@ -63,8 +61,12 @@ export default function Signup() {
         setErrors({ general: data.error || "Signup failed. Please try again." });
         return;
       }
-      login(data.name, data.email, data.token);
-      navigate("/");
+      navigate("/login", {
+        state: {
+          signupSuccess: true,
+          email: form.email,
+        },
+      });
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });
     } finally {

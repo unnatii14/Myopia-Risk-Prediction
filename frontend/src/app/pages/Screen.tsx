@@ -41,18 +41,70 @@ const initialFormData: FormData = {
 };
 
 export default function Screen() {
+  const MIN_HEIGHT_CM = 80;
+  const MAX_HEIGHT_CM = 200;
+  const MIN_WEIGHT_KG = 15;
+  const MAX_WEIGHT_KG = 100;
+
   const navigate = useNavigate();
   const [currentStep, setCurrentStep] = useState(1);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [direction, setDirection] = useState(1);
+  const [stepError, setStepError] = useState<string | null>(null);
 
   const totalSteps = 3;
 
   const updateFormData = (field: keyof FormData, value: any) => {
+    setStepError(null);
     setFormData((prev) => ({ ...prev, [field]: value }));
   };
 
+  const validateStep = (step: number): string | null => {
+    if (step === 1) {
+      if (!formData.sex) return "Please select sex to continue.";
+
+      if (formData.height !== 0 && (formData.height < MIN_HEIGHT_CM || formData.height > MAX_HEIGHT_CM)) {
+        return `Height must be between ${MIN_HEIGHT_CM}-${MAX_HEIGHT_CM} cm (or leave blank).`;
+      }
+
+      if (formData.weight !== 0 && (formData.weight < MIN_WEIGHT_KG || formData.weight > MAX_WEIGHT_KG)) {
+        return `Weight must be between ${MIN_WEIGHT_KG}-${MAX_WEIGHT_KG} kg (or leave blank).`;
+      }
+
+      if (formData.height > 0 && formData.weight > 0) {
+        const heightInMeters = formData.height / 100;
+        const bmi = formData.weight / (heightInMeters * heightInMeters);
+        if (bmi < 8 || bmi > 60) {
+          return "Height/weight combination looks invalid. Please re-check the values.";
+        }
+      }
+    }
+
+    if (step === 2) {
+      if (formData.familyHistory === null) return "Please answer family history to continue.";
+      if (!formData.parentsMyopic) return "Please select parental myopia history to continue.";
+    }
+
+    if (step === 3) {
+      if (!formData.sports) return "Please select sports participation to continue.";
+
+      const totalHours = formData.screenTime + formData.nearWork + formData.outdoorTime;
+      if (totalHours > 24) {
+        return `Screen + near work + outdoor time (${totalHours.toFixed(1)}h) cannot exceed 24h/day.`;
+      }
+    }
+
+    return null;
+  };
+
   const nextStep = () => {
+    const error = validateStep(currentStep);
+    if (error) {
+      setStepError(error);
+      return;
+    }
+
+    setStepError(null);
     if (currentStep < totalSteps) {
       setDirection(1);
       setCurrentStep((prev) => prev + 1);
@@ -60,6 +112,7 @@ export default function Screen() {
   };
 
   const prevStep = () => {
+    setStepError(null);
     if (currentStep > 1) {
       setDirection(-1);
       setCurrentStep((prev) => prev - 1);
@@ -67,6 +120,13 @@ export default function Screen() {
   };
 
   const handleSubmit = () => {
+    const error = validateStep(3);
+    if (error) {
+      setStepError(error);
+      return;
+    }
+
+    setStepError(null);
     // Store form data in sessionStorage to pass to results page
     sessionStorage.setItem("screeningData", JSON.stringify(formData));
     navigate("/results");
@@ -219,6 +279,8 @@ export default function Screen() {
                       type="number"
                       value={formData.height || ""}
                       onChange={(e) => updateFormData("height", Number(e.target.value))}
+                      min={MIN_HEIGHT_CM}
+                      max={MAX_HEIGHT_CM}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
                       placeholder="140"
                     />
@@ -231,6 +293,8 @@ export default function Screen() {
                       type="number"
                       value={formData.weight || ""}
                       onChange={(e) => updateFormData("weight", Number(e.target.value))}
+                      min={MIN_WEIGHT_KG}
+                      max={MAX_WEIGHT_KG}
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
                       placeholder="35"
                     />
@@ -446,6 +510,12 @@ export default function Screen() {
 
           </motion.div>
         </AnimatePresence>
+
+        {stepError && (
+          <div className="mt-5 px-4 py-3 rounded-xl border border-red-200 bg-red-50 text-red-700 text-sm">
+            {stepError}
+          </div>
+        )}
 
         {/* Navigation Buttons */}
         <div className="flex justify-between mt-8">
