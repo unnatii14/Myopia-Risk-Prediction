@@ -2,6 +2,9 @@ import { createBrowserRouter } from "react-router";
 import Landing from "./pages/Landing";
 import Screen from "./pages/Screen";
 import Results from "./pages/Results";
+import Progression from "./pages/Progression";
+import AxialElongation from "./pages/AxialElongation";
+import OnsetPredictor from "./pages/OnsetPredictor";
 import FAQ from "./pages/FAQ";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -23,36 +26,18 @@ export const router = createBrowserRouter([
       {
         Component: PrivateRoute,
         children: [
-          {
-            path: "screen",
-            Component: Screen,
-          },
-          {
-            path: "results",
-            Component: Results,
-          },
+          { path: "screen",      Component: Screen },
+          { path: "results",     Component: Results },
+          { path: "progression", Component: Progression },
+          { path: "axial",       Component: AxialElongation },
+          { path: "onset",       Component: OnsetPredictor },
         ],
       },
-      {
-        path: "faq",
-        Component: FAQ,
-      },
-      {
-        path: "about",
-        Component: About,
-      },
-      {
-        path: "login",
-        Component: Login,
-      },
-      {
-        path: "signup",
-        Component: Signup,
-      },
-      {
-        path: "*",
-        Component: NotFound,
-      },
+      { path: "faq",    Component: FAQ },
+      { path: "about",  Component: About },
+      { path: "login",  Component: Login },
+      { path: "signup", Component: Signup },
+      { path: "*",      Component: NotFound },
     ],
   },
 ]);

@@ -9,3 +9,59 @@ html {
 *, body {
   font-family: 'Plus Jakarta Sans', sans-serif;
 }
+
+/* ── Range slider — filled track up to thumb ── */
+input[type="range"] {
+  -webkit-appearance: none;
+  appearance: none;
+  cursor: pointer;
+  width: 100%;
+  background: transparent;
+}
+
+/* WebKit / Blink (Chrome, Edge, Safari) */
+input[type="range"]::-webkit-slider-runnable-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: linear-gradient(
+    to right,
+    var(--primary-green) var(--fill, 0%),
+    #e5e7eb           var(--fill, 0%)
+  );
+}
+
+input[type="range"]::-webkit-slider-thumb {
+  -webkit-appearance: none;
+  appearance: none;
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary-green);
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  margin-top: -6px;
+  cursor: pointer;
+}
+
+/* Firefox */
+input[type="range"]::-moz-range-track {
+  height: 6px;
+  border-radius: 9999px;
+  background: #e5e7eb;
+}
+
+input[type="range"]::-moz-range-progress {
+  height: 6px;
+  border-radius: 9999px;
+  background: var(--primary-green);
+}
+
+input[type="range"]::-moz-range-thumb {
+  width: 18px;
+  height: 18px;
+  border-radius: 50%;
+  background: var(--primary-green);
+  border: 2px solid white;
+  box-shadow: 0 1px 4px rgba(0,0,0,0.18);
+  cursor: pointer;
+}
