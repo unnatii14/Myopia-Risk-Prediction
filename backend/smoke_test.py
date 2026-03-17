@@ -5,7 +5,24 @@ sys.path.insert(0, os.path.dirname(__file__))
 # Patch Flask so we can import api without running the server
 import types, importlib
 flask_mock = types.ModuleType('flask')
-flask_mock.Flask     = lambda *a, **kw: None
+class _MockFlaskApp:
+    def register_blueprint(self, *a, **kw):
+        return None
+
+    def route(self, *a, **kw):
+        return lambda f: f
+
+    def before_request(self, f):
+        return f
+
+    def after_request(self, f):
+        return f
+
+    def run(self, *a, **kw):
+        return None
+
+flask_mock.Flask     = lambda *a, **kw: _MockFlaskApp()
+flask_mock.Blueprint = lambda *a, **kw: types.SimpleNamespace(route=lambda *ra, **rkw: (lambda f: f))
 flask_mock.request   = None
 flask_mock.jsonify   = lambda x: x
 flask_mock.g         = types.SimpleNamespace()

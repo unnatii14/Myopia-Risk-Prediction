@@ -337,6 +337,18 @@ def health():
     return jsonify({"status": "ok", "features": len(FEATURE_COLS)})
 
 
+@app.route("/", methods=["GET"])
+def index():
+    """Basic index route to help manual browser checks."""
+    return jsonify(
+        {
+            "service": "Myopia Risk API",
+            "status": "ok",
+            "routes": ["/health", "/predict", "/auth/signup", "/auth/login"],
+        }
+    )
+
+
 @app.route("/predict", methods=["POST"])
 def predict():
     start_time = time.time()
