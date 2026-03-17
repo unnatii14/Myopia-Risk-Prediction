@@ -5,14 +5,16 @@ import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
 import { useAuth } from "../context/AuthContext";
 
-const API_BASE_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const API_URL = import.meta.env.VITE_API_URL || "http://localhost:5001";
 
 export default function Login() {
   const navigate = useNavigate();
   const location = useLocation();
   const { login } = useAuth();
+  const signupState = (location.state as { signupSuccess?: boolean; email?: string } | null) ?? null;
+  const signupSuccess = Boolean(signupState?.signupSuccess);
   const [showPassword, setShowPassword] = useState(false);
-  const [form, setForm] = useState({ email: "", password: "" });
+  const [form, setForm] = useState({ email: signupState?.email ?? "", password: "" });
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [loading, setLoading] = useState(false);
 
@@ -22,8 +24,8 @@ export default function Login() {
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       errs.email = "Enter a valid email address.";
     if (!form.password) errs.password = "Password is required.";
-    else if (form.password.length < 6)
-      errs.password = "Password must be at least 6 characters.";
+    else if (form.password.length < 8)
+      errs.password = "Password must be at least 8 characters.";
     return errs;
   };
 
@@ -37,7 +39,7 @@ export default function Login() {
     setErrors({});
     setLoading(true);
     try {
-      const res = await fetch(`${API_BASE_URL}/auth/login`, {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, password: form.password }),
@@ -93,6 +95,11 @@ export default function Login() {
           </div>
 
           <form onSubmit={handleSubmit} noValidate className="space-y-5">
+            {signupSuccess && (
+              <div className="px-4 py-3 bg-green-50 border border-green-200 rounded-xl text-sm text-green-700">
+                Signup successful. Please log in.
+              </div>
+            )}
             {errors.general && (
               <div className="px-4 py-3 bg-red-50 border border-red-200 rounded-xl text-sm text-red-600">
                 {errors.general}

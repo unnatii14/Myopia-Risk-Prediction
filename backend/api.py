@@ -18,7 +18,9 @@ from logger import setup_logger, RequestLogger
 from auth import auth_bp
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from the React frontend
+raw_origins = os.getenv("CORS_ORIGINS", "http://localhost:5173,http://localhost:80")
+allowed_origins = [o.strip() for o in raw_origins.split(",") if o.strip()]
+CORS(app, resources={r"/*": {"origins": allowed_origins}})
 app.register_blueprint(auth_bp, url_prefix="/auth")
 
 # Setup logging
@@ -339,7 +341,7 @@ def health():
 
 @app.route("/", methods=["GET"])
 def index():
-    """Basic index route to help manual browser checks."""
+    """Basic index route for browser/manual checks."""
     return jsonify(
         {
             "service": "Myopia Risk API",

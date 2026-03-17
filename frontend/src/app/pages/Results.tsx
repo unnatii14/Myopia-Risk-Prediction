@@ -16,8 +16,8 @@ import {
 } from "../components/ui/accordion";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL  = "http://localhost:5001";
-const NODE_URL = "http://localhost:5000";
+const API_URL  = import.meta.env.VITE_API_URL || "http://localhost:5001";
+const NODE_URL = import.meta.env.VITE_NODE_API_URL;
 
 interface ScreeningData {
   age: number;
@@ -55,7 +55,7 @@ export default function Results() {
 
   // Save screening result to MongoDB (only when user is logged in)
   const saveRecord = (screeningData: ScreeningData, pred: PredictionResult) => {
-    if (!user?.token) return;
+    if (!user?.token || !NODE_URL) return;
     fetch(`${NODE_URL}/api/myopia/save`, {
       method: "POST",
       headers: {
