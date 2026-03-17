@@ -26,18 +26,48 @@ export const router = createBrowserRouter([
       {
         Component: PrivateRoute,
         children: [
-          { path: "screen",      Component: Screen },
-          { path: "results",     Component: Results },
-          { path: "progression", Component: Progression },
-          { path: "axial",       Component: AxialElongation },
-          { path: "onset",       Component: OnsetPredictor },
+          {
+            path: "screen",
+            Component: Screen,
+          },
+          {
+            path: "results",
+            Component: Results,
+          },
+          {
+            path: "progression",
+            Component: Progression,
+          },
+          {
+            path: "axial",
+            Component: AxialElongation,
+          },
+          {
+            path: "onset",
+            Component: OnsetPredictor,
+          },
         ],
       },
-      { path: "faq",    Component: FAQ },
-      { path: "about",  Component: About },
-      { path: "login",  Component: Login },
-      { path: "signup", Component: Signup },
-      { path: "*",      Component: NotFound },
+      {
+        path: "faq",
+        Component: FAQ,
+      },
+      {
+        path: "about",
+        Component: About,
+      },
+      {
+        path: "login",
+        Component: Login,
+      },
+      {
+        path: "signup",
+        Component: Signup,
+      },
+      {
+        path: "*",
+        Component: NotFound,
+      },
     ],
   },
 ]);
