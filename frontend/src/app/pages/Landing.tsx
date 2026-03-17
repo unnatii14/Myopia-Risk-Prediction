@@ -4,6 +4,7 @@ import { Sparkles, BarChart3, FileText, Sun, Dna, Glasses, Shield, Star, Smartph
 import AnimatedCounter from "../components/AnimatedCounter";
 import BlinkingEye from "../components/BlinkingEye";
 import BokehBackground from "../components/BokehBackground";
+import { useAuth } from "../context/AuthContext";
 
 // Orbit cards that circle the eye
 const ORBIT_CARDS = [
@@ -42,6 +43,15 @@ function OrbitCard({ label, sub, color, angle, radius = 220 }: { label: string; 
 
 export default function Landing() {
   const navigate = useNavigate();
+  const { user } = useAuth();
+
+  const goToScreen = () => {
+    if (user) {
+      navigate("/screen");
+    } else {
+      navigate("/login", { state: { from: { pathname: "/screen" } } });
+    }
+  };
 
   return (
     <div className="w-full">
@@ -105,7 +115,7 @@ export default function Landing() {
                     transition={{ duration: 2.2, repeat: Infinity, ease: "easeInOut" }}
                   />
                   <button
-                    onClick={() => navigate("/screen")}
+                    onClick={goToScreen}
                     className="relative px-8 py-4 bg-[var(--primary-green)] text-white rounded-full hover:bg-[var(--secondary-green)] transition-all font-semibold text-lg shadow-lg hover:shadow-xl transform hover:scale-105"
                   >
                     Start Free Screening →
@@ -477,7 +487,7 @@ export default function Landing() {
                 transition={{ duration: 2, repeat: Infinity, ease: "easeInOut" }}
               />
               <button
-                onClick={() => navigate("/screen")}
+                onClick={goToScreen}
                 className="relative px-10 py-5 bg-white text-[var(--primary-green)] rounded-full hover:bg-gray-50 transition-all font-bold text-lg shadow-xl hover:shadow-2xl transform hover:scale-105"
               >
                 Begin Screening Now →
