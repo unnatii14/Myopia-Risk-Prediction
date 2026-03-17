@@ -1,0 +1,7 @@
+Loading models...
+[OK]  Stage 1 (Has_RE) model: XGBoost  AUC=0.9451
+[OK]  Diopter severity model loaded.
+[OK]  Models loaded. Feature count: 30
+Starting Myopia Risk API on http://localhost:5001
+ * Serving Flask app 'api'
+ * Debug mode: off
