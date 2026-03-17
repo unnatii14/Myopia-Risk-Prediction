@@ -1,35 +1,38 @@
 # Myopia Risk Prediction System
 
-AI-powered pediatric myopia screening system for proactive risk assessment in school children aged 5-18. Predicts myopia risk based on lifestyle and demographic factors without requiring ophthalmology equipment.
+AI-powered pediatric myopia screening platform for children aged 5-18. It predicts risk from lifestyle and demographic inputs without requiring ophthalmology equipment.
 
-## Features
+## Live Links
 
-- **3-Stage ML Pipeline**: Refractive error detection (AUC 0.94), risk progression classification (AUC 0.88), diopter severity estimation
-- **Input Validation**: Age constraints (5-18 years), time limits, required field enforcement
-- **Structured Logging**: Request/response tracking with file rotation
-- **Production Ready**: Docker deployment, CI/CD pipeline, comprehensive testing
-- **Interactive Frontend**: React-based screening form with risk visualization
+- Frontend: https://mayopia-frontend.vercel.app
+- Backend: https://mayopia-backend.onrender.com
+- Health: https://mayopia-backend.onrender.com/health
 
-## Technology Stack
+## What This Project Includes
 
-**Backend**
-- Python 3.13, Flask 3.0
-- XGBoost 3.2, scikit-learn 1.7
-- Structured logging with rotation
+- Three-stage ML pipeline (risk + refractive error + diopter severity)
+- Multi-step screening UI with strict validation
+- Auth flow with signup and login
+- Production deployment on Vercel + Render
 
-**Frontend**
-- React 18, TypeScript, Vite
-- TailwindCSS, shadcn/ui components
-- React Hook Form, Recharts
+## Stack
 
-**Deployment**
-- Docker multi-stage builds
-- Nginx reverse proxy
-- GitHub Actions CI/CD
+- Backend: Python, Flask, Gunicorn, scikit-learn, XGBoost
+- Frontend: React, TypeScript, Vite, Tailwind
+- Infra: Docker, Render, Vercel
 
-## Quick Start
+## Key Paths
 
-### Backend Setup
+- API app: backend/api.py
+- Auth: backend/auth.py
+- Validation: backend/validation.py
+- Frontend app: frontend/src/app
+- Render blueprint: render.yaml
+- Vercel config: vercel.json
+
+## Local Setup
+
+### Backend
 
 ```bash
 cd backend
@@ -37,9 +40,9 @@ pip install -r requirements.txt
 python api.py
 ```
 
-API runs on `http://localhost:5001`
+API URL: http://localhost:5001
 
-### Frontend Setup
+### Frontend
 
 ```bash
 cd frontend
@@ -47,68 +50,49 @@ npm install
 npm run dev
 ```
 
-Frontend runs on `http://localhost:5173`
+Frontend URL: http://localhost:5173
 
-### Docker Deployment
+### Docker (Full Stack)
 
 ```bash
-docker-compose up --build
+docker compose up --build
 ```
 
-Access at `http://localhost` (frontend) and `http://localhost:5001` (API)
+Local URLs:
 
-## Deploy (Recommended: Vercel + Render)
+- Frontend: http://localhost
+- Backend: http://localhost:5001
 
-This repo is configured for the fastest free setup:
+## Deployment Guide (Brief)
 
-- Frontend: Vercel (`frontend/vercel.json`)
-- Backend API: Render (`render.yaml`)
+### 1) Deploy Backend on Render
 
-### 1) Deploy Backend on Render (10-15 min)
-
-1. Push this repository to GitHub.
-2. In Render, choose **New +** -> **Blueprint**.
-3. Connect the GitHub repo and select the branch.
-4. Render will detect `render.yaml` and create `mayopia-backend`.
-5. In service environment variables, set:
+1. Create a Blueprint service from this repository.
+2. Ensure Render uses render.yaml from repository root.
+3. Set environment variable:
 
 ```env
-CORS_ORIGINS=https://your-frontend-domain.vercel.app
+CORS_ORIGINS=https://mayopia-frontend.vercel.app
 ```
 
-6. Deploy and confirm health endpoint works:
+4. Deploy latest commit and verify /health.
 
-```text
-https://your-render-service.onrender.com/health
-```
+### 2) Deploy Frontend on Vercel
 
-### 2) Deploy Frontend on Vercel (5-10 min)
-
-1. In Vercel, choose **Add New...** -> **Project**.
-2. Import the same GitHub repository.
-3. Set **Root Directory** to `frontend`.
-4. Add environment variable:
+1. Import the same repository.
+2. Set Root Directory to frontend.
+3. Set environment variable:
 
 ```env
-VITE_API_URL=https://your-render-service.onrender.com
+VITE_API_URL=https://mayopia-backend.onrender.com
 ```
 
-5. Deploy.
-6. Open the deployed site and test signup/login + prediction flow.
+4. Deploy and use the production Vercel URL.
 
-### 3) First-Run Checks (5-10 min)
+## API Reference
 
-1. Confirm browser network calls hit Render URL (not localhost).
-2. Confirm CORS has no errors.
-3. Check `/health` and one `/predict` request.
-4. Note: Render free tier can sleep; first call after idle may be slow.
+### GET /health
 
-## API Endpoints
-
-### `GET /health`
-Health check endpoint
-
-**Response:** `200 OK`
 ```json
 {
   "status": "ok",
@@ -116,10 +100,14 @@ Health check endpoint
 }
 ```
 
-### `POST /predict`
-Predict myopia risk for a child
+### GET /
 
-**Request Body:**
+Returns API metadata and available routes.
+
+### POST /predict
+
+Example request:
+
 ```json
 {
   "age": 12,
@@ -136,7 +124,8 @@ Predict myopia risk for a child
 }
 ```
 
-**Response:** `200 OK`
+Example response:
+
 ```json
 {
   "risk_score": 87,
@@ -149,72 +138,31 @@ Predict myopia risk for a child
 }
 ```
 
-**Validation Rules:**
-- Age: 5-18 years
-- Screen time, near work, outdoor time: 0-24 hours
-- Total daily time ≤ 24 hours
-- Required fields: age, sex, screenTime, nearWork, outdoorTime, sports
+### Auth Endpoints
 
-## Model Performance
+- POST /auth/signup
+- POST /auth/login
 
-| Stage | Purpose | Model | Metric | Value |
-|-------|---------|-------|--------|-------|
-| Stage 1 | Refractive Error Detection | XGBoost | AUC | **0.9431** |
-| Stage 2 | Risk Progression | XGBoost | AUC | **0.8842** |
-| Stage 2 | Risk Progression | XGBoost | Accuracy | **81.2%** |
-| Stage 3 | Diopter Estimation | Gradient Boosting | MAE | 1.75 D |
+## Validation Rules
 
-## Project Structure
+- Age range: 5 to 18
+- Screen/near/outdoor hours: 0 to 24
+- Total daily hours must be <= 24
+- Required fields are enforced before prediction
 
-```
-Mayopia/
-├── backend/
-│   ├── api.py                 # Flask application
-│   ├── validation.py          # Input validation
-│   ├── logger.py              # Structured logging
-│   ├── config.py              # Configuration management
-│   ├── requirements.txt       # Python dependencies
-│   └── Dockerfile             # Backend container
-├── frontend/
-│   ├── src/
-│   │   ├── app/
-│   │   │   ├── pages/         # Landing, Screen, Results, FAQ
-│   │   │   └── components/    # UI components
-│   │   └── main.tsx           # Entry point
-│   ├── package.json           # Node dependencies
-│   ├── Dockerfile             # Frontend container
-│   └── nginx.conf             # Nginx configuration
-├── models/
-│   ├── has_re_model_improved.pkl        # Stage 1 model
-│   ├── risk_progression_model.pkl       # Stage 2 model
-│   ├── diopter_regression_model.pkl     # Stage 3 model
-│   └── *.pkl, *.json          # Scalers and metadata
-├── docker-compose.yml         # Full stack orchestration
-└── .github/workflows/ci.yml   # CI/CD pipeline
-```
+## Troubleshooting
 
-## Environment Variables
+- "Could not reach server": verify VITE_API_URL in Vercel.
+- Browser CORS error: verify CORS_ORIGINS in Render.
+- Slow first request: expected on free Render cold start.
+- 401 on preview URL: use production Vercel domain.
 
-Create `backend/.env`:
+## Security Notes
 
-```env
-FLASK_ENV=development
-FLASK_DEBUG=True
-LOG_LEVEL=INFO
-```
-
-Production (Render) uses dashboard environment variables. Recommended:
-
-```env
-FLASK_ENV=production
-LOG_LEVEL=INFO
-CORS_ORIGINS=https://your-frontend-domain.vercel.app
-```
+- Restrict CORS to trusted frontend domains.
+- Keep production secrets out of code.
+- Add uptime monitoring for /health.
 
 ## License
 
-MIT License
-
-## Contact
-
-For questions or collaboration, please open an issue on GitHub.
+MIT
