@@ -97,11 +97,12 @@ export default function Results() {
     doc.text("Child Profile", margin + 4, y + 8);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    doc.text(`Age: ${data.age} years`, margin + 4, y + 16);
-    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, y + 16);
-    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, y + 16);
-    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, y + 16);
-    y += 34;
+    if (user?.childName) doc.text(`Child Name: ${user.childName}`, margin + 4, y + 16);
+    doc.text(`Age: ${data.age} years`, margin + 4, user?.childName ? y + 24 : y + 16);
+    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, user?.childName ? y + 24 : y + 16);
+    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, user?.childName ? y + 24 : y + 16);
+    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, user?.childName ? y + 24 : y + 16);
+    y += user?.childName ? 42 : 34;
 
     // ── Risk result box ──
     const riskColors: Record<string, [number, number, number]> = {

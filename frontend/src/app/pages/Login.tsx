@@ -3,6 +3,7 @@ import { Link, useNavigate, useLocation } from "react-router";
 import { motion } from "motion/react";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../context/AuthContext";
 
 export default function Login() {
@@ -186,6 +187,9 @@ export default function Login() {
               )}
             </motion.button>
           </form>
+
+          {/* Google Login */}
+          <GoogleLoginButton onError={(msg) => setErrors({ general: msg })} />
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
