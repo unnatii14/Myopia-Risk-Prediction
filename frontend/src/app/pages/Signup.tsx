@@ -3,6 +3,7 @@ import { Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Eye, EyeOff, Mail, Lock, User, UserPlus } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
+import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../context/AuthContext";
 
 export default function Signup() {
@@ -12,12 +13,14 @@ export default function Signup() {
   const [showConfirm, setShowConfirm] = useState(false);
   const [form, setForm] = useState({
     name: "",
+    childName: "",
     email: "",
     password: "",
     confirmPassword: "",
   });
   const [errors, setErrors] = useState<{
     name?: string;
+    childName?: string;
     email?: string;
     password?: string;
     confirmPassword?: string;
@@ -28,6 +31,7 @@ export default function Signup() {
   const validate = () => {
     const errs: typeof errors = {};
     if (!form.name.trim()) errs.name = "Full name is required.";
+    if (!form.childName.trim()) errs.childName = "Child name is required.";
     if (!form.email) errs.email = "Email is required.";
     else if (!/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email))
       errs.email = "Enter a valid email address.";
@@ -54,14 +58,14 @@ export default function Signup() {
       const res = await fetch("http://localhost:5000/api/auth/signup", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
-        body: JSON.stringify({ name: form.name, email: form.email, password: form.password }),
+        body: JSON.stringify({ name: form.name, childName: form.childName, email: form.email, password: form.password }),
       });
       const data = await res.json();
       if (!res.ok) {
         setErrors({ general: data.error || "Signup failed. Please try again." });
         return;
       }
-      login(data.name, data.email, data.token);
+      login(data.name, data.email, data.token, form.childName);
       navigate("/");
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });
@@ -163,6 +167,39 @@ export default function Signup() {
               {errors.name && (
                 <p className="mt-1 text-xs text-[var(--warning-coral)]">
                   {errors.name}
+                </p>
+              )}
+            </div>
+
+            {/* Child Name */}
+            <div>
+              <label
+                htmlFor="childName"
+                className="block text-sm font-semibold text-[var(--text-dark)] mb-1.5"
+              >
+                Child's name
+              </label>
+              <div className="relative">
+                <User className="absolute left-3.5 top-1/2 -translate-y-1/2 w-4 h-4 text-[var(--text-muted)]" />
+                <input
+                  id="childName"
+                  type="text"
+                  autoComplete="off"
+                  value={form.childName}
+                  onChange={(e) =>
+                    setForm((f) => ({ ...f, childName: e.target.value }))
+                  }
+                  placeholder="John Doe"
+                  className={`w-full pl-10 pr-4 py-3 rounded-xl border text-[var(--text-dark)] text-sm bg-[var(--background-mint)] placeholder-[var(--text-muted)] outline-none transition-all focus:ring-2 focus:ring-[var(--secondary-green)] focus:border-[var(--secondary-green)] ${
+                    errors.childName
+                      ? "border-[var(--warning-coral)]"
+                      : "border-[var(--border)]"
+                  }`}
+                />
+              </div>
+              {errors.childName && (
+                <p className="mt-1 text-xs text-[var(--warning-coral)]">
+                  {errors.childName}
                 </p>
               )}
             </div>
@@ -355,6 +392,9 @@ export default function Signup() {
             <span className="text-xs text-[var(--text-muted)]">or</span>
             <div className="flex-1 h-px bg-[var(--border)]" />
           </div>
+
+          {/* Google Login */}
+          <GoogleLoginButton onError={(msg) => setErrors({ general: msg })} />
 
           {/* Log in link */}
           <p className="text-center text-sm text-[var(--text-muted)]">
