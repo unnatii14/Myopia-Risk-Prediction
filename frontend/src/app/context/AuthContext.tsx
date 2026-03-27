@@ -9,37 +9,74 @@ interface User {
 
 interface AuthContextType {
   user: User | null;
-  login: (name: string, email: string, token: string, childName?: string) => void;
+  login: (name: string, email: string, token: string, childName?: string, rememberMe?: boolean) => void;
   logout: () => void;
+  isTokenValid: () => boolean;
 }
 
 const AuthContext = createContext<AuthContextType | null>(null);
 
 const STORAGE_KEY = "myopia_auth_user";
+const STORAGE_TIMESTAMP_KEY = "myopia_auth_timestamp";
+const TOKEN_MAX_AGE_HOURS = 24;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     try {
       const stored = localStorage.getItem(STORAGE_KEY);
-      return stored ? (JSON.parse(stored) as User) : null;
+      if (!stored) return null;
+
+      const timestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+      if (!timestamp) return null;
+
+      const lastLoginTime = parseInt(timestamp, 10);
+      const ageInHours = (Date.now() - lastLoginTime) / (1000 * 60 * 60);
+
+      // If token is older than 24 hours, clear it
+      if (ageInHours > TOKEN_MAX_AGE_HOURS) {
+        localStorage.removeItem(STORAGE_KEY);
+        localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+        return null;
+      }
+
+      return JSON.parse(stored) as User;
     } catch {
       return null;
     }
   });
 
-  const login = (name: string, email: string, token: string, childName?: string) => {
+  const isTokenValid = () => {
+    if (!user) return false;
+    const timestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+    if (!timestamp) return false;
+
+    const lastLoginTime = parseInt(timestamp, 10);
+    const ageInHours = (Date.now() - lastLoginTime) / (1000 * 60 * 60);
+    return ageInHours <= TOKEN_MAX_AGE_HOURS;
+  };
+
+  const login = (name: string, email: string, token: string, childName?: string, rememberMe?: boolean) => {
     const u: User = { name, email, token, childName };
     setUser(u);
-    localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+
+    if (rememberMe) {
+      localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+      localStorage.setItem(STORAGE_TIMESTAMP_KEY, Date.now().toString());
+    } else {
+      // Session-only login: store temporarily but mark with expired timestamp
+      sessionStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+    }
   };
 
   const logout = () => {
     setUser(null);
     localStorage.removeItem(STORAGE_KEY);
+    localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+    sessionStorage.removeItem(STORAGE_KEY);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout }}>
+    <AuthContext.Provider value={{ user, login, logout, isTokenValid }}>
       {children}
     </AuthContext.Provider>
   );

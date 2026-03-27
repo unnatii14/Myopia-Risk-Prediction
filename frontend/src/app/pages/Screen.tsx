@@ -1,13 +1,20 @@
 import { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
-import { 
-  User, Users, Clock, Sun, Smartphone, Book, 
-  ChevronRight, ChevronLeft 
+import {
+  User, Users, Clock, Sun, Smartphone, Book, Eye,
+  ChevronRight, ChevronLeft
 } from "lucide-react";
 import { Slider } from "../components/ui/slider";
 
 interface FormData {
+  // Step 0 (NEW)
+  existingMyopiaStatus: "none" | "near" | "distance" | "";
+  currentPrescription?: number; // diopters (negative)
+  diagnosisAge?: number;
+  myopiaControl?: string; // "none" | "atropine" | "ortho-k" | "glasses"
+  progressionRate?: "slow" | "moderate" | "fast" | "";
+
   // Step 1
   age: number;
   sex: "male" | "female" | "";
@@ -17,7 +24,7 @@ interface FormData {
   // Step 2
   familyHistory: boolean | null;
   parentsMyopic: "none" | "one" | "both" | "";
-  
+
   // Step 3
   screenTime: number;
   nearWork: number;
@@ -27,6 +34,11 @@ interface FormData {
 }
 
 const initialFormData: FormData = {
+  existingMyopiaStatus: "",
+  currentPrescription: undefined,
+  diagnosisAge: undefined,
+  myopiaControl: undefined,
+  progressionRate: "",
   age: 10,
   sex: "",
   height: 0,
@@ -42,11 +54,11 @@ const initialFormData: FormData = {
 
 export default function Screen() {
   const navigate = useNavigate();
-  const [currentStep, setCurrentStep] = useState(1);
+  const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [direction, setDirection] = useState(1);
 
-  const totalSteps = 3;
+  const totalSteps = 4;
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
@@ -118,29 +130,29 @@ export default function Screen() {
             Myopia Risk Screening
           </h2>
           <div className="flex items-start">
-            {["Child Info", "Family History", "Daily Habits"].map((label, i) => (
+            {["Myopia Status", "Child Info", "Family History", "Daily Habits"].map((label, i) => (
               <div key={i} className="flex items-start flex-1 last:flex-none">
                 <div className="flex flex-col items-center">
                   <motion.div
-                    animate={i + 1 === currentStep ? { scale: [1, 1.12, 1] } : {}}
+                    animate={i === currentStep ? { scale: [1, 1.12, 1] } : {}}
                     transition={{ duration: 1.6, repeat: Infinity }}
                     className={`w-10 h-10 rounded-full flex items-center justify-center font-bold text-sm transition-all duration-300 ${
-                      i + 1 < currentStep
+                      i < currentStep
                         ? "bg-[var(--primary-green)] text-white shadow-md"
-                        : i + 1 === currentStep
+                        : i === currentStep
                         ? "bg-[var(--primary-green)] text-white ring-4 ring-[var(--secondary-green)]/30 shadow-lg"
                         : "bg-gray-100 text-gray-400"
                     }`}
                   >
-                    {i + 1 < currentStep ? "✓" : i + 1}
+                    {i < currentStep ? "✓" : i}
                   </motion.div>
                   <span className={`text-xs mt-2 font-medium text-center hidden sm:block leading-tight max-w-[64px] transition-colors ${
-                    i + 1 === currentStep ? "text-[var(--primary-green)]" : "text-[var(--text-muted)]"
+                    i === currentStep ? "text-[var(--primary-green)]" : "text-[var(--text-muted)]"
                   }`}>{label}</span>
                 </div>
-                {i < 2 && (
+                {i < 3 && (
                   <div className={`flex-1 h-0.5 mt-5 mx-1 transition-all duration-500 ${
-                    i + 1 < currentStep ? "bg-[var(--primary-green)]" : "bg-gray-200"
+                    i < currentStep ? "bg-[var(--primary-green)]" : "bg-gray-200"
                   }`} />
                 )}
               </div>
@@ -160,6 +172,130 @@ export default function Screen() {
             transition={{ type: "spring", stiffness: 300, damping: 30 }}
             className="bg-white/95 backdrop-blur-sm rounded-3xl p-8 shadow-2xl border border-white"
           >
+            {/* STEP 0 - MYOPIA STATUS */}
+            {currentStep === 0 && (
+              <div className="space-y-8">
+                <div className="flex items-center gap-3 mb-6">
+                  <Eye className="w-8 h-8 text-[var(--primary-green)]" />
+                  <h3 className="text-3xl font-bold text-[var(--text-dark)]">
+                    Does your child wear glasses?
+                  </h3>
+                </div>
+
+                <div className="grid gap-4">
+                  {[
+                    { value: "none", label: "No glasses", emoji: "✅", desc: "Child has not been diagnosed with myopia" },
+                    { value: "near", label: "Yes, for near work only", emoji: "📖", desc: "Hyperopia or astigmatism (not myopia)" },
+                    { value: "distance", label: "Yes, for distance vision", emoji: "👓", desc: "Child has myopia diagnosis" },
+                  ].map((option) => (
+                    <button
+                      key={option.value}
+                      onClick={() => updateFormData("existingMyopiaStatus", option.value as any)}
+                      className={`p-6 rounded-2xl border-2 transition-all text-left ${
+                        formData.existingMyopiaStatus === option.value
+                          ? "border-[var(--primary-green)] bg-[var(--secondary-green)]/10"
+                          : "border-gray-200 hover:border-[var(--secondary-green)]"
+                      }`}
+                    >
+                      <div className="flex items-start gap-4">
+                        <div className="text-4xl">{option.emoji}</div>
+                        <div className="flex-1">
+                          <div className="font-bold text-lg text-[var(--text-dark)]">{option.label}</div>
+                          <div className="text-sm text-[var(--text-muted)]">{option.desc}</div>
+                        </div>
+                      </div>
+                    </button>
+                  ))}
+                </div>
+
+                {/* Conditional fields for existing myopia */}
+                {formData.existingMyopiaStatus === "distance" && (
+                  <div className="space-y-6 p-6 bg-[var(--background-mint)]/50 rounded-xl border border-[var(--secondary-green)]/20">
+                    <div>
+                      <label className="block text-sm font-medium mb-4">
+                        Current glasses prescription (diopters):
+                        <span className="text-lg font-bold text-[var(--primary-green)] ml-2">
+                          {formData.currentPrescription ? `-${formData.currentPrescription.toFixed(2)}D` : "Not specified"}
+                        </span>
+                      </label>
+                      <Slider
+                        value={[formData.currentPrescription || 0.5]}
+                        onValueChange={(value) => updateFormData("currentPrescription", Number(value[0].toFixed(2)))}
+                        min={0.25}
+                        max={10}
+                        step={0.25}
+                        className="w-full"
+                      />
+                      <p className="text-xs text-[var(--text-muted)] mt-2">Optional: Leave as 0 if not known</p>
+                    </div>
+
+                   <div>
+                      <label className="block text-sm font-medium mb-4">
+                        Age diagnosed: <span className="text-lg font-bold text-[var(--primary-green)]">{formData.diagnosisAge || "?"} years</span>
+                      </label>
+                      <Slider
+                        value={[formData.diagnosisAge || 5]}
+                        onValueChange={(value) => updateFormData("diagnosisAge", value[0])}
+                        min={3}
+                        max={15}
+                        step={1}
+                        className="w-full"
+                      />
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-4">Current myopia control method</label>
+                      <div className="grid grid-cols-2 gap-3">
+                        {[
+                          { value: "none", label: "None", emoji: "❌" },
+                          { value: "atropine", label: "Atropine drops", emoji: "💧" },
+                          { value: "ortho-k", label: "Ortho-K lenses", emoji: "🔵" },
+                          { value: "glasses", label: "Control glasses", emoji: "👓" },
+                        ].map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => updateFormData("myopiaControl", option.value)}
+                            className={`p-3 rounded-lg border-2 transition-all text-center text-sm ${
+                              formData.myopiaControl === option.value
+                                ? "border-[var(--primary-green)] bg-[var(--secondary-green)]/10"
+                                : "border-gray-200 hover:border-[var(--secondary-green)]"
+                            }`}
+                          >
+                            <div className="text-2xl mb-1">{option.emoji}</div>
+                            <div className="font-medium">{option.label}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+
+                    <div>
+                      <label className="block text-sm font-medium mb-4">How fast is myopia progressing?</label>
+                      <div className="grid grid-cols-3 gap-3">
+                        {[
+                          { value: "slow", label: "Slow", emoji: "🐢" },
+                          { value: "moderate", label: "Moderate", emoji: "💨" },
+                          { value: "fast", label: "Fast", emoji: "🚀" },
+                        ].map((option) => (
+                          <button
+                            key={option.value}
+                            onClick={() => updateFormData("progressionRate", option.value as any)}
+                            className={`p-4 rounded-lg border-2 transition-all text-center ${
+                              formData.progressionRate === option.value
+                                ? "border-[var(--primary-green)] bg-[var(--secondary-green)]/10"
+                                : "border-gray-200 hover:border-[var(--secondary-green)]"
+                            }`}
+                          >
+                            <div className="text-3xl mb-1">{option.emoji}</div>
+                            <div className="font-medium text-sm">{option.label}</div>
+                          </button>
+                        ))}
+                      </div>
+                    </div>
+                  </div>
+                )}
+              </div>
+            )}
+
             {/* STEP 1 - CHILD INFO */}
             {currentStep === 1 && (
               <div className="space-y-8">
@@ -451,9 +587,9 @@ export default function Screen() {
         <div className="flex justify-between mt-8">
           <button
             onClick={prevStep}
-            disabled={currentStep === 1}
+            disabled={currentStep === 0}
             className={`flex items-center gap-2 px-6 py-3 rounded-full font-medium transition-all ${
-              currentStep === 1
+              currentStep === 0
                 ? "opacity-0 pointer-events-none"
                 : "bg-white text-[var(--primary-green)] hover:bg-gray-50 shadow-lg"
             }`}
