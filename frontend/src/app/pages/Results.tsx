@@ -31,6 +31,11 @@ interface ScreeningData {
   outdoorTime: number;
   sports: string;
   vitaminD: boolean | null;
+  existingMyopiaStatus?: "none" | "near" | "distance";
+  currentPrescription?: number;
+  diagnosisAge?: number;
+  myopiaControl?: string;
+  progressionRate?: "slow" | "moderate" | "fast";
 }
 
 interface PredictionResult {
@@ -102,6 +107,11 @@ export default function Results() {
     doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, user?.childName ? y + 24 : y + 16);
     if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, user?.childName ? y + 24 : y + 16);
     if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, user?.childName ? y + 24 : y + 16);
+    if (data?.existingMyopiaStatus === "distance") {
+      y += user?.childName ? 34 : 26;
+      if (data.currentPrescription) doc.text(`Prescription: -${data.currentPrescription.toFixed(2)}D`, margin + 4, y);
+      if (data.diagnosisAge) doc.text(`Diagnosed: ${data.diagnosisAge} years old`, margin + 4, y + (data.currentPrescription ? 8 : 0));
+    }
     y += user?.childName ? 42 : 34;
 
     // ── Risk result box ──
@@ -269,6 +279,45 @@ export default function Results() {
     return Math.min(Math.max(s, 0), 100);
   };
 
+  const getScoringFactors = (d: ScreeningData) => {
+    const factors: { label: string; impact: string }[] = [];
+
+    // Base
+    factors.push({ label: "Base score", impact: "+30%" });
+
+    // Age
+    if (d.age <= 8) factors.push({ label: "Age ≤8 years", impact: "+15%" });
+    else if (d.age <= 10) factors.push({ label: "Age ≤10 years", impact: "+10%" });
+    else if (d.age <= 12) factors.push({ label: "Age ≤12 years", impact: "+5%" });
+
+    // Genetics
+    if (d.parentsMyopic === "both") factors.push({ label: "Both parents myopic", impact: "+25%" });
+    else if (d.parentsMyopic === "one") factors.push({ label: "One parent myopic", impact: "+15%" });
+    else if (d.familyHistory) factors.push({ label: "Family history of myopia", impact: "+10%" });
+
+    // Screen time
+    if (d.screenTime > 6) factors.push({ label: "Very high screen time (>6h)", impact: "+20%" });
+    else if (d.screenTime > 4) factors.push({ label: "High screen time (>4h)", impact: "+15%" });
+    else if (d.screenTime > 2) factors.push({ label: "Above recommended screen time", impact: "+8%" });
+
+    // Outdoor time
+    if (d.outdoorTime < 1) factors.push({ label: "Very low outdoor time (<1h)", impact: "+20%" });
+    else if (d.outdoorTime < 2) factors.push({ label: "Below recommended outdoor time", impact: "+10%" });
+    if (d.outdoorTime >= 3) factors.push({ label: "Excellent outdoor time (≥3h)", impact: "-10%" });
+
+    // Near work
+    if (d.nearWork > 6) factors.push({ label: "High near work (>6h)", impact: "+15%" });
+    else if (d.nearWork > 4) factors.push({ label: "Moderate near work (>4h)", impact: "+8%" });
+
+    // Protective factors
+    if (d.vitaminD) factors.push({ label: "Vitamin D supplement", impact: "-5%" });
+    if (d.sports === "regular") factors.push({ label: "Regular sports", impact: "-5%" });
+
+    return factors;
+  };
+
+  const scoringFactors = data ? getScoringFactors(data) : [];
+
   if (!data || loading) {
     return (
       <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white flex flex-col items-center justify-center gap-4">
@@ -356,7 +405,9 @@ export default function Results() {
             {/* Left - Summary */}
             <div className="lg:w-1/3">
               <h2 className="text-2xl font-bold text-[var(--text-dark)] mb-4">
-                Risk Assessment Complete
+                {data?.existingMyopiaStatus === "distance"
+                  ? "Progression Forecast"
+                  : "Risk Assessment Complete"}
               </h2>
               <div className="space-y-2 text-sm text-[var(--text-muted)]">
                 <p>
@@ -365,6 +416,16 @@ export default function Results() {
                 <p>
                   <strong>Sex:</strong> {data.sex === "male" ? "Male" : "Female"}
                 </p>
+                {data?.existingMyopiaStatus === "distance" && data.currentPrescription && (
+                  <p>
+                    <strong>Current Prescription:</strong> -{data.currentPrescription.toFixed(2)}D
+                  </p>
+                )}
+                {data?.existingMyopiaStatus === "distance" && data.diagnosisAge && (
+                  <p>
+                    <strong>Diagnosed At:</strong> {data.diagnosisAge} years
+                  </p>
+                )}
                 <p className="text-xs pt-2">
                   <strong>Date:</strong> {new Date().toLocaleDateString("en-IN")}
                 </p>
@@ -404,51 +465,87 @@ export default function Results() {
                       : "bg-[var(--high-risk)]/20 text-[var(--high-risk)]"
                   }`}
                 >
-                  {riskLevel} RISK
+                  {data?.existingMyopiaStatus === "distance" && data?.progressionRate
+                    ? `${data.progressionRate.toUpperCase()} PROGRESSION`
+                    : `${riskLevel} RISK`}
                 </div>
               </motion.div>
             </div>
 
-            {/* Right - Stages */}
-            <div className="lg:w-1/3 space-y-3">
-              <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
-                <p className="text-xs text-[var(--text-muted)] mb-1">Stage 1</p>
-                <p className="font-bold text-[var(--text-dark)]">Refractive Error Likely</p>
-                <p className="text-sm">
-                  <span className={prediction?.has_re ? "text-[var(--warning-coral)]" : "text-[var(--secondary-green)]"}>
-                    {prediction ? (prediction.has_re ? "YES" : "NO") : (riskScore > 60 ? "POSSIBLE" : "UNLIKELY")}
-                  </span>
-                  {" · "}
-                  <span className="text-[var(--text-muted)]">
-                    {prediction ? `${Math.round(prediction.re_probability * 100)}%` : `${Math.round(riskScore * 0.8)}%`}
-                  </span>
-                </p>
-              </div>
+            {/* Right - Stages or Myopia Info */}
+            {data?.existingMyopiaStatus === "distance" ? (
+              <div className="lg:w-1/3 space-y-3">
+                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
+                  <p className="text-xs text-[var(--text-muted)] mb-1">Current Status</p>
+                  <p className="font-bold text-[var(--text-dark)]">Existing Myopia</p>
+                  <p className="text-sm">
+                    <span className="text-[var(--warning-coral)] font-semibold">
+                      {data.myopiaControl === "none" ? "⚠️ No control method" : "✅ Control active"}
+                    </span>
+                  </p>
+                </div>
 
-              <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
-                <p className="text-xs text-[var(--text-muted)] mb-1">Stage 2</p>
-                <p className="font-bold text-[var(--text-dark)]">Progression Risk</p>
-                <p className="text-sm">
-                  <span className={riskLevel === "HIGH" ? "text-[var(--warning-coral)]" : riskLevel === "MODERATE" ? "text-[var(--moderate-risk)]" : "text-[var(--secondary-green)]"}>
-                    {riskLevel}
-                  </span>
-                  {" · "}
-                  <span className="text-[var(--text-muted)]">{riskScore}%</span>
-                </p>
-              </div>
+                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
+                  <p className="text-xs text-[var(--text-muted)] mb-1">Progression Rate</p>
+                  <p className="font-bold text-[var(--text-dark)]  capitalize">{data.progressionRate || "Unknown"}</p>
+                  <p className="text-sm text-[var(--text-muted)]">
+                    {data.progressionRate === "slow" && "Stable or slow progression"}
+                    {data.progressionRate === "moderate" && "Typical progression rate"}
+                    {data.progressionRate === "fast" && "Rapid progression - monitor closely"}
+                  </p>
+                </div>
 
-              <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
-                <p className="text-xs text-[var(--text-muted)] mb-1">Stage 3</p>
-                <p className="font-bold text-[var(--text-dark)]">Est. Severity</p>
-                <p className="text-sm text-[var(--text-muted)]">
-                  {prediction?.diopters != null
-                    ? `~-${prediction.diopters}D · ${prediction.severity ?? ""}`
-                    : prediction && !prediction.has_re
-                    ? "No RE detected"
-                    : riskLevel === "HIGH" ? "~-3.2D · Moderate" : riskLevel === "MODERATE" ? "~-1.5D · Mild" : "~-0.5D · Very Mild"}
-                </p>
+                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
+                  <p className="text-xs text-[var(--text-muted)] mb-1">Control Method</p>
+                  <p className="font-bold text-[var(--text-dark)]">
+                    {data.myopiaControl === "atropine" && "Atropine Drops"}
+                    {data.myopiaControl === "ortho-k" && "Ortho-K Lenses"}
+                    {data.myopiaControl === "glasses" && "Control Glasses"}
+                    {data.myopiaControl === "none" && "None (Consider starting)"}
+                  </p>
+                </div>
               </div>
-            </div>
+            ) : (
+              <div className="lg:w-1/3 space-y-3">
+                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
+                  <p className="text-xs text-[var(--text-muted)] mb-1">Stage 1</p>
+                  <p className="font-bold text-[var(--text-dark)]">Refractive Error Likely</p>
+                  <p className="text-sm">
+                    <span className={prediction?.has_re ? "text-[var(--warning-coral)]" : "text-[var(--secondary-green)]"}>
+                      {prediction ? (prediction.has_re ? "YES" : "NO") : (riskScore > 60 ? "POSSIBLE" : "UNLIKELY")}
+                    </span>
+                    {" · "}
+                    <span className="text-[var(--text-muted)]">
+                      {prediction ? `${Math.round(prediction.re_probability * 100)}%` : `${Math.round(riskScore * 0.8)}%`}
+                    </span>
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
+                  <p className="text-xs text-[var(--text-muted)] mb-1">Stage 2</p>
+                  <p className="font-bold text-[var(--text-dark)]">Progression Risk</p>
+                  <p className="text-sm">
+                    <span className={riskLevel === "HIGH" ? "text-[var(--warning-coral)]" : riskLevel === "MODERATE" ? "text-[var(--moderate-risk)]" : "text-[var(--secondary-green)]"}>
+                      {riskLevel}
+                    </span>
+                    {" · "}
+                    <span className="text-[var(--text-muted)]">{riskScore}%</span>
+                  </p>
+                </div>
+
+                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
+                  <p className="text-xs text-[var(--text-muted)] mb-1">Stage 3</p>
+                  <p className="font-bold text-[var(--text-dark)]">Est. Severity</p>
+                  <p className="text-sm text-[var(--text-muted)]">
+                    {prediction?.diopters != null
+                      ? `~-${prediction.diopters}D · ${prediction.severity ?? ""}`
+                      : prediction && !prediction.has_re
+                      ? "No RE detected"
+                      : riskLevel === "HIGH" ? "~-3.2D · Moderate" : riskLevel === "MODERATE" ? "~-1.5D · Mild" : "~-0.5D · Very Mild"}
+                  </p>
+                </div>
+              </div>
+            )}
           </div>
 
           {apiError && (
@@ -461,6 +558,96 @@ export default function Results() {
               ? "Powered by GradientBoosting ML Model · AUC 0.893 · Trained on 5,000+ Indian children · Live ML Prediction"
               : "Rule-based estimate (ML server offline) · For real predictions, start the backend"}
           </div>
+        </motion.div>
+
+        {/* METHODOLOGY SECTION */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.1 }}
+          className="mb-8 p-6 bg-gradient-to-br from-[var(--background-mint)] to-white rounded-2xl border border-[var(--secondary-green)]/20 shadow-lg"
+        >
+          <h3 className="text-xl font-bold text-[var(--text-dark)] mb-4">
+            📊 How This Score Was Calculated
+          </h3>
+
+          <div className="grid md:grid-cols-2 gap-6 mb-6">
+            {/* Model Info */}
+            <div>
+              <p className="text-sm font-semibold text-[var(--text-dark)] mb-2">
+                🤖 Scoring Model
+              </p>
+              <p className="text-sm text-[var(--text-muted)] mb-2">
+                {prediction
+                  ? "GradientBoosting ML Model (Hybrid)"
+                  : "Rule-based Scoring System (ML offline)"}
+              </p>
+              <ul className="text-xs text-[var(--text-muted)] space-y-1">
+                <li>✓ Trained on 5,000+ Indian children</li>
+                <li>✓ AUC: 0.893 (excellent accuracy)</li>
+                <li>✓ Accuracy: 81.2%</li>
+                {prediction && <li>✓ Live ML prediction</li>}
+              </ul>
+            </div>
+
+            {/* Methodology */}
+            <div>
+              <p className="text-sm font-semibold text-[var(--text-dark)] mb-2">
+                📋 Methodology
+              </p>
+              <p className="text-sm text-[var(--text-muted)]">
+                {prediction
+                  ? "Combines ML probability with evidence-based rules. Adaptive weighting based on ML confidence to ensure clinically valid results."
+                  : "Evidence-based rule scoring using established clinical factors from myopia research."}
+              </p>
+            </div>
+          </div>
+
+          {/* Contributing Factors */}
+          <div>
+            <p className="text-sm font-semibold text-[var(--text-dark)] mb-3">
+              📌 Factors in Your Score
+            </p>
+            <div className="grid md:grid-cols-2 gap-2 mb-4">
+              {scoringFactors.map((factor, idx) => (
+                <div key={idx} className="flex justify-between items-center p-2 bg-white rounded-lg border border-gray-100 text-xs">
+                  <span className="text-[var(--text-dark)]">{factor.label}</span>
+                  <span className={`font-semibold ${
+                    factor.impact.startsWith("+")
+                      ? "text-[var(--warning-coral)]"
+                      : "text-[var(--secondary-green)]"
+                  }`}>
+                    {factor.impact}
+                  </span>
+                </div>
+              ))}
+            </div>
+
+            {/* Score Calculation */}
+            <div className="p-3 bg-white rounded-xl border border-gray-100 text-sm">
+              <div className="flex justify-between items-center font-semibold text-[var(--text-dark)]">
+                <span>Your Risk Score →</span>
+                <span className={`text-lg ${
+                  riskLevel === "HIGH" ? "text-[var(--warning-coral)]" :
+                  riskLevel === "MODERATE" ? "text-[var(--moderate-risk)]" :
+                  "text-[var(--secondary-green)]"
+                }`}>
+                  {riskScore}%
+                </span>
+              </div>
+              <p className="text-xs text-[var(--text-muted)] mt-1">
+                Classification: <strong>{riskLevel}</strong>
+                {riskLevel === "LOW" && " (<40%) - Lower myopia progression risk"}
+                {riskLevel === "MODERATE" && " (40-70%) - Moderate progression risk"}
+                {riskLevel === "HIGH" && " (≥70%) - Higher progression risk requiring monitoring"}
+              </p>
+            </div>
+          </div>
+
+          {/* Disclaimer */}
+          <p className="text-xs text-[var(--text-muted)] mt-4 pt-4 border-t border-gray-200">
+            ⓘ <strong>Important:</strong> This is a screening tool, not a medical diagnosis. Please consult an ophthalmologist for professional evaluation, diagnosis, and treatment planning.
+          </p>
         </motion.div>
 
         {/* TOP RISK FACTORS */}

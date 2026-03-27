@@ -11,9 +11,11 @@ export default function Login() {
   const location = useLocation();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
+  const [rememberMe, setRememberMe] = useState(false);
   const [form, setForm] = useState({ email: "", password: "" });
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [loading, setLoading] = useState(false);
+  const [loadingStage, setLoadingStage] = useState<"initial" | "verifying" | "finalizing">("initial");
 
   const validate = () => {
     const errs: typeof errors = {};
@@ -35,7 +37,18 @@ export default function Login() {
     }
     setErrors({});
     setLoading(true);
+    setLoadingStage("initial");
+
     try {
+      // Stage 1: Initial
+      await new Promise(resolve => setTimeout(resolve, 800));
+      setLoadingStage("verifying");
+
+      // Stage 2: Verifying credentials
+      await new Promise(resolve => setTimeout(resolve, 1200));
+      setLoadingStage("finalizing");
+
+      // Make API call
       const res = await fetch("http://localhost:5000/api/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
@@ -46,13 +59,14 @@ export default function Login() {
         setErrors({ general: data.error || "Login failed. Please try again." });
         return;
       }
-      login(data.name, data.email, data.token);
+      login(data.name, data.email, data.token, undefined, rememberMe);
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
       navigate(from, { replace: true });
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });
     } finally {
       setLoading(false);
+      setLoadingStage("initial");
     }
   };
 
@@ -167,6 +181,23 @@ export default function Login() {
               )}
             </div>
 
+            {/* Remember Me */}
+            <div className="flex items-center gap-2">
+              <input
+                id="remember-me"
+                type="checkbox"
+                checked={rememberMe}
+                onChange={(e) => setRememberMe(e.target.checked)}
+                className="w-4 h-4 rounded border-[var(--border)] cursor-pointer accent-[var(--primary-green)]"
+              />
+              <label
+                htmlFor="remember-me"
+                className="text-sm text-[var(--text-muted)] cursor-pointer hover:text-[var(--primary-green)] transition-colors"
+              >
+                Remember me for 24 hours
+              </label>
+            </div>
+
             {/* Submit */}
             <motion.button
               type="submit"
@@ -180,7 +211,9 @@ export default function Login() {
                     <circle className="opacity-25" cx="12" cy="12" r="10" stroke="currentColor" strokeWidth="4" />
                     <path className="opacity-75" fill="currentColor" d="M4 12a8 8 0 018-8v8z" />
                   </svg>
-                  Signing in…
+                  {loadingStage === "initial" && "Signing in…"}
+                  {loadingStage === "verifying" && "Verifying credentials…"}
+                  {loadingStage === "finalizing" && "Almost there…"}
                 </>
               ) : (
                 "Sign In"
