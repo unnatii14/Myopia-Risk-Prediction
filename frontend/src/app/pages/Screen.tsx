@@ -1,4 +1,4 @@
-import { useState } from "react";
+import React, { useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import {
@@ -57,22 +57,42 @@ export default function Screen() {
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [direction, setDirection] = useState(1);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const totalSteps = 4;
+  const totalSteps = 3;
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setTouched((prev) => ({ ...prev, [String(field)]: true }));
+  };
+
+  const isStepValid = (step: number) => {
+    if (step === 0) {
+      return formData.existingMyopiaStatus !== "";
+    }
+    if (step === 1) {
+      const heightValid = formData.height >= 50 && formData.height <= 220;
+      const weightValid = formData.weight >= 10 && formData.weight <= 200;
+      const sexValid = formData.sex !== "";
+      return heightValid && weightValid && sexValid;
+    }
+    if (step === 2) {
+      const famValid = formData.familyHistory !== null;
+      const parentsValid = formData.parentsMyopic !== "";
+      return famValid && parentsValid;
+    }
+    return true;
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
+    if (currentStep < totalSteps && isStepValid(currentStep)) {
       setDirection(1);
       setCurrentStep((prev) => prev + 1);
     }
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
+    if (currentStep > 0) {
       setDirection(-1);
       setCurrentStep((prev) => prev - 1);
     }
@@ -144,7 +164,7 @@ export default function Screen() {
                         : "bg-gray-100 text-gray-400"
                     }`}
                   >
-                    {i < currentStep ? "✓" : i}
+                    {i < currentStep ? "✓" : i + 1}
                   </motion.div>
                   <span className={`text-xs mt-2 font-medium text-center hidden sm:block leading-tight max-w-[64px] transition-colors ${
                     i === currentStep ? "text-[var(--primary-green)]" : "text-[var(--text-muted)]"
@@ -175,18 +195,21 @@ export default function Screen() {
             {/* STEP 0 - MYOPIA STATUS */}
             {currentStep === 0 && (
               <div className="space-y-8">
-                <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center gap-3 mb-2">
                   <Eye className="w-8 h-8 text-[var(--primary-green)]" />
                   <h3 className="text-3xl font-bold text-[var(--text-dark)]">
                     Does your child wear glasses?
                   </h3>
                 </div>
+                <p className="text-sm text-[var(--text-muted)] mb-4">
+                  Your answer determines what we assess: <strong>No glasses</strong> → we predict risk of developing myopia. <strong>Distance vision glasses</strong> → we assess progression risk. <strong>Near work glasses only</strong> → this tool is designed for myopia (distance vision) screening.
+                </p>
 
                 <div className="grid gap-4">
                   {[
-                    { value: "none", label: "No glasses", emoji: "✅", desc: "Child has not been diagnosed with myopia" },
-                    { value: "near", label: "Yes, for near work only", emoji: "📖", desc: "Hyperopia or astigmatism (not myopia)" },
-                    { value: "distance", label: "Yes, for distance vision", emoji: "👓", desc: "Child has myopia diagnosis" },
+                    { value: "none", label: "No glasses", emoji: "✅", desc: "Child has not been diagnosed with myopia — we'll assess risk of developing it" },
+                    { value: "near", label: "Yes, for near work only", emoji: "📖", desc: "For reading/close-up (hyperopia or astigmatism) — this is NOT myopia" },
+                    { value: "distance", label: "Yes, for distance vision", emoji: "👓", desc: "Child cannot see far clearly — myopia is already diagnosed" },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -207,6 +230,19 @@ export default function Screen() {
                     </button>
                   ))}
                 </div>
+
+                {/* Warning for hyperopia/near case */}
+                {formData.existingMyopiaStatus === "near" && (
+                  <div className="p-5 bg-amber-50 border-2 border-amber-300 rounded-2xl">
+                    <p className="font-semibold text-amber-800 mb-2">⚠️ Different condition — please read</p>
+                    <p className="text-sm text-amber-700 mb-3">
+                      Glasses for <strong>near work only</strong> suggest <strong>hyperopia</strong> (farsightedness) or astigmatism — not myopia (nearsightedness). This tool is designed to screen for <strong>myopia risk</strong>.
+                    </p>
+                    <p className="text-sm text-amber-700">
+                      You can still continue — the lifestyle risk factors (screen time, outdoor time, family history) are still relevant for predicting whether your child may also develop myopia. However, the result should be interpreted carefully.
+                    </p>
+                  </div>
+                )}
 
                 {/* Conditional fields for existing myopia */}
                 {formData.existingMyopiaStatus === "distance" && (
@@ -358,6 +394,11 @@ export default function Screen() {
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
                       placeholder="140"
                     />
+                    {touched["height"] && (formData.height < 50 || formData.height > 220) && (
+                      <p className="mt-1 text-xs text-[var(--warning-coral)]">
+                        Please enter a realistic height between 50 and 220 cm.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
@@ -370,14 +411,24 @@ export default function Screen() {
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
                       placeholder="35"
                     />
+                    {touched["weight"] && (formData.weight < 10 || formData.weight > 200) && (
+                      <p className="mt-1 text-xs text-[var(--warning-coral)]">
+                        Please enter a realistic weight between 10 and 200 kg.
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {getBMI() && (
+                {getBMI() && (formData.height >= 50 && formData.height <= 220 && formData.weight >= 10 && formData.weight <= 200) && (
                   <div className="p-4 bg-[var(--secondary-green)]/10 rounded-xl">
                     <p className="text-sm text-[var(--text-muted)]">
                       BMI: <span className="font-bold text-[var(--primary-green)]">{getBMI()}</span>
                     </p>
+                  </div>
+                )}
+                {!isStepValid(1) && (
+                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                    Please complete this section with valid values to continue.
                   </div>
                 )}
               </div>
@@ -601,7 +652,12 @@ export default function Screen() {
           {currentStep < totalSteps ? (
             <button
               onClick={nextStep}
-              className="flex items-center gap-2 px-6 py-3 bg-[var(--primary-green)] text-white rounded-full hover:bg-[var(--secondary-green)] transition-all font-medium shadow-lg"
+              disabled={!isStepValid(currentStep)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all font-medium shadow-lg ${
+                isStepValid(currentStep)
+                  ? "bg-[var(--primary-green)] text-white hover:bg-[var(--secondary-green)]"
+                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+              }`}
             >
               Next
               <ChevronRight className="w-5 h-5" />

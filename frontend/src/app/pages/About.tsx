@@ -8,9 +8,9 @@ import {
 const researchers = [
   {
     institution: "LVPEI — L V Prasad Eye Institute",
-    description: "India's premier eye research institution. Mission Myopia is LVPEI's nationwide programme to address childhood myopia through screening, education, and research.",
+    description: "India's premier eye research institution. Mission Myopia is LVPEI's nationwide programme to address childhood myopia through screening, education, and research. (Referenced for clinical context — not an official partner of this project.)",
     url: "https://missionmyopia.lvpei.org/",
-    badge: "Clinical Partner",
+    badge: "Reference Institution",
     color: "var(--primary-green)",
   },
   {
@@ -70,9 +70,9 @@ const papers = [
 const modelMetrics = [
   { label: "Dataset Size", value: "5,000", sub: "pediatric records" },
   { label: "Training Split", value: "80%", sub: "4,000 samples" },
-  { label: "Model Type", value: "XGBoost", sub: "Stage 2 classifier" },
-  { label: "ROC-AUC", value: "0.88", sub: "Stage 2 risk model" },
-  { label: "Accuracy", value: "81.2%", sub: "on held-out test set" },
+  { label: "Stage 1 Model", value: "XGBoost", sub: "AUC 0.94" },
+  { label: "Stage 2 Model", value: "GradBoost", sub: "AUC 0.893" },
+  { label: "S2 Accuracy", value: "81.2%", sub: "held-out test set" },
   { label: "Features", value: "35", sub: "leakage-free inputs" },
 ];
 
@@ -88,8 +88,8 @@ const pipeline = [
   {
     stage: "Stage 2",
     title: "Progression Risk Classification",
-    model: "XGBoost Classifier",
-    metric: "AUC: 0.88 ✦",
+    model: "GradientBoosting Classifier",
+    metric: "AUC: 0.893 ✦",
     description: "Primary production model. Classifies children as High Risk vs Low/Moderate Risk for myopia progression. Trained on 35 lifestyle, demographic, and genetic features with full data-leakage prevention.",
     status: "production",
   },
@@ -180,7 +180,7 @@ export default function About() {
                 { icon: Target, title: "Aim", text: "Identify high-risk children using lifestyle + genetic factors before myopia establishes" },
                 { icon: Users, title: "Target", text: "School-aged children aged 5–18 in India, screened by parents or health workers" },
                 { icon: TrendingUp, title: "Outcome", text: "Interpretable risk score for integration into school and community vision programmes" },
-                { icon: Award, title: "Standard", text: "Validated against LVPEI clinical data, benchmarked against MPRAS risk score" },
+                { icon: Award, title: "Standard", text: "Methodology benchmarked against MPRAS risk score (Nature 2023). Clinical thresholds from BHVI/IMI Myopia Management Guidelines." },
               ].map((item, i) => (
                 <motion.div
                   key={i}
@@ -302,13 +302,13 @@ export default function About() {
             initial={{ opacity: 0, y: 20 }}
             whileInView={{ opacity: 1, y: 0 }}
             viewport={{ once: true }}
-            className="text-center mb-16"
+            className="text-center mb-12"
           >
             <h2 className="text-4xl font-bold text-[var(--text-dark)] mb-4">
-              Research Backing
+              Research References
             </h2>
             <p className="text-xl text-[var(--text-muted)] max-w-2xl mx-auto">
-              Built on the work of leading ophthalmic research institutions
+              This project referenced work from these institutions and studies. They are not affiliated with or endorsing this project.
             </p>
           </motion.div>
 
