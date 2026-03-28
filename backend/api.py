@@ -331,6 +331,19 @@ def after_request(response):
     return response
 
 
+@app.route("/", methods=["GET"])
+def root():
+    """Avoid Flask's generic 404 when someone opens the API base URL in a browser."""
+    return jsonify(
+        {
+            "service": "Myopia Risk API",
+            "health": "/health",
+            "predict": "POST /predict",
+            "auth": "/auth/login, /auth/signup, /auth/google",
+        }
+    )
+
+
 @app.route("/health", methods=["GET"])
 def health():
     logger.info("Health check endpoint called")
