@@ -16,8 +16,8 @@ import {
 } from "../components/ui/accordion";
 import { useAuth } from "../context/AuthContext";
 
-const API_URL  = "http://localhost:5001";
-const NODE_URL = "http://localhost:5000";
+
+const API_URL = "http://localhost:5001";
 
 interface ScreeningData {
   age: number;
@@ -57,19 +57,6 @@ export default function Results() {
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
-
-  // Save screening result to MongoDB (only when user is logged in)
-  const saveRecord = (screeningData: ScreeningData, pred: PredictionResult) => {
-    if (!user?.token) return;
-    fetch(`${NODE_URL}/api/myopia/save`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user.token}`,
-      },
-      body: JSON.stringify({ screeningData, prediction: pred }),
-    }).catch(() => {/* silently ignore — saving is best-effort */});
-  };
 
   const downloadPdf = () => {
     if (!data) return;
@@ -246,7 +233,7 @@ export default function Results() {
         setRiskScore(result.risk_score);
         setRiskLevel(result.risk_level);
         setLoading(false);
-        saveRecord(parsedData, { ...result, source: "ml" } as PredictionResult & { source: string });
+        // (record saving via MongoDB not active in this deployment)
       })
       .catch((err) => {
         console.error("API call failed:", err);
@@ -257,11 +244,7 @@ export default function Results() {
         setRiskScore(score);
         setRiskLevel(level);
         setLoading(false);
-        saveRecord(parsedData, {
-          risk_score: score, risk_level: level, risk_probability: score / 100,
-          has_re: score > 60, re_probability: score * 0.8 / 100,
-          diopters: null, severity: null, source: "rule-based",
-        } as PredictionResult & { source: string });
+        // (record saving via MongoDB not active in this deployment)
       });
   }, [navigate]);
 

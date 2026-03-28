@@ -104,7 +104,7 @@ export default function Landing() {
               </h1>
 
               <p className="text-xl text-[var(--text-muted)] mb-8 leading-relaxed">
-                Answer 12 questions. Get an instant AI risk score backed by LVPEI research.
+                Answer 12 questions. Get an instant AI risk score based on published ophthalmic research.
               </p>
 
               <div className="flex flex-col sm:flex-row gap-4 mb-6">
@@ -433,8 +433,11 @@ export default function Landing() {
             viewport={{ once: true }}
             className="text-center"
           >
-            <p className="text-[var(--text-muted)] mb-8 font-medium text-lg">
-              Backed by peer-reviewed research from leading eye institutions
+            <p className="text-[var(--text-muted)] mb-4 font-medium text-lg">
+              Research papers referenced in building this project
+            </p>
+            <p className="text-sm text-[var(--text-muted)] mb-8">
+              These institutions are not affiliated with or endorsing this project.
             </p>
             <div className="flex flex-wrap justify-center items-center gap-4">
               {[

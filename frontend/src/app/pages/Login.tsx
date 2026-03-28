@@ -49,7 +49,7 @@ export default function Login() {
       setLoadingStage("finalizing");
 
       // Make API call
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch("http://localhost:5001/auth/login", {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, password: form.password }),
