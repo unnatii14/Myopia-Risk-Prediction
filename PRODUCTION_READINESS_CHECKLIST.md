@@ -1,96 +1,70 @@
-# Production Readiness Checklist
+# Myopia Project Critical Launch Checklist
 
-Use this checklist before public demo, external sharing, or production release.
+Use this only for must-have checks before demo/release. If any item fails, do not launch.
 
-## Progress Snapshot (Codebase)
+## 1) Security and Secrets (Blocker)
+- [ ] Rotate JWT_SECRET and Google OAuth credentials if they were ever exposed.
+- [ ] Keep secrets only in env files or deployment secrets manager.
+- [ ] Ensure no real secrets exist in tracked files.
+- [ ] Set FLASK_ENV=production in production.
 
-- [x] Frontend uses centralized API base URL via VITE_API_URL.
-- [x] Backend enforces CORS from configured allowlist.
-- [x] Backend returns sanitized 500 errors (no raw exception leakage).
-- [x] CI enforces backend tests and no longer ignores required failures.
-- [x] Backend auth regression tests added (signup/login).
+## 2) Core Environment Configuration (Blocker)
+- [ ] backend/.env exists and has valid values for:
+  - [ ] SECRET_KEY
+  - [ ] JWT_SECRET
+  - [ ] GOOGLE_CLIENT_ID
+  - [ ] CORS_ORIGINS
+- [ ] frontend/.env exists and has valid values for:
+  - [ ] VITE_API_URL
+  - [ ] VITE_GOOGLE_CLIENT_ID
+- [ ] Frontend and backend use the same Google client ID.
 
-## Must Have (Blocker)
+## 3) OAuth and CORS (Blocker)
+- [ ] Google Cloud OAuth Authorized JavaScript origins include exact deployed frontend URL.
+- [ ] CORS_ORIGINS includes only trusted frontend origins.
+- [ ] Google login works on deployed domain (not only localhost).
 
-### 1) Secrets and Credentials
-- [ ] Rotate JWT secret and Google OAuth client secret if they were ever exposed.
-- [ ] Keep secrets only in environment variables (never in tracked files).
-- [ ] Verify backend and frontend use the same Google client ID.
-
-### 2) Environment Configuration
-- [ ] Create real env files from examples:
-  - [ ] backend/.env
-  - [ ] frontend/.env
-- [ ] Confirm frontend API points to backend:
-  - [ ] VITE_API_URL is set correctly for deployment.
-- [ ] Confirm backend CORS config matches deployed frontend origin(s).
-
-### 3) OAuth and CORS Safety
-- [ ] In Google Cloud Console, set exact Authorized JavaScript Origins for deployed frontend URL(s).
-- [x] Remove unnecessary localhost origins in production settings.
-- [ ] Confirm OAuth login works end-to-end on deployed domain.
-
-### 4) Runtime Health and Core Paths
-- [ ] Backend starts successfully with no model-loading errors.
+## 4) Backend Runtime Health (Blocker)
+- [ ] Backend starts without model-loading errors.
 - [ ] GET /health returns 200.
-- [ ] POST /predict works with a known-good sample payload.
-- [ ] Login/signup and Google auth flows succeed.
+- [ ] POST /predict returns 200 for a valid sample payload.
+- [ ] POST /predict returns 400 for invalid payload.
+- [ ] API never returns raw internal exception details to client.
 
-### 5) CI and Build Gates
+## 5) Auth Flows (Blocker)
+- [ ] Email signup works.
+- [ ] Email login works.
+- [ ] Duplicate signup returns proper conflict response.
+- [ ] Invalid password login returns unauthorized response.
+- [ ] Google login returns app token successfully.
+
+## 6) CI/CD Quality Gates (Blocker)
+- [ ] Frontend typecheck passes.
 - [ ] Frontend build passes.
-- [ ] Backend validation job passes.
+- [ ] Backend tests pass.
 - [ ] Docker image builds pass.
-- [x] No CI rule silently ignores failures for required checks.
+- [ ] CI has no ignore-on-failure for required checks.
 
-### 6) Storage and Backups
-- [ ] Decide persistent storage approach for user/auth data.
-- [ ] If SQLite is used, ensure persistent volume and backup policy are defined.
-- [ ] Define restore procedure and test at least once.
+## 7) Data Persistence and Recovery (Blocker)
+- [ ] Chosen storage strategy is explicit (SQLite for demo or managed DB for production).
+- [ ] If SQLite is used, file persistence is guaranteed in deployment.
+- [ ] Backup and restore procedure is documented and tested once.
 
-### 7) Transport and Error Safety
-- [ ] Enable HTTPS for deployed frontend and backend.
-- [x] Do not expose raw backend exception traces to end users.
-- [ ] Confirm security headers at reverse proxy/web server.
+## 8) User Safety and Clinical Messaging (Blocker)
+- [ ] Results page clearly states this is risk screening, not medical diagnosis.
+- [ ] PDF/report includes non-diagnostic disclaimer.
+- [ ] Guidance tells users to consult an eye specialist for diagnosis/treatment.
 
-### 8) Clinical/Legal Messaging
-- [ ] Show non-diagnostic disclaimer on results/report pages.
-- [ ] Ensure recommendation language is supportive, not definitive diagnosis.
-- [ ] Include contact/escalation guidance for clinical follow-up.
+## 9) Launch Smoke Test (Final Gate)
+- [ ] Open app home page on deployed URL.
+- [ ] Complete one full screening flow to results.
+- [ ] Generate PDF report successfully.
+- [ ] Verify logs show request and response entries without sensitive leakage.
 
-## Nice to Have (Post-Launch)
+## Definition of Ready to Launch
+- [ ] Every blocker above is checked.
+- [ ] Release owner sign-off completed.
 
-### 1) Stronger Testing
-- [x] Add backend integration tests for auth endpoints.
-- [ ] Add backend integration tests for predict endpoints.
-- [ ] Add frontend lint and typecheck scripts and enforce in CI.
-- [ ] Add API contract tests for request/response shape.
-
-### 2) Security Hardening
-- [ ] Add rate limiting and basic brute-force protection.
-- [ ] Add dependency vulnerability scanning in CI.
-- [ ] Add session/token revocation strategy.
-
-### 3) Observability
-- [ ] Add structured metrics for auth success/failure and predict latency.
-- [ ] Configure alerting for health failures and high error rates.
-- [ ] Define log retention and privacy-safe logging policy.
-
-### 4) Model Operations
-- [ ] Verify model version metadata at app startup.
-- [ ] Add input drift monitoring and periodic model quality checks.
-- [ ] Document retraining and rollback process.
-
-## 45-Minute Go-Live Order
-
-1. [ ] Rotate secrets and update env values.
-2. [ ] Confirm OAuth origins + CORS for deployed domain.
-3. [ ] Run local verification (health, predict, auth).
-4. [ ] Push and ensure CI is fully green.
-5. [ ] Deploy and run smoke checks on live URL.
-
-## Sign-off
-
-- Owner: ____________________
-- Date: _____________________
-- Release tag/version: _____________________
-- Notes: __________________________________
+Owner: ____________________
+Date: _____________________
+Release tag/version: _____________________
