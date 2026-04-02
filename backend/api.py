@@ -16,9 +16,18 @@ import numpy as np
 import pandas as pd
 from logger import setup_logger, RequestLogger
 from auth import auth_bp
+from config import get_config, get_cors_origins, validate_production_config
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from the React frontend
+config = get_config()
+app.config['MAX_CONTENT_LENGTH'] = config.MAX_CONTENT_LENGTH
+app.config['SECRET_KEY'] = config.SECRET_KEY
+
+fatal_config_issues = validate_production_config()
+if fatal_config_issues:
+    raise RuntimeError('Invalid production configuration: ' + ' | '.join(fatal_config_issues))
+
+CORS(app, origins=get_cors_origins())  # Restrict origins to configured allowlist
 app.register_blueprint(auth_bp, url_prefix="/auth")
 
 # Setup logging
@@ -524,11 +533,9 @@ def predict():
     except Exception as e:
         logger.error(f"Prediction error: {type(e).__name__}: {str(e)}", exc_info=True)
         request_logger.log_error(e, context="predict endpoint")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500
 
 
 if __name__ == "__main__":
     print("Starting Myopia Risk API on http://localhost:5001")
-    app.run(host="0.0.0.0", port=5001, debug=False)
+    app.run(host=config.API_HOST, port=config.API_PORT, debug=config.DEBUG)

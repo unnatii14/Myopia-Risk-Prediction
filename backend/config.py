@@ -5,11 +5,15 @@ import os
 from pathlib import Path
 from typing import List
 
+
+DEFAULT_SECRET_KEY = 'dev-secret-key-change-me'
+DEFAULT_JWT_SECRET = 'myopia_dev_secret_key_2024'
+
 class Config:
     """Base configuration"""
     
     # Flask
-    SECRET_KEY = os.getenv('SECRET_KEY', 'dev-secret-key-change-me')
+    SECRET_KEY = os.getenv('SECRET_KEY', DEFAULT_SECRET_KEY)
     DEBUG = os.getenv('FLASK_DEBUG', 'False').lower() == 'true'
     
     # CORS
@@ -65,3 +69,35 @@ def get_config():
     }
     
     return configs.get(env, DevelopmentConfig)()
+
+
+def get_cors_origins() -> List[str]:
+    """Return normalized non-empty CORS origins from environment config."""
+    raw = os.getenv('CORS_ORIGINS', 'http://localhost:5174')
+    return [origin.strip() for origin in raw.split(',') if origin.strip()]
+
+
+def validate_production_config() -> List[str]:
+    """Return a list of fatal production configuration issues."""
+    errors: List[str] = []
+    env = os.getenv('FLASK_ENV', 'development').lower()
+    if env != 'production':
+        return errors
+
+    secret_key = os.getenv('SECRET_KEY', DEFAULT_SECRET_KEY)
+    jwt_secret = os.getenv('JWT_SECRET', DEFAULT_JWT_SECRET)
+    google_client_id = os.getenv('GOOGLE_CLIENT_ID', '').strip()
+    cors_origins = get_cors_origins()
+
+    if not secret_key or secret_key == DEFAULT_SECRET_KEY:
+        errors.append('SECRET_KEY must be set to a strong non-default value in production.')
+    if not jwt_secret or jwt_secret == DEFAULT_JWT_SECRET:
+        errors.append('JWT_SECRET must be set to a strong non-default value in production.')
+    if not google_client_id:
+        errors.append('GOOGLE_CLIENT_ID must be configured in production.')
+    if not cors_origins:
+        errors.append('CORS_ORIGINS must contain at least one trusted origin in production.')
+    if any('localhost' in origin.lower() for origin in cors_origins):
+        errors.append('CORS_ORIGINS must not include localhost entries in production.')
+
+    return errors

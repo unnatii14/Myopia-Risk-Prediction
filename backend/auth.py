@@ -11,12 +11,16 @@ import datetime
 import os
 from google.auth.transport import requests
 from google.oauth2 import id_token
+from config import DEFAULT_JWT_SECRET
 
 auth_bp = Blueprint("auth", __name__)
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 DB_PATH    = os.path.join(BASE_DIR, "users.db")
 JWT_SECRET = os.environ.get("JWT_SECRET", "myopia_dev_secret_key_2024")
+
+if os.environ.get("FLASK_ENV", "development").lower() == "production" and JWT_SECRET == DEFAULT_JWT_SECRET:
+    raise RuntimeError("JWT_SECRET must be set to a non-default value in production")
 
 
 def _init_db():
