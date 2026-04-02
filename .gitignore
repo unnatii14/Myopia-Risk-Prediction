@@ -54,3 +54,8 @@ backend/package-lock.json
 # ─── Docker ──────────────────────────────────────────────────
 *.tar
 docker-compose.override.yml
+
+# ─── Local scratch notes / patches ───────────────────────────
+changesUnnati.patch
+googlesetupChat.txt
+unnati myopia.txt
