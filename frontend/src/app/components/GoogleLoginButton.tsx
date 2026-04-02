@@ -2,6 +2,7 @@ import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
 import { useNavigate, useLocation } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
+import { API_URL } from "../lib/apiConfig";
 
 interface GoogleLoginButtonProps {
   onError?: (message: string) => void;
@@ -21,7 +22,7 @@ export default function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
 
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/auth/google", {
+      const res = await fetch(`${API_URL}/auth/google`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ token: credentialResponse.credential }),
@@ -33,7 +34,7 @@ export default function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
         return;
       }
 
-      login(data.name, data.email, data.token);
+      login(data.name, data.email, data.token, undefined, true);
       const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
       navigate(from, { replace: true });
     } catch (err) {

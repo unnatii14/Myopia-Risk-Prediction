@@ -15,9 +15,7 @@ import {
   AccordionTrigger,
 } from "../components/ui/accordion";
 import { useAuth } from "../context/AuthContext";
-
-
-const API_URL = "http://localhost:5001";
+import { API_URL } from "../lib/apiConfig";
 
 interface ScreeningData {
   age: number;
