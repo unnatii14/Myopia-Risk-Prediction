@@ -53,6 +53,10 @@ jobs:
       working-directory: ./backend
       run: python -c "import auth, validation"
 
+    - name: Run backend tests
+      working-directory: ./backend
+      run: pytest -q tests
+
   build-docker:
     name: Build Docker Images
     runs-on: ubuntu-latest
