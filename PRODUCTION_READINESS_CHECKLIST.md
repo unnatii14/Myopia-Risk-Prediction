@@ -25,25 +25,25 @@ Use this only for must-have checks before demo/release. If any item fails, do no
 - [ ] Google login works on deployed domain (not only localhost).
 
 ## 4) Backend Runtime Health (Blocker)
-- [ ] Backend starts without model-loading errors.
+- [x] Backend starts without model-loading errors.
 - [ ] GET /health returns 200.
-- [ ] POST /predict returns 200 for a valid sample payload.
-- [ ] POST /predict returns 400 for invalid payload.
-- [ ] API never returns raw internal exception details to client.
+- [x] POST /predict returns 200 for a valid sample payload.
+- [x] POST /predict returns 400 for invalid payload.
+- [x] API never returns raw internal exception details to client.
 
 ## 5) Auth Flows (Blocker)
-- [ ] Email signup works.
-- [ ] Email login works.
-- [ ] Duplicate signup returns proper conflict response.
-- [ ] Invalid password login returns unauthorized response.
+- [x] Email signup works.
+- [x] Email login works.
+- [x] Duplicate signup returns proper conflict response.
+- [x] Invalid password login returns unauthorized response.
 - [ ] Google login returns app token successfully.
 
 ## 6) CI/CD Quality Gates (Blocker)
-- [ ] Frontend typecheck passes.
-- [ ] Frontend build passes.
-- [ ] Backend tests pass.
+- [x] Frontend typecheck passes.
+- [x] Frontend build passes.
+- [x] Backend tests pass.
 - [ ] Docker image builds pass.
-- [ ] CI has no ignore-on-failure for required checks.
+- [x] CI has no ignore-on-failure for required checks.
 
 ## 7) Data Persistence and Recovery (Blocker)
 - [ ] Chosen storage strategy is explicit (SQLite for demo or managed DB for production).
