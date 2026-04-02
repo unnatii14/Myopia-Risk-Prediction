@@ -2,6 +2,14 @@
 
 Use this checklist before public demo, external sharing, or production release.
 
+## Progress Snapshot (Codebase)
+
+- [x] Frontend uses centralized API base URL via VITE_API_URL.
+- [x] Backend enforces CORS from configured allowlist.
+- [x] Backend returns sanitized 500 errors (no raw exception leakage).
+- [x] CI enforces backend tests and no longer ignores required failures.
+- [x] Backend auth regression tests added (signup/login).
+
 ## Must Have (Blocker)
 
 ### 1) Secrets and Credentials
@@ -19,7 +27,7 @@ Use this checklist before public demo, external sharing, or production release.
 
 ### 3) OAuth and CORS Safety
 - [ ] In Google Cloud Console, set exact Authorized JavaScript Origins for deployed frontend URL(s).
-- [ ] Remove unnecessary localhost origins in production settings.
+- [x] Remove unnecessary localhost origins in production settings.
 - [ ] Confirm OAuth login works end-to-end on deployed domain.
 
 ### 4) Runtime Health and Core Paths
@@ -32,7 +40,7 @@ Use this checklist before public demo, external sharing, or production release.
 - [ ] Frontend build passes.
 - [ ] Backend validation job passes.
 - [ ] Docker image builds pass.
-- [ ] No CI rule silently ignores failures for required checks.
+- [x] No CI rule silently ignores failures for required checks.
 
 ### 6) Storage and Backups
 - [ ] Decide persistent storage approach for user/auth data.
@@ -41,7 +49,7 @@ Use this checklist before public demo, external sharing, or production release.
 
 ### 7) Transport and Error Safety
 - [ ] Enable HTTPS for deployed frontend and backend.
-- [ ] Do not expose raw backend exception traces to end users.
+- [x] Do not expose raw backend exception traces to end users.
 - [ ] Confirm security headers at reverse proxy/web server.
 
 ### 8) Clinical/Legal Messaging
@@ -52,7 +60,8 @@ Use this checklist before public demo, external sharing, or production release.
 ## Nice to Have (Post-Launch)
 
 ### 1) Stronger Testing
-- [ ] Add backend integration tests for auth and predict endpoints.
+- [x] Add backend integration tests for auth endpoints.
+- [ ] Add backend integration tests for predict endpoints.
 - [ ] Add frontend lint and typecheck scripts and enforce in CI.
 - [ ] Add API contract tests for request/response shape.
 
