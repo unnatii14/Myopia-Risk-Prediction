@@ -126,7 +126,7 @@ npm start
 1. Backend receives Google JWT token
 2. Verifies token signature using Google's public keys
 3. Extracts user info (name, email) from verified token
-4. Checks if user exists in SQLite database
+4. Checks if user exists in MongoDB
 5. If new user, creates account automatically
 6. Returns app's own JWT token to frontend
 7. Frontend stores token in localStorage and logs user in
@@ -143,7 +143,7 @@ npm start
 - Clear browser cookies/cache and try again
 
 ### CORS errors
-- CORS is already enabled on the backend (`flask-cors`)
+- CORS is already enabled on the backend (`cors` middleware in Express)
 - No additional configuration needed
 
 ### Token verification fails

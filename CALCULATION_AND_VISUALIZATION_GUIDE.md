@@ -48,7 +48,9 @@
 │    "nearWork": 3,                                                   │
 │    "outdoorTime": 1.5,                                              │
 │    "sports": "occasional",                                          │
-│    "vitaminD": false                                                │
+│    "vitaminD": false,                                               │
+│    "leftEyeSE": -1.25,                                              │
+│    "rightEyeSE": -0.25                                              │
 │  }                                                                  │
 └─────────────────────────────────────────────────────────────────────┘
 
@@ -148,9 +150,22 @@
 │    "has_re": true,                                                 │
 │    "re_probability": 0.68,                                         │
 │    "diopters": 2.45,                                               │
-│    "severity": "Mild"                                              │
+│    "severity": "Mild",                                             │
+│    "anisometropia_diopters": 1.00,                                 │
+│    "anisometropia_flag": true,                                     │
+│    "severe_anisometropia_flag": false,                             │
+│    "amblyopia_risk_note": "Clinically meaningful anisometropia..." │
 │  }                                                                  │
 └─────────────────────────────────────────────────────────────────────┘
+
+### Clinical Safety Check: Anisometropia
+
+- If both `leftEyeSE` and `rightEyeSE` are provided, backend computes:
+  - `anisometropia_diopters = abs(leftEyeSE - rightEyeSE)`
+- Thresholds used:
+  - `< 1.0D`: low concern
+  - `>= 1.0D`: clinically meaningful anisometropia (amblyopia risk screening advised)
+  - `>= 2.0D`: severe anisometropia (priority pediatric ophthalmology review)
 
                               ↓
 

@@ -20,6 +20,8 @@ interface FormData {
   sex: "male" | "female" | "";
   height: number;
   weight: number;
+  leftEyeSE?: number;
+  rightEyeSE?: number;
 
   // Step 2
   familyHistory: boolean | null;
@@ -43,6 +45,8 @@ const initialFormData: FormData = {
   sex: "",
   height: 0,
   weight: 0,
+  leftEyeSE: undefined,
+  rightEyeSE: undefined,
   familyHistory: null,
   parentsMyopic: "",
   screenTime: 4,
@@ -380,6 +384,53 @@ export default function Screen() {
                     </p>
                   </div>
                 )}
+
+                <div className="p-4 bg-[var(--background-mint)]/40 rounded-xl border border-[var(--secondary-green)]/20">
+                  <label className="block text-sm font-medium mb-3">
+                    Optional: Cycloplegic refraction (Spherical Equivalent)
+                  </label>
+                  <div className="grid grid-cols-2 gap-4">
+                    <div>
+                      <label className="block text-xs text-[var(--text-muted)] mb-2">
+                        Left Eye (D)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.25"
+                        value={formData.leftEyeSE ?? ""}
+                        onChange={(e) =>
+                          updateFormData(
+                            "leftEyeSE",
+                            e.target.value === "" ? undefined : Number(e.target.value)
+                          )
+                        }
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
+                        placeholder="e.g. -1.25"
+                      />
+                    </div>
+                    <div>
+                      <label className="block text-xs text-[var(--text-muted)] mb-2">
+                        Right Eye (D)
+                      </label>
+                      <input
+                        type="number"
+                        step="0.25"
+                        value={formData.rightEyeSE ?? ""}
+                        onChange={(e) =>
+                          updateFormData(
+                            "rightEyeSE",
+                            e.target.value === "" ? undefined : Number(e.target.value)
+                          )
+                        }
+                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
+                        placeholder="e.g. -0.25"
+                      />
+                    </div>
+                  </div>
+                  <p className="text-xs text-[var(--text-muted)] mt-2">
+                    If both eyes are entered, the app checks anisometropia (difference between eyes).
+                  </p>
+                </div>
               </div>
             )}
 

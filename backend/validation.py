@@ -68,6 +68,21 @@ def validate_screening_data(data: dict) -> dict:
         validated['weight'] = weight
     except (ValueError, TypeError):
         errors.append("Weight must be a valid number")
+
+    # ── Optional cycloplegic spherical equivalents (D) ──
+    # Expected clinical range is broad; allow values typically seen in practice.
+    for eye_field in ['leftEyeSE', 'rightEyeSE']:
+        eye_val = data.get(eye_field)
+        if eye_val is None or eye_val == "":
+            validated[eye_field] = None
+            continue
+        try:
+            eye_float = float(eye_val)
+            if not -15 <= eye_float <= 10:
+                errors.append(f"{eye_field} must be between -15D and +10D")
+            validated[eye_field] = eye_float
+        except (ValueError, TypeError):
+            errors.append(f"{eye_field} must be a valid number")
     
     # ── Screen time: 0-24 hours/day ──
     try:

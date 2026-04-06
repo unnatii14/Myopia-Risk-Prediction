@@ -28,7 +28,7 @@ I've successfully added "Continue with Google" authentication to your Myopia Ris
 1. **Updated dependencies**: `backend/requirements.txt`
    - Added `google-auth>=2.25.0` for token verification
 
-2. **Enhanced auth module**: `backend/auth.py`
+2. **Enhanced auth module**: `server/routes/auth.js`
    - Added imports for Google OAuth token verification
    - New endpoint: **POST `/api/auth/google`**
      - Receives Google JWT token from frontend
@@ -92,7 +92,7 @@ Frontend:
 
 Backend:
   ✓ auth.py (added /google endpoint)
-  ✓ requirements.txt (added google-auth)
+   ✓ package.json (added google-auth-library)
   ✓ .env.example (added GOOGLE_CLIENT_ID)
 
 Docs:

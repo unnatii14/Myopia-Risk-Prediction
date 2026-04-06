@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { Ruler, Info, ChevronDown } from "lucide-react";
+import { Ruler, Info, ChevronDown, AlertTriangle } from "lucide-react";
 
 // ── Evidence base ─────────────────────────────────────────────
 // Annual untreated progression rates (D/year) by age
@@ -171,6 +171,8 @@ function StyledSelect({ label, value, onChange, children }: {
 export default function AxialElongation() {
   const [age,       setAge]       = useState(8);
   const [al,        setAL]        = useState(24.00);
+  const [leftEyeSE, setLeftEyeSE] = useState<number | "">("");
+  const [rightEyeSE, setRightEyeSE] = useState<number | "">("");
   const [ethnicity, setEthnicity] = useState("asian");
   const [gender,    setGender]    = useState("female");
   const [treatment, setTreatment] = useState("none");
@@ -192,6 +194,11 @@ export default function AxialElongation() {
   const finalALNo   = alUntreated[alUntreated.length - 1].al;
   const finalALTx   = alTreated[alTreated.length - 1].al;
   const maxAL       = Math.max(finalALNo, NORMAL_AL + 0.5);
+  const anisometropia =
+    leftEyeSE !== "" && rightEyeSE !== ""
+      ? Math.abs(Number(leftEyeSE) - Number(rightEyeSE))
+      : null;
+  const anisometropiaFlag = anisometropia !== null && anisometropia >= 1.0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
@@ -246,6 +253,41 @@ export default function AxialElongation() {
               onChange={v => { setAL(+v); setShowResult(false); }}>
               {AL_OPTIONS.map(v => <option key={v} value={v}>{v.toFixed(2)} mm</option>)}
             </StyledSelect>
+
+            <div className="md:col-span-2">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">Left Eye SE (optional)</label>
+                  <input
+                    type="number"
+                    step="0.25"
+                    value={leftEyeSE}
+                    onChange={e => { setLeftEyeSE(e.target.value === "" ? "" : Number(e.target.value)); setShowResult(false); }}
+                    className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background-mint)] text-[var(--text-dark)] text-sm outline-none focus:ring-2 focus:ring-[var(--secondary-green)]"
+                    placeholder="-1.25"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">Right Eye SE (optional)</label>
+                  <input
+                    type="number"
+                    step="0.25"
+                    value={rightEyeSE}
+                    onChange={e => { setRightEyeSE(e.target.value === "" ? "" : Number(e.target.value)); setShowResult(false); }}
+                    className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background-mint)] text-[var(--text-dark)] text-sm outline-none focus:ring-2 focus:ring-[var(--secondary-green)]"
+                    placeholder="-0.25"
+                  />
+                </div>
+              </div>
+              {anisometropiaFlag && (
+                <div className="mt-3 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <span>
+                    Anisometropia {anisometropia.toFixed(2)} D detected. This can affect binocular vision and amblyopia risk.
+                  </span>
+                </div>
+              )}
+            </div>
 
             <div className="md:col-span-2">
               <StyledSelect label="Myopia Management Option" value={treatment}
@@ -333,6 +375,11 @@ export default function AxialElongation() {
                 {hasCI && (
                   <p className="text-xs text-[var(--text-muted)] mt-1">
                     {(finalALNo - finalALTx).toFixed(2)} mm less elongation vs. no treatment
+                  </p>
+                )}
+                {anisometropiaFlag && (
+                  <p className="text-xs text-amber-700 mt-1 font-medium">
+                    Anisometropia: {anisometropia?.toFixed(2)} D
                   </p>
                 )}
               </div>

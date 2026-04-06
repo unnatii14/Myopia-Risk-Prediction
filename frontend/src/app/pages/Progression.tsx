@@ -1,6 +1,6 @@
 import { useState } from "react";
 import { motion } from "motion/react";
-import { TrendingDown, Info, ChevronDown } from "lucide-react";
+import { TrendingDown, Info, ChevronDown, AlertTriangle } from "lucide-react";
 
 // ── Evidence base ─────────────────────────────────────────────
 // Annual untreated base progression rates (D/year) by age
@@ -156,6 +156,8 @@ function StyledSelect({ label, value, onChange, children }: {
 export default function Progression() {
   const [age,       setAge]       = useState(8);
   const [se,        setSE]        = useState(-1.00);
+  const [leftEyeSE, setLeftEyeSE] = useState<number | "">("");
+  const [rightEyeSE, setRightEyeSE] = useState<number | "">("");
   const [ethnicity, setEthnicity] = useState("asian");
   const [gender,    setGender]    = useState("female");
   const [treatment, setTreatment] = useState("none");
@@ -174,6 +176,11 @@ export default function Progression() {
   const treated   = project(age, se, ethnicMult, genderMult, txEffect);
   const finalNo   = untreated[untreated.length - 1].se;
   const finalTx   = treated[treated.length - 1].se;
+  const anisometropia =
+    leftEyeSE !== "" && rightEyeSE !== ""
+      ? Math.abs(Number(leftEyeSE) - Number(rightEyeSE))
+      : null;
+  const anisometropiaFlag = anisometropia !== null && anisometropia >= 1.0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
@@ -228,6 +235,41 @@ export default function Progression() {
               onChange={v => { setSE(+v); setShowResult(false); }}>
               {SE_OPTIONS.map(v => <option key={v} value={v}>{v.toFixed(2)} D</option>)}
             </StyledSelect>
+
+            <div className="md:col-span-2">
+              <div className="grid md:grid-cols-2 gap-4">
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">Left Eye SE (optional)</label>
+                  <input
+                    type="number"
+                    step="0.25"
+                    value={leftEyeSE}
+                    onChange={e => { setLeftEyeSE(e.target.value === "" ? "" : Number(e.target.value)); setShowResult(false); }}
+                    className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background-mint)] text-[var(--text-dark)] text-sm outline-none focus:ring-2 focus:ring-[var(--secondary-green)]"
+                    placeholder="-1.25"
+                  />
+                </div>
+                <div>
+                  <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">Right Eye SE (optional)</label>
+                  <input
+                    type="number"
+                    step="0.25"
+                    value={rightEyeSE}
+                    onChange={e => { setRightEyeSE(e.target.value === "" ? "" : Number(e.target.value)); setShowResult(false); }}
+                    className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background-mint)] text-[var(--text-dark)] text-sm outline-none focus:ring-2 focus:ring-[var(--secondary-green)]"
+                    placeholder="-0.25"
+                  />
+                </div>
+              </div>
+              {anisometropiaFlag && (
+                <div className="mt-3 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-sm text-amber-800">
+                  <AlertTriangle className="mt-0.5 h-4 w-4 flex-shrink-0" />
+                  <span>
+                    Anisometropia {anisometropia.toFixed(2)} D detected. This is clinically meaningful and should be checked for amblyopia risk.
+                  </span>
+                </div>
+              )}
+            </div>
 
             <div className="md:col-span-2">
               <StyledSelect label="Myopia Management Option" value={treatment}
@@ -310,6 +352,11 @@ export default function Progression() {
                 {hasCI && (
                   <p className="text-xs text-[var(--text-muted)] mt-1">
                     {Math.abs(finalNo - finalTx).toFixed(2)} D saved vs. no treatment
+                  </p>
+                )}
+                {anisometropiaFlag && (
+                  <p className="text-xs text-amber-700 mt-1 font-medium">
+                    Anisometropia: {anisometropia?.toFixed(2)} D
                   </p>
                 )}
               </div>

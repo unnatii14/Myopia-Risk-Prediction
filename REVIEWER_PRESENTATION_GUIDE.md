@@ -123,16 +123,15 @@ User Answers 11-Question Form
 
 ## 📈 Database Schema
 
-```sql
--- Users Table (SQLite)
-CREATE TABLE users (
-    id            INTEGER PRIMARY KEY AUTOINCREMENT,
-    name          TEXT NOT NULL,              -- Parent name
-    child_name    TEXT,                       -- Child name (NEW)
-    email         TEXT UNIQUE NOT NULL,
-    password_hash TEXT NOT NULL,
-    created_at    TEXT DEFAULT (datetime('now'))
-);
+```js
+// Users collection (MongoDB / Mongoose)
+{
+   name: String,
+   email: String,
+   password: String,
+   createdAt: Date,
+   updatedAt: Date
+}
 ```
 
 ---
@@ -143,7 +142,7 @@ CREATE TABLE users (
 - Added "Continue with Google" button to signup/login
 - Auto-creates accounts for Google users
 - Zero password needed for OAuth users
-- **Implementation**: GoogleLoginButton component + /auth/google backend endpoint
+- **Implementation**: GoogleLoginButton component + /api/auth/google backend endpoint
 
 ### 2. Child Name Field
 - Signup form now captures child's name

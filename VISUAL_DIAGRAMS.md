@@ -76,9 +76,9 @@
 │  │                                                                  │    │
 │  └─────────────────────────────────────────────────────────────────┘    │
 │                                                                             │
-│  ┌─ DATABASE (SQLite) ──────────────────────────────────────────────┐    │
-│  │  users.db                                                        │    │
-│  │  ├─ users table: id, name, child_name, email, password_hash    │    │
+│  ┌─ DATABASE (MongoDB) ─────────────────────────────────────────────┐    │
+│  │  myopia_guard.users                                              │    │
+│  │  ├─ users collection: name, email, password                     │    │
 │  │  └─ Stores account information                                  │    │
 │  └─────────────────────────────────────────────────────────────────┘    │
 │                                                                             │

@@ -107,12 +107,19 @@ const RECOMMENDATIONS: Record<RiskLevel, string[]> = {
 export default function OnsetPredictor() {
   const [age,     setAge]     = useState(8);
   const [se,      setSE]      = useState(0.75);
+  const [leftEyeSE, setLeftEyeSE] = useState<number | "">("");
+  const [rightEyeSE, setRightEyeSE] = useState<number | "">("");
   const [parents, setParents] = useState("none");
   const [result,  setResult]  = useState<Result | null>(null);
 
   const handleCalc = () => setResult(analyze(age, se, parents));
 
   const cfg = result ? LEVEL_CONFIG[result.level] : null;
+  const anisometropia =
+    leftEyeSE !== "" && rightEyeSE !== ""
+      ? Math.abs(Number(leftEyeSE) - Number(rightEyeSE))
+      : null;
+  const anisometropiaFlag = anisometropia !== null && anisometropia >= 1.0;
 
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
@@ -142,13 +149,16 @@ export default function OnsetPredictor() {
 
           {/* ── Inputs ─────────────────────────────────────────── */}
           <div className="grid md:grid-cols-3 gap-6 mt-6">
-            {/* Age */}
             <div>
               <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">
                 Current Age: <span className="text-[var(--primary-green)]">{age} yrs</span>
               </label>
               <input
-                type="range" min={5} max={14} step={1} value={age}
+                type="range"
+                min={5}
+                max={14}
+                step={1}
+                value={age}
                 onChange={e => { setAge(+e.target.value); setResult(null); }}
                 className="w-full h-2 rounded-full appearance-none cursor-pointer"
                 style={{ accentColor: "var(--primary-green)" }}
@@ -158,7 +168,6 @@ export default function OnsetPredictor() {
               </div>
             </div>
 
-            {/* Current refraction */}
             <div>
               <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">
                 Current Refraction (SE)
@@ -180,18 +189,19 @@ export default function OnsetPredictor() {
               <p className="text-xs text-[var(--text-muted)] mt-1">Use cycloplegic values if available</p>
             </div>
 
-            {/* Parental myopia */}
             <div>
-              <label className="block text-sm font-semibold text-[var(--text-dark)] mb-3">Parental Myopia</label>
+              <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">Parental Myopia</label>
               <div className="space-y-2">
                 {[
                   { value: "none", label: "Neither parent" },
-                  { value: "one",  label: "One parent myopic" },
+                  { value: "one", label: "One parent myopic" },
                   { value: "both", label: "Both parents myopic" },
                 ].map(opt => (
                   <label key={opt.value} className="flex items-center gap-2 cursor-pointer">
                     <input
-                      type="radio" name="parents" value={opt.value}
+                      type="radio"
+                      name="parents"
+                      value={opt.value}
                       checked={parents === opt.value}
                       onChange={() => { setParents(opt.value); setResult(null); }}
                       className="accent-[var(--primary-green)]"
@@ -201,7 +211,37 @@ export default function OnsetPredictor() {
                 ))}
               </div>
             </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">Left Eye SE (optional)</label>
+              <input
+                type="number"
+                step="0.25"
+                value={leftEyeSE}
+                onChange={e => { setLeftEyeSE(e.target.value === "" ? "" : Number(e.target.value)); setResult(null); }}
+                className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background-mint)] text-[var(--text-dark)] text-sm outline-none focus:ring-2 focus:ring-[var(--secondary-green)]"
+                placeholder="-1.25"
+              />
+            </div>
+
+            <div>
+              <label className="block text-sm font-semibold text-[var(--text-dark)] mb-2">Right Eye SE (optional)</label>
+              <input
+                type="number"
+                step="0.25"
+                value={rightEyeSE}
+                onChange={e => { setRightEyeSE(e.target.value === "" ? "" : Number(e.target.value)); setResult(null); }}
+                className="w-full px-3 py-2.5 rounded-xl border border-[var(--border)] bg-[var(--background-mint)] text-[var(--text-dark)] text-sm outline-none focus:ring-2 focus:ring-[var(--secondary-green)]"
+                placeholder="-0.25"
+              />
+            </div>
           </div>
+
+          {anisometropiaFlag && (
+            <div className="mt-4 p-3 rounded-xl border border-amber-300 bg-amber-50 text-sm text-amber-800">
+              <strong>Anisometropia alert:</strong> {anisometropia?.toFixed(2)}D difference between eyes. This can raise amblyopia risk.
+            </div>
+          )}
 
           {/* Age norm reference */}
           <div className="mt-4 p-3 rounded-xl border border-[var(--border)] text-xs text-[var(--text-muted)]">
@@ -256,6 +296,15 @@ export default function OnsetPredictor() {
                         <p className="text-3xl font-bold text-[var(--text-dark)]">{result.yearsToOnset}</p>
                         <p className="text-xs text-[var(--text-muted)]">years (est.)</p>
                       </div>
+                    </div>
+                  )}
+
+                  {anisometropiaFlag && (
+                    <div className="rounded-2xl border border-amber-300 bg-amber-50 p-4 text-sm text-amber-800">
+                      <p className="font-semibold mb-1">Clinical safety check</p>
+                      <p>
+                        Inter-eye difference is {anisometropia?.toFixed(2)}D. This is clinically meaningful and should be checked for lazy eye/amblyopia risk.
+                      </p>
                     </div>
                   )}
                 </div>

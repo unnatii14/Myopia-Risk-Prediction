@@ -36,6 +36,8 @@ interface ScreeningData {
   diagnosisAge?: number;
   myopiaControl?: string;
   progressionRate?: "slow" | "moderate" | "fast";
+  leftEyeSE?: number;
+  rightEyeSE?: number;
 }
 
 interface PredictionResult {
@@ -46,6 +48,10 @@ interface PredictionResult {
   re_probability: number;
   diopters: number | null;
   severity: string | null;
+  anisometropia_diopters?: number | null;
+  anisometropia_flag?: boolean;
+  severe_anisometropia_flag?: boolean;
+  amblyopia_risk_note?: string | null;
 }
 
 export default function Results() {
@@ -178,6 +184,12 @@ export default function Results() {
       ["Sports participation", data.sports || "Not specified"],
       ["Vitamin D", data.vitaminD ? "Taking supplement" : "Not taking"],
     ];
+    if (prediction?.anisometropia_diopters != null) {
+      factors.push([
+        "Inter-eye difference (anisometropia)",
+        `${prediction.anisometropia_diopters.toFixed(2)} D`,
+      ]);
+    }
     factors.forEach(([k, v]) => {
       doc.setFillColor(252, 252, 252);
       doc.roundedRect(margin, y, col, 9, 2, 2, "F");
@@ -544,6 +556,17 @@ export default function Results() {
                       : riskLevel === "HIGH" ? "~-3.2D · Moderate" : riskLevel === "MODERATE" ? "~-1.5D · Mild" : "~-0.5D · Very Mild"}
                   </p>
                 </div>
+
+                {prediction?.anisometropia_diopters != null && (
+                  <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
+                    <p className="text-xs text-[var(--text-muted)] mb-1">Clinical Safety Check</p>
+                    <p className="font-bold text-[var(--text-dark)]">Inter-eye Difference</p>
+                    <p className="text-sm text-[var(--text-muted)]">
+                      {prediction.anisometropia_diopters.toFixed(2)}D
+                      {prediction.anisometropia_flag ? " · Clinically significant" : " · Within low concern range"}
+                    </p>
+                  </div>
+                )}
               </div>
             )}
           </div>
@@ -715,6 +738,33 @@ export default function Results() {
                   <li>• No myopia control currently in use — discuss options with eye doctor</li>
                   {data.parentsMyopic === "both" && (
                     <li>• Both parents myopic — 6x increased risk, close monitoring needed</li>
+                  )}
+                </ul>
+              </div>
+            </div>
+          </motion.div>
+        )}
+
+        {prediction?.anisometropia_flag && (
+          <motion.div
+            initial={{ opacity: 0, y: 20 }}
+            animate={{ opacity: 1, y: 0 }}
+            transition={{ delay: 0.45 }}
+            className="mb-8 p-6 bg-amber-50 border-2 border-amber-300 rounded-2xl"
+          >
+            <div className="flex items-start gap-3">
+              <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
+              <div>
+                <h4 className="font-bold text-amber-900 mb-2">Anisometropia Alert</h4>
+                <ul className="space-y-2 text-sm text-amber-800">
+                  <li>
+                    • Difference between eyes: {prediction.anisometropia_diopters?.toFixed(2)}D
+                  </li>
+                  <li>
+                    • {prediction.amblyopia_risk_note || "Evaluate for amblyopia/lazy eye risk in pediatric eye clinic."}
+                  </li>
+                  {prediction.severe_anisometropia_flag && (
+                    <li>• Severe anisometropia detected (&gt;=2.0D) - prioritize specialist review.</li>
                   )}
                 </ul>
               </div>

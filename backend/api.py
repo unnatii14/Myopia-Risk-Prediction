@@ -15,11 +15,9 @@ import time
 import numpy as np
 import pandas as pd
 from logger import setup_logger, RequestLogger
-from auth import auth_bp
 
 app = Flask(__name__)
 CORS(app)  # Allow requests from the React frontend
-app.register_blueprint(auth_bp, url_prefix="/auth")
 
 # Setup logging
 logger = setup_logger('api', log_file='logs/api.log', level='INFO')
@@ -366,6 +364,27 @@ def predict():
         # Use validated data for processing
         data = validated_data
 
+        # Optional anisometropia signal from left/right eye cycloplegic SE
+        left_eye_se = data.get("leftEyeSE")
+        right_eye_se = data.get("rightEyeSE")
+        anisometropia_diopters = None
+        anisometropia_flag = False
+        severe_anisometropia_flag = False
+        amblyopia_risk_note = None
+        if left_eye_se is not None and right_eye_se is not None:
+            anisometropia_diopters = round(abs(float(left_eye_se) - float(right_eye_se)), 2)
+            anisometropia_flag = anisometropia_diopters >= 1.0
+            severe_anisometropia_flag = anisometropia_diopters >= 2.0
+            if severe_anisometropia_flag:
+                amblyopia_risk_note = (
+                    "High anisometropia detected (>=2.0D). Pediatric ophthalmology review is strongly advised."
+                )
+            elif anisometropia_flag:
+                amblyopia_risk_note = (
+                    "Clinically meaningful anisometropia detected (>=1.0D)."
+                    " Evaluate for amblyopia risk and binocular imbalance."
+                )
+
         # Build features for Stage 2 (risk progression)
         X = build_feature_row(data)
         X_cls = scaler_cls.transform(X)
@@ -494,6 +513,10 @@ def predict():
             "re_probability"  : round(re_prob, 3),
             "diopters"        : diopters,
             "severity"        : severity,
+            "anisometropia_diopters": anisometropia_diopters,
+            "anisometropia_flag": anisometropia_flag,
+            "severe_anisometropia_flag": severe_anisometropia_flag,
+            "amblyopia_risk_note": amblyopia_risk_note,
         }
         
         # Log prediction details
