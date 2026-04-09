@@ -18,6 +18,7 @@ import { useAuth } from "../context/AuthContext";
 import { API_URL } from "../lib/apiConfig";
 
 interface ScreeningData {
+  childName?: string;
   age: number;
   sex: string;
   height: number;
@@ -55,6 +56,7 @@ export default function Results() {
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const resolvedChildName = (data?.childName || user?.childName || "").trim();
 
   const downloadPdf = () => {
     if (!data) return;
@@ -87,17 +89,17 @@ export default function Results() {
     doc.text("Child Profile", margin + 4, y + 8);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    if (user?.childName) doc.text(`Child Name: ${user.childName}`, margin + 4, y + 16);
-    doc.text(`Age: ${data.age} years`, margin + 4, user?.childName ? y + 24 : y + 16);
-    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, user?.childName ? y + 24 : y + 16);
-    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, user?.childName ? y + 24 : y + 16);
-    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, user?.childName ? y + 24 : y + 16);
+    if (resolvedChildName) doc.text(`Child Name: ${resolvedChildName}`, margin + 4, y + 16);
+    doc.text(`Age: ${data.age} years`, margin + 4, resolvedChildName ? y + 24 : y + 16);
+    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, resolvedChildName ? y + 24 : y + 16);
+    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, resolvedChildName ? y + 24 : y + 16);
+    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, resolvedChildName ? y + 24 : y + 16);
     if (data?.existingMyopiaStatus === "distance") {
-      y += user?.childName ? 34 : 26;
+      y += resolvedChildName ? 34 : 26;
       if (data.currentPrescription) doc.text(`Prescription: -${data.currentPrescription.toFixed(2)}D`, margin + 4, y);
       if (data.diagnosisAge) doc.text(`Diagnosed: ${data.diagnosisAge} years old`, margin + 4, y + (data.currentPrescription ? 8 : 0));
     }
-    y += user?.childName ? 42 : 34;
+    y += resolvedChildName ? 42 : 34;
 
     // ── Risk result box ──
     const riskColors: Record<string, [number, number, number]> = {
@@ -203,7 +205,9 @@ export default function Results() {
     const disclaimer = "DISCLAIMER: This AI assessment is not a medical diagnosis. It provides a risk estimate based on lifestyle and family history. Please consult a qualified ophthalmologist for proper examination and diagnosis.";
     doc.text(doc.splitTextToSize(disclaimer, col - 6), margin + 3, y + 6);
 
-    doc.save(`MyopiaGuard_Report_${data.age}yr_${new Date().toISOString().slice(0,10)}.pdf`);
+    const safeName = resolvedChildName.replace(/[^a-zA-Z0-9_-]+/g, "_").replace(/^_+|_+$/g, "");
+    const nameSuffix = safeName ? `${safeName}_` : "";
+    doc.save(`MyopiaGuard_Report_${nameSuffix}${data.age}yr_${new Date().toISOString().slice(0,10)}.pdf`);
   };
 
   useEffect(() => {
@@ -391,6 +395,11 @@ export default function Results() {
                   : "Risk Assessment Complete"}
               </h2>
               <div className="space-y-2 text-sm text-[var(--text-muted)]">
+                {resolvedChildName && (
+                  <p>
+                    <strong>Child Name:</strong> {resolvedChildName}
+                  </p>
+                )}
                 <p>
                   <strong>Age:</strong> {data.age} years
                 </p>

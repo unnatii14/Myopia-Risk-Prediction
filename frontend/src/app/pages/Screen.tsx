@@ -16,6 +16,7 @@ interface FormData {
   progressionRate?: "slow" | "moderate" | "fast" | "";
 
   // Step 1
+  childName: string;
   age: number;
   sex: "male" | "female" | "";
   height: number;
@@ -39,6 +40,7 @@ const initialFormData: FormData = {
   diagnosisAge: undefined,
   myopiaControl: undefined,
   progressionRate: "",
+  childName: "",
   age: 10,
   sex: "",
   height: 0,
@@ -71,10 +73,11 @@ export default function Screen() {
       return formData.existingMyopiaStatus !== "";
     }
     if (step === 1) {
+      const childNameValid = formData.childName.trim().length > 0;
       const heightValid = formData.height >= 50 && formData.height <= 220;
       const weightValid = formData.weight >= 10 && formData.weight <= 200;
       const sexValid = formData.sex !== "";
-      return heightValid && weightValid && sexValid;
+      return childNameValid && heightValid && weightValid && sexValid;
     }
     if (step === 2) {
       const famValid = formData.familyHistory !== null;
@@ -355,6 +358,23 @@ export default function Screen() {
                     step={1}
                     className="w-full"
                   />
+                </div>
+
+                {/* Child Name */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Child Name</label>
+                  <input
+                    type="text"
+                    value={formData.childName}
+                    onChange={(e) => updateFormData("childName", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
+                    placeholder="Enter child name"
+                  />
+                  {touched["childName"] && !formData.childName.trim() && (
+                    <p className="mt-1 text-xs text-[var(--warning-coral)]">
+                      Child name is required for the report.
+                    </p>
+                  )}
                 </div>
 
                 {/* Sex */}
