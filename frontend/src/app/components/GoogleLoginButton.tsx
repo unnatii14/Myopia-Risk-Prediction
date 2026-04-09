@@ -50,12 +50,19 @@ export default function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
   };
 
   return (
-    <div className="flex justify-center">
-      <GoogleLogin
-        onSuccess={handleSuccess}
-        onError={handleError}
-        useOneTap
-      />
+    <div className="w-full rounded-2xl border border-[var(--border)] bg-white p-1 shadow-sm">
+      <div className="overflow-hidden rounded-xl">
+        <GoogleLogin
+          onSuccess={handleSuccess}
+          onError={handleError}
+          useOneTap
+          theme="outline"
+          size="large"
+          text="continue_with"
+          shape="rectangular"
+          width="100%"
+        />
+      </div>
     </div>
   );
 }
