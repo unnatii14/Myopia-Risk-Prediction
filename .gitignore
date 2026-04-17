@@ -56,13 +56,13 @@ backend/package-lock.json
 docker-compose.override.yml
 
 # ─── ML Models (large binary files — do not commit) ──────────
-models/*.pkl
 models/*.keras
 models/*.h5
 models/myopia_image_classifier.keras/
 models/config.json
 models/metadata.json
 models/model.weights.h5
+# Note: models/*.pkl and models/*.onnx ARE tracked (needed for Render)
 
 # ─── SQLite local DB ─────────────────────────────────────────
 backend/users.db

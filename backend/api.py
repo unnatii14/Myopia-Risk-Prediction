@@ -25,6 +25,11 @@ except Exception:
     tf = None
 
 try:
+    import onnxruntime as ort
+except Exception:
+    ort = None
+
+try:
     from PIL import Image
 except Exception:
     Image = None
@@ -104,29 +109,39 @@ except Exception as _e:
     FEATURE_COLS = []
     print(f"[ERROR]  Failed to load feature_columns.json: {_e}")
 
-# Optional image classifier model (Keras v3 saved-model directory format).
-# This keeps the existing tabular pipeline intact while enabling image inference.
-image_model = None
+# Image classifier — tries ONNX first (no TensorFlow needed), falls back to Keras
+image_model      = None   # onnxruntime.InferenceSession or tf.keras model
+image_model_type = None   # "onnx" or "keras"
 image_model_error = None
-# Prefer the properly-zipped Keras v3 file; fall back to legacy directory if absent.
+
+ONNX_MODEL_PATH  = os.path.join(MODEL_DIR, "myopia_classifier.onnx")
 IMAGE_MODEL_ZIP  = os.path.join(MODEL_DIR, "myopia_image_classifier_v2.keras")
 IMAGE_MODEL_DIR  = os.path.join(MODEL_DIR, "myopia_image_classifier.keras")
 IMAGE_MODEL_PATH = IMAGE_MODEL_ZIP if os.path.isfile(IMAGE_MODEL_ZIP) else IMAGE_MODEL_DIR
-if tf is None:
-    image_model_error = "tensorflow is not installed"
-    print(f"[WARN]  Image classifier disabled: {image_model_error}")
-elif Image is None:
+
+if Image is None:
     image_model_error = "Pillow is not installed"
     print(f"[WARN]  Image classifier disabled: {image_model_error}")
-elif os.path.isfile(IMAGE_MODEL_PATH) or os.path.isdir(IMAGE_MODEL_PATH):
+elif ort is not None and os.path.isfile(ONNX_MODEL_PATH):
+    # Preferred: lightweight ONNX runtime (no TensorFlow required)
     try:
-        image_model = tf.keras.models.load_model(IMAGE_MODEL_PATH)
-        print(f"[OK]  Image classifier loaded from: {IMAGE_MODEL_PATH}")
+        image_model = ort.InferenceSession(ONNX_MODEL_PATH, providers=["CPUExecutionProvider"])
+        image_model_type = "onnx"
+        print(f"[OK]  Image classifier loaded via ONNX from: {ONNX_MODEL_PATH}")
     except Exception as _e:
         image_model_error = str(_e)
-        print(f"[WARN]  Image classifier load failed: {_e}")
+        print(f"[WARN]  ONNX load failed: {_e}")
+elif tf is not None and (os.path.isfile(IMAGE_MODEL_PATH) or os.path.isdir(IMAGE_MODEL_PATH)):
+    # Fallback: TensorFlow/Keras (local dev)
+    try:
+        image_model = tf.keras.models.load_model(IMAGE_MODEL_PATH)
+        image_model_type = "keras"
+        print(f"[OK]  Image classifier loaded via Keras from: {IMAGE_MODEL_PATH}")
+    except Exception as _e:
+        image_model_error = str(_e)
+        print(f"[WARN]  Keras load failed: {_e}")
 else:
-    image_model_error = f"missing model file: {IMAGE_MODEL_PATH}"
+    image_model_error = "No image model found (ONNX or Keras)"
     print(f"[WARN]  Image classifier disabled: {image_model_error}")
 
 
@@ -626,7 +641,12 @@ def predict_image():
         arr = np.asarray(pil_img, dtype=np.float32)
         arr = np.expand_dims(arr, axis=0)
 
-        pred = image_model.predict(arr, verbose=0)
+        if image_model_type == "onnx":
+            input_name = image_model.get_inputs()[0].name
+            pred = image_model.run(None, {input_name: arr})[0]
+        else:
+            pred = image_model.predict(arr, verbose=0)
+
         prob = float(np.squeeze(pred))
         prob = max(0.0, min(1.0, prob))
         label = "MYOPIA" if prob >= 0.5 else "NORMAL"
