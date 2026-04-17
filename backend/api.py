@@ -647,15 +647,20 @@ def predict_image():
         else:
             pred = image_model.predict(arr, verbose=0)
 
-        prob = float(np.squeeze(pred))
-        prob = max(0.0, min(1.0, prob))
-        label = "MYOPIA" if prob >= 0.5 else "NORMAL"
+        raw_prob = float(np.squeeze(pred))
+        raw_prob = max(0.0, min(1.0, raw_prob))
+
+        # The model's sigmoid output is P(NORMAL) — class 1 = Normal in training.
+        # So myopia probability = 1 - raw_prob.
+        myopia_prob = 1.0 - raw_prob
+        normal_prob = raw_prob
+        label = "MYOPIA" if myopia_prob >= 0.5 else "NORMAL"
 
         duration_ms = (time.time() - start_time) * 1000
         result = {
             "label": label,
-            "myopia_probability": round(prob, 4),
-            "normal_probability": round(1.0 - prob, 4),
+            "myopia_probability": round(myopia_prob, 4),
+            "normal_probability": round(normal_prob, 4),
             "threshold": 0.5,
             "model_input_size": [224, 224],
             "duration_ms": round(duration_ms, 2),
