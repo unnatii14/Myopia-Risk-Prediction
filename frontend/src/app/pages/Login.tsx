@@ -1,5 +1,5 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
@@ -9,7 +9,6 @@ import { API_URL } from "../lib/apiConfig";
 
 export default function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -61,8 +60,7 @@ export default function Login() {
         return;
       }
       login(data.name, data.email, data.token, undefined, rememberMe);
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard";
-      navigate(from, { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });
     } finally {

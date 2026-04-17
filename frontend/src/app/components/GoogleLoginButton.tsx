@@ -1,5 +1,5 @@
 import { GoogleLogin, CredentialResponse } from "@react-oauth/google";
-import { useNavigate, useLocation } from "react-router";
+import { useNavigate } from "react-router";
 import { useAuth } from "../context/AuthContext";
 import { useState } from "react";
 import { API_URL } from "../lib/apiConfig";
@@ -10,7 +10,6 @@ interface GoogleLoginButtonProps {
 
 export default function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useAuth();
   const [loading, setLoading] = useState(false);
   const authBaseUrl = ((import.meta.env.VITE_AUTH_API_URL as string | undefined) || API_URL)
@@ -54,8 +53,7 @@ export default function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
 
         if (res.ok) {
           login(data.name, data.email, data.token, undefined, true);
-          const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard";
-          navigate(from, { replace: true });
+          navigate("/dashboard", { replace: true });
           loggedIn = true;
           break;
         }
