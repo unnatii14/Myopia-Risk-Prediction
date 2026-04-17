@@ -52,18 +52,37 @@ BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
 MODEL_DIR = os.path.realpath(os.path.join(BASE_DIR, "..", "models"))
 
 print("Loading models...")
-risk_model    = joblib.load(os.path.join(MODEL_DIR, "risk_progression_model.pkl"))
-scaler_cls    = joblib.load(os.path.join(MODEL_DIR, "scaler_classification.pkl"))
+print(f"[INFO] MODEL_DIR resolved to: {MODEL_DIR}")
+print(f"[INFO] Files found: {os.listdir(MODEL_DIR) if os.path.isdir(MODEL_DIR) else 'DIRECTORY NOT FOUND'}")
+
+try:
+    risk_model    = joblib.load(os.path.join(MODEL_DIR, "risk_progression_model.pkl"))
+    scaler_cls    = joblib.load(os.path.join(MODEL_DIR, "scaler_classification.pkl"))
+    print("[OK]  Risk + scaler models loaded.")
+except Exception as _e:
+    risk_model = None
+    scaler_cls = None
+    print(f"[ERROR]  Failed to load risk models: {_e}")
 
 # Load IMPROVED Stage 1 model (AUC 0.94!)
-re_model      = joblib.load(os.path.join(MODEL_DIR, "has_re_model_improved.pkl"))
-re_scaler     = joblib.load(os.path.join(MODEL_DIR, "has_re_scaler.pkl"))
+try:
+    re_model      = joblib.load(os.path.join(MODEL_DIR, "has_re_model_improved.pkl"))
+    re_scaler     = joblib.load(os.path.join(MODEL_DIR, "has_re_scaler.pkl"))
+    print("[OK]  Stage 1 RE model loaded.")
+except Exception as _e:
+    re_model = None
+    re_scaler = None
+    print(f"[ERROR]  Failed to load RE model: {_e}")
 
-with open(os.path.join(MODEL_DIR, "has_re_features.json")) as f:
-    RE_FEATURE_META = json.load(f)
-    RE_FEATURE_COLS = RE_FEATURE_META['feature_columns']
-    
-print(f"[OK]  Stage 1 (Has_RE) model: {RE_FEATURE_META.get('model_type','XGBoost')}  AUC={RE_FEATURE_META['metrics']['auc']:.4f}")
+try:
+    with open(os.path.join(MODEL_DIR, "has_re_features.json")) as f:
+        RE_FEATURE_META = json.load(f)
+        RE_FEATURE_COLS = RE_FEATURE_META['feature_columns']
+    print(f"[OK]  Stage 1 (Has_RE) model: {RE_FEATURE_META.get('model_type','XGBoost')}  AUC={RE_FEATURE_META['metrics']['auc']:.4f}")
+except Exception as _e:
+    RE_FEATURE_META = {}
+    RE_FEATURE_COLS = []
+    print(f"[ERROR]  Failed to load RE feature metadata: {_e}")
 
 # Diopter severity model may fail to load if sklearn version mismatches.
 # It is optional — Stage 1+2 still work without it.
@@ -77,10 +96,13 @@ except Exception as _e:
     print(f"[WARN]  Diopter model skipped (sklearn version mismatch): {_e}")
     print("    Stage 3 (diopter estimate) will use rule-based fallback.")
 
-with open(os.path.join(MODEL_DIR, "feature_columns.json")) as f:
-    FEATURE_COLS = json.load(f)
-
-print(f"[OK]  Models loaded. Feature count: {len(FEATURE_COLS)}")
+try:
+    with open(os.path.join(MODEL_DIR, "feature_columns.json")) as f:
+        FEATURE_COLS = json.load(f)
+    print(f"[OK]  Models loaded. Feature count: {len(FEATURE_COLS)}")
+except Exception as _e:
+    FEATURE_COLS = []
+    print(f"[ERROR]  Failed to load feature_columns.json: {_e}")
 
 # Optional image classifier model (Keras v3 saved-model directory format).
 # This keeps the existing tabular pipeline intact while enabling image inference.
