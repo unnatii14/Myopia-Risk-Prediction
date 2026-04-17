@@ -10,11 +10,13 @@ RUN apt-get update && apt-get install -y --no-install-recommends \
     rm -rf /var/lib/apt/lists/*
 
 # Install dependencies — pinned to match the versions models were trained with
-COPY requirements-docker.txt .
+COPY backend/requirements-docker.txt .
 RUN pip install --no-cache-dir -r requirements-docker.txt
 
-# Copy application
-COPY . .
+# Copy application code and models
+# WORKDIR is /app, so models go to /models (one level up = MODELS_DIR=../models)
+COPY backend/ .
+COPY models/ /models/
 
 # Create logs directory
 RUN mkdir -p logs
