@@ -12,11 +12,22 @@ import joblib
 import json
 import os
 import time
+import importlib
 import numpy as np
 import pandas as pd
 from logger import setup_logger, RequestLogger
 from auth import auth_bp
 from config import get_config, get_cors_origins, validate_production_config
+
+try:
+    tf = importlib.import_module("tensorflow")
+except Exception:
+    tf = None
+
+try:
+    from PIL import Image
+except Exception:
+    Image = None
 
 app = Flask(__name__)
 config = get_config()
@@ -38,7 +49,7 @@ request_logger = RequestLogger(logger)
 # Load model artifacts once at startup
 # ─────────────────────────────────────────────────────────────
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "..", "models")
+MODEL_DIR = os.path.realpath(os.path.join(BASE_DIR, "..", "models"))
 
 print("Loading models...")
 risk_model    = joblib.load(os.path.join(MODEL_DIR, "risk_progression_model.pkl"))
@@ -70,6 +81,32 @@ with open(os.path.join(MODEL_DIR, "feature_columns.json")) as f:
     FEATURE_COLS = json.load(f)
 
 print(f"[OK]  Models loaded. Feature count: {len(FEATURE_COLS)}")
+
+# Optional image classifier model (Keras v3 saved-model directory format).
+# This keeps the existing tabular pipeline intact while enabling image inference.
+image_model = None
+image_model_error = None
+# Prefer the properly-zipped Keras v3 file; fall back to legacy directory if absent.
+IMAGE_MODEL_ZIP  = os.path.join(MODEL_DIR, "myopia_image_classifier_v2.keras")
+IMAGE_MODEL_DIR  = os.path.join(MODEL_DIR, "myopia_image_classifier.keras")
+IMAGE_MODEL_PATH = IMAGE_MODEL_ZIP if os.path.isfile(IMAGE_MODEL_ZIP) else IMAGE_MODEL_DIR
+if tf is None:
+    image_model_error = "tensorflow is not installed"
+    print(f"[WARN]  Image classifier disabled: {image_model_error}")
+elif Image is None:
+    image_model_error = "Pillow is not installed"
+    print(f"[WARN]  Image classifier disabled: {image_model_error}")
+elif os.path.isfile(IMAGE_MODEL_PATH) or os.path.isdir(IMAGE_MODEL_PATH):
+    try:
+        image_model = tf.keras.models.load_model(IMAGE_MODEL_PATH)
+        print(f"[OK]  Image classifier loaded from: {IMAGE_MODEL_PATH}")
+    except Exception as _e:
+        image_model_error = str(_e)
+        print(f"[WARN]  Image classifier load failed: {_e}")
+else:
+    image_model_error = f"missing model file: {IMAGE_MODEL_PATH}"
+    print(f"[WARN]  Image classifier disabled: {image_model_error}")
+
 
 # ─────────────────────────────────────────────────────────────
 # State encoding tables
@@ -348,6 +385,7 @@ def root():
             "service": "Myopia Risk API",
             "health": "/health",
             "predict": "POST /predict",
+            "predict_image": "POST /predict-image (multipart form field: image)",
             "auth": "/auth/login, /auth/signup, /auth/google",
         }
     )
@@ -356,7 +394,14 @@ def root():
 @app.route("/health", methods=["GET"])
 def health():
     logger.info("Health check endpoint called")
-    return jsonify({"status": "ok", "features": len(FEATURE_COLS)})
+    return jsonify(
+        {
+            "status": "ok",
+            "features": len(FEATURE_COLS),
+            "image_model_loaded": image_model is not None,
+            "image_model_error": image_model_error,
+        }
+    )
 
 
 @app.route("/predict", methods=["POST"])
@@ -534,6 +579,53 @@ def predict():
         logger.error(f"Prediction error: {type(e).__name__}: {str(e)}", exc_info=True)
         request_logger.log_error(e, context="predict endpoint")
         return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route("/predict-image", methods=["POST"])
+def predict_image():
+    """
+    Predict myopia likelihood from an uploaded image.
+    Expects multipart/form-data with field name: image
+    """
+    start_time = time.time()
+
+    if image_model is None:
+        return jsonify({"error": f"Image model unavailable: {image_model_error}"}), 503
+
+    if "image" not in request.files:
+        return jsonify({"error": "No image file uploaded. Use form field 'image'."}), 400
+
+    file = request.files["image"]
+    if file is None or not file.filename:
+        return jsonify({"error": "Empty upload."}), 400
+
+    try:
+        pil_img = Image.open(file.stream).convert("RGB").resize((224, 224))
+        arr = np.asarray(pil_img, dtype=np.float32)
+        arr = np.expand_dims(arr, axis=0)
+
+        pred = image_model.predict(arr, verbose=0)
+        prob = float(np.squeeze(pred))
+        prob = max(0.0, min(1.0, prob))
+        label = "MYOPIA" if prob >= 0.5 else "NORMAL"
+
+        duration_ms = (time.time() - start_time) * 1000
+        result = {
+            "label": label,
+            "myopia_probability": round(prob, 4),
+            "normal_probability": round(1.0 - prob, 4),
+            "threshold": 0.5,
+            "model_input_size": [224, 224],
+            "duration_ms": round(duration_ms, 2),
+        }
+        logger.info(
+            f"Image prediction complete: label={label}, prob={prob:.4f}, duration={duration_ms:.2f}ms"
+        )
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Image prediction error: {type(e).__name__}: {str(e)}", exc_info=True)
+        request_logger.log_error(e, context="predict_image endpoint")
+        return jsonify({"error": "Failed to process image"}), 500
 
 
 if __name__ == "__main__":

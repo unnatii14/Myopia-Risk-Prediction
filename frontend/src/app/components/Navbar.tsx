@@ -164,6 +164,20 @@ export default function Navbar() {
                           <p className="text-xs text-[var(--text-muted)]">When will myopia start?</p>
                         </div>
                       </Link>
+                      <div className="h-px bg-[var(--border)]" />
+                      <Link
+                        to="/image-predictor"
+                        onClick={() => setToolsMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--background-mint)] transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[var(--primary-green)]/10 flex items-center justify-center flex-shrink-0">
+                          <Eye className="w-4 h-4" style={{ color: "var(--primary-green)" }} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--text-dark)]">Image Classifier</p>
+                          <p className="text-xs text-[var(--text-muted)]">Upload image and predict myopia</p>
+                        </div>
+                      </Link>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -334,6 +348,17 @@ export default function Navbar() {
                   <div>
                     <p className="text-sm font-semibold">Onset Predictor</p>
                     <p className="text-xs text-[var(--text-muted)]">When will myopia start?</p>
+                  </div>
+                </Link>
+                <Link
+                  to="/image-predictor"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] transition-colors border-t border-[var(--border)]"
+                >
+                  <Eye className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary-green)" }} />
+                  <div>
+                    <p className="text-sm font-semibold">Image Classifier</p>
+                    <p className="text-xs text-[var(--text-muted)]">Upload image and predict myopia</p>
                   </div>
                 </Link>
               </div>

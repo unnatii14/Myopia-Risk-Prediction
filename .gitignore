@@ -55,6 +55,18 @@ backend/package-lock.json
 *.tar
 docker-compose.override.yml
 
+# ─── ML Models (large binary files — do not commit) ──────────
+models/*.pkl
+models/*.keras
+models/*.h5
+models/myopia_image_classifier.keras/
+models/config.json
+models/metadata.json
+models/model.weights.h5
+
+# ─── SQLite local DB ─────────────────────────────────────────
+backend/users.db
+
 # ─── Local scratch notes / patches ───────────────────────────
 changesUnnati.patch
 googlesetupChat.txt

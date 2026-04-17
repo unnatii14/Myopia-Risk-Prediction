@@ -89,7 +89,6 @@ export default function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
         <GoogleLogin
           onSuccess={handleSuccess}
           onError={handleError}
-          useOneTap
           theme="outline"
           size="large"
           text="continue_with"

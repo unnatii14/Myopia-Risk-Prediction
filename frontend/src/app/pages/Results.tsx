@@ -538,15 +538,30 @@ export default function Results() {
             )}
           </div>
 
-          {apiError && (
-            <div className="mt-4 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
-              ⚠️ {apiError}
-            </div>
-          )}
-          <div className="mt-6 pt-6 border-t border-gray-200 text-xs text-[var(--text-muted)] text-center">
-            {prediction
-              ? "Powered by GradientBoosting ML Model · AUC 0.893 · Trained on 5,000+ Indian children · Live ML Prediction"
-              : "Rule-based estimate (ML server offline) · For real predictions, start the backend"}
+          {/* ── ML Backend Status Badge ── */}
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            {prediction ? (
+              <div className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-semibold text-emerald-700">Live ML Prediction</span>
+                <span className="text-xs text-emerald-600 hidden sm:inline">· GradientBoosting · AUC 0.893 · 5,000+ Indian children</span>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl">
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                  <span className="text-xs font-semibold text-amber-700">Rule-based Estimate</span>
+                  <span className="text-xs text-amber-600 hidden sm:inline">· ML server offline</span>
+                </div>
+                <p className="text-xs text-center text-[var(--text-muted)]">
+                  ⚠️ {apiError ?? "Could not reach ML backend"} —{" "}
+                  <span className="font-medium">run <code className="bg-gray-100 px-1 py-0.5 rounded text-gray-700">python backend/api.py</code> to enable live predictions</span>
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
 

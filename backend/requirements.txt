@@ -14,3 +14,7 @@ bcrypt>=4.0.0
 PyJWT>=2.8.0
 google-auth>=2.25.0
 requests>=2.31.0
+Pillow>=10.0.0
+# Note: TensorFlow support on Python 3.13 can vary by release/platform.
+# If install fails, use Python 3.11/3.12 virtual environment for image inference.
+tensorflow>=2.17.0

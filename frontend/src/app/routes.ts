@@ -5,6 +5,7 @@ import Results from "./pages/Results";
 import Progression from "./pages/Progression";
 import AxialElongation from "./pages/AxialElongation";
 import OnsetPredictor from "./pages/OnsetPredictor";
+import ImagePredictor from "./pages/ImagePredictor";
 import FAQ from "./pages/FAQ";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
@@ -45,6 +46,10 @@ export const router = createBrowserRouter([
           {
             path: "onset",
             Component: OnsetPredictor,
+          },
+          {
+            path: "image-predictor",
+            Component: ImagePredictor,
           },
         ],
       },
