@@ -1,0 +1,6 @@
+# Full ML requirements including TensorFlow — for local development only
+# On Windows use Python 3.11 venv: pip install -r requirements-ml.txt
+-r requirements.txt
+tensorflow==2.17.0
+pytest>=8.0.0
+pytest-cov>=4.1.0
