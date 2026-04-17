@@ -23,23 +23,29 @@ const TOKEN_MAX_AGE_HOURS = 24;
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     try {
+      // Check localStorage first (remember me / persistent login)
       const stored = localStorage.getItem(STORAGE_KEY);
-      if (!stored) return null;
-
-      const timestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
-      if (!timestamp) return null;
-
-      const lastLoginTime = parseInt(timestamp, 10);
-      const ageInHours = (Date.now() - lastLoginTime) / (1000 * 60 * 60);
-
-      // If token is older than 24 hours, clear it
-      if (ageInHours > TOKEN_MAX_AGE_HOURS) {
-        localStorage.removeItem(STORAGE_KEY);
-        localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
-        return null;
+      if (stored) {
+        const timestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+        if (timestamp) {
+          const lastLoginTime = parseInt(timestamp, 10);
+          const ageInHours = (Date.now() - lastLoginTime) / (1000 * 60 * 60);
+          if (ageInHours <= TOKEN_MAX_AGE_HOURS) {
+            return JSON.parse(stored) as User;
+          }
+          // Expired — clear it
+          localStorage.removeItem(STORAGE_KEY);
+          localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+        }
       }
 
-      return JSON.parse(stored) as User;
+      // Fall back to sessionStorage (non-remember-me login)
+      const sessionStored = sessionStorage.getItem(STORAGE_KEY);
+      if (sessionStored) {
+        return JSON.parse(sessionStored) as User;
+      }
+
+      return null;
     } catch {
       return null;
     }
