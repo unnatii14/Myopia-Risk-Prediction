@@ -11,12 +11,16 @@ import datetime
 import os
 from google.auth.transport import requests
 from google.oauth2 import id_token
+from config import DEFAULT_JWT_SECRET
 
 auth_bp = Blueprint("auth", __name__)
 
 BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
 DB_PATH    = os.path.join(BASE_DIR, "users.db")
 JWT_SECRET = os.environ.get("JWT_SECRET", "myopia_dev_secret_key_2024")
+
+if os.environ.get("FLASK_ENV", "development").lower() == "production" and JWT_SECRET == DEFAULT_JWT_SECRET:
+    raise RuntimeError("JWT_SECRET must be set to a non-default value in production")
 
 
 def _init_db():
@@ -41,7 +45,7 @@ def _make_token(name: str, email: str) -> str:
     payload = {
         "name" : name,
         "email": email,
-        "exp"  : datetime.datetime.utcnow() + datetime.timedelta(days=30),
+        "exp"  : datetime.datetime.now(datetime.timezone.utc) + datetime.timedelta(hours=24),
     }
     return jwt.encode(payload, JWT_SECRET, algorithm="HS256")
 
@@ -122,21 +126,16 @@ def google_login():
         # Extract user info from the verified token
         email = idinfo.get("email", "").strip().lower()
         name = idinfo.get("name", "")
-        google_id = idinfo.get("sub", "")
-
         if not email:
             return jsonify({"error": "Email not found in Google token"}), 400
 
-        # Check if user exists, if not create them
         conn = sqlite3.connect(DB_PATH)
         conn.row_factory = sqlite3.Row
         user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
 
         if not user:
-            # Create new user with a placeholder password hash for OAuth users
-            # This ensures OAuth users can login via Google even if they try email/password
             placeholder_hash = bcrypt.hashpw(
-                google_id.encode(),
+                os.urandom(32),
                 bcrypt.gensalt()
             ).decode()
             try:

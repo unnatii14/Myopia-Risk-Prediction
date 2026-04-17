@@ -57,6 +57,25 @@ docker-compose up --build
 
 Access at `http://localhost` (frontend) and `http://localhost:5001` (API)
 
+### Vercel Deployment (Frontend)
+
+This repository is configured to deploy the React frontend on Vercel from the repo root.
+
+1. Deploy your backend API first (for example on Render, Railway, Azure App Service, or any host that supports Python/Node and MongoDB).
+2. In Vercel, import this GitHub repository and deploy.
+3. Add these Vercel environment variables in Project Settings:
+
+```env
+VITE_API_URL=https://your-backend-domain.example.com
+VITE_GOOGLE_CLIENT_ID=your_google_client_id_here
+```
+
+4. In Google Cloud Console, add your Vercel domain to Authorized JavaScript origins (for example: `https://your-project.vercel.app`).
+
+Notes:
+- Vercel hosts the frontend build as static files.
+- This app expects backend routes under `${VITE_API_URL}` such as `/predict` and `/auth/*`.
+
 ## API Endpoints
 
 ### `GET /health`

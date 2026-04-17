@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import {
@@ -6,6 +6,8 @@ import {
   ChevronRight, ChevronLeft
 } from "lucide-react";
 import { Slider } from "../components/ui/slider";
+import { useAuth } from "../context/AuthContext";
+import { fetchLatestScreening } from "../lib/historyApi";
 
 interface FormData {
   // Step 0 (NEW)
@@ -16,6 +18,7 @@ interface FormData {
   progressionRate?: "slow" | "moderate" | "fast" | "";
 
   // Step 1
+  childName: string;
   age: number;
   sex: "male" | "female" | "";
   height: number;
@@ -39,6 +42,7 @@ const initialFormData: FormData = {
   diagnosisAge: undefined,
   myopiaControl: undefined,
   progressionRate: "",
+  childName: "",
   age: 10,
   sex: "",
   height: 0,
@@ -54,10 +58,27 @@ const initialFormData: FormData = {
 
 export default function Screen() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [direction, setDirection] = useState(1);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Pre-fill child name and age from last screening
+  useEffect(() => {
+    if (!user?.token) return;
+    fetchLatestScreening(user.token).then((rec) => {
+      if (!rec) return;
+      setFormData((prev) => ({
+        ...prev,
+        childName: rec.child_name || prev.childName,
+        age: (rec.input_data?.age as number) || prev.age,
+        sex: (rec.input_data?.sex as FormData["sex"]) || prev.sex,
+        height: (rec.input_data?.height as number) || prev.height,
+        weight: (rec.input_data?.weight as number) || prev.weight,
+      }));
+    }).catch(() => {});
+  }, [user?.token]);
 
   const totalSteps = 3;
 
@@ -71,10 +92,11 @@ export default function Screen() {
       return formData.existingMyopiaStatus !== "";
     }
     if (step === 1) {
+      const childNameValid = formData.childName.trim().length > 0;
       const heightValid = formData.height >= 50 && formData.height <= 220;
       const weightValid = formData.weight >= 10 && formData.weight <= 200;
       const sexValid = formData.sex !== "";
-      return heightValid && weightValid && sexValid;
+      return childNameValid && heightValid && weightValid && sexValid;
     }
     if (step === 2) {
       const famValid = formData.familyHistory !== null;
@@ -355,6 +377,23 @@ export default function Screen() {
                     step={1}
                     className="w-full"
                   />
+                </div>
+
+                {/* Child Name */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Child Name</label>
+                  <input
+                    type="text"
+                    value={formData.childName}
+                    onChange={(e) => updateFormData("childName", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
+                    placeholder="Enter child name"
+                  />
+                  {touched["childName"] && !formData.childName.trim() && (
+                    <p className="mt-1 text-xs text-[var(--warning-coral)]">
+                      Child name is required for the report.
+                    </p>
+                  )}
                 </div>
 
                 {/* Sex */}

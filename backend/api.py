@@ -12,14 +12,41 @@ import joblib
 import json
 import os
 import time
+import importlib
 import numpy as np
 import pandas as pd
 from logger import setup_logger, RequestLogger
 from auth import auth_bp
+from history import history_bp
+from config import get_config, get_cors_origins, validate_production_config
+
+try:
+    tf = importlib.import_module("tensorflow")
+except Exception:
+    tf = None
+
+try:
+    import onnxruntime as ort
+except Exception:
+    ort = None
+
+try:
+    from PIL import Image
+except Exception:
+    Image = None
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from the React frontend
+config = get_config()
+app.config['MAX_CONTENT_LENGTH'] = config.MAX_CONTENT_LENGTH
+app.config['SECRET_KEY'] = config.SECRET_KEY
+
+fatal_config_issues = validate_production_config()
+if fatal_config_issues:
+    raise RuntimeError('Invalid production configuration: ' + ' | '.join(fatal_config_issues))
+
+CORS(app, origins=get_cors_origins())  # Restrict origins to configured allowlist
 app.register_blueprint(auth_bp, url_prefix="/auth")
+app.register_blueprint(history_bp, url_prefix="/history")
 
 # Setup logging
 logger = setup_logger('api', log_file='logs/api.log', level='INFO')
@@ -29,21 +56,40 @@ request_logger = RequestLogger(logger)
 # Load model artifacts once at startup
 # ─────────────────────────────────────────────────────────────
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "..", "models")
+MODEL_DIR = os.path.realpath(os.path.join(BASE_DIR, "..", "models"))
 
 print("Loading models...")
-risk_model    = joblib.load(os.path.join(MODEL_DIR, "risk_progression_model.pkl"))
-scaler_cls    = joblib.load(os.path.join(MODEL_DIR, "scaler_classification.pkl"))
+print(f"[INFO] MODEL_DIR resolved to: {MODEL_DIR}")
+print(f"[INFO] Files found: {os.listdir(MODEL_DIR) if os.path.isdir(MODEL_DIR) else 'DIRECTORY NOT FOUND'}")
+
+try:
+    risk_model    = joblib.load(os.path.join(MODEL_DIR, "risk_progression_model.pkl"))
+    scaler_cls    = joblib.load(os.path.join(MODEL_DIR, "scaler_classification.pkl"))
+    print("[OK]  Risk + scaler models loaded.")
+except Exception as _e:
+    risk_model = None
+    scaler_cls = None
+    print(f"[ERROR]  Failed to load risk models: {_e}")
 
 # Load IMPROVED Stage 1 model (AUC 0.94!)
-re_model      = joblib.load(os.path.join(MODEL_DIR, "has_re_model_improved.pkl"))
-re_scaler     = joblib.load(os.path.join(MODEL_DIR, "has_re_scaler.pkl"))
+try:
+    re_model      = joblib.load(os.path.join(MODEL_DIR, "has_re_model_improved.pkl"))
+    re_scaler     = joblib.load(os.path.join(MODEL_DIR, "has_re_scaler.pkl"))
+    print("[OK]  Stage 1 RE model loaded.")
+except Exception as _e:
+    re_model = None
+    re_scaler = None
+    print(f"[ERROR]  Failed to load RE model: {_e}")
 
-with open(os.path.join(MODEL_DIR, "has_re_features.json")) as f:
-    RE_FEATURE_META = json.load(f)
-    RE_FEATURE_COLS = RE_FEATURE_META['feature_columns']
-    
-print(f"[OK]  Stage 1 (Has_RE) model: {RE_FEATURE_META.get('model_type','XGBoost')}  AUC={RE_FEATURE_META['metrics']['auc']:.4f}")
+try:
+    with open(os.path.join(MODEL_DIR, "has_re_features.json")) as f:
+        RE_FEATURE_META = json.load(f)
+        RE_FEATURE_COLS = RE_FEATURE_META['feature_columns']
+    print(f"[OK]  Stage 1 (Has_RE) model: {RE_FEATURE_META.get('model_type','XGBoost')}  AUC={RE_FEATURE_META['metrics']['auc']:.4f}")
+except Exception as _e:
+    RE_FEATURE_META = {}
+    RE_FEATURE_COLS = []
+    print(f"[ERROR]  Failed to load RE feature metadata: {_e}")
 
 # Diopter severity model may fail to load if sklearn version mismatches.
 # It is optional — Stage 1+2 still work without it.
@@ -57,10 +103,49 @@ except Exception as _e:
     print(f"[WARN]  Diopter model skipped (sklearn version mismatch): {_e}")
     print("    Stage 3 (diopter estimate) will use rule-based fallback.")
 
-with open(os.path.join(MODEL_DIR, "feature_columns.json")) as f:
-    FEATURE_COLS = json.load(f)
+try:
+    with open(os.path.join(MODEL_DIR, "feature_columns.json")) as f:
+        FEATURE_COLS = json.load(f)
+    print(f"[OK]  Models loaded. Feature count: {len(FEATURE_COLS)}")
+except Exception as _e:
+    FEATURE_COLS = []
+    print(f"[ERROR]  Failed to load feature_columns.json: {_e}")
 
-print(f"[OK]  Models loaded. Feature count: {len(FEATURE_COLS)}")
+# Image classifier — tries ONNX first (no TensorFlow needed), falls back to Keras
+image_model      = None   # onnxruntime.InferenceSession or tf.keras model
+image_model_type = None   # "onnx" or "keras"
+image_model_error = None
+
+ONNX_MODEL_PATH  = os.path.join(MODEL_DIR, "myopia_classifier.onnx")
+IMAGE_MODEL_ZIP  = os.path.join(MODEL_DIR, "myopia_image_classifier_v2.keras")
+IMAGE_MODEL_DIR  = os.path.join(MODEL_DIR, "myopia_image_classifier.keras")
+IMAGE_MODEL_PATH = IMAGE_MODEL_ZIP if os.path.isfile(IMAGE_MODEL_ZIP) else IMAGE_MODEL_DIR
+
+if Image is None:
+    image_model_error = "Pillow is not installed"
+    print(f"[WARN]  Image classifier disabled: {image_model_error}")
+elif ort is not None and os.path.isfile(ONNX_MODEL_PATH):
+    # Preferred: lightweight ONNX runtime (no TensorFlow required)
+    try:
+        image_model = ort.InferenceSession(ONNX_MODEL_PATH, providers=["CPUExecutionProvider"])
+        image_model_type = "onnx"
+        print(f"[OK]  Image classifier loaded via ONNX from: {ONNX_MODEL_PATH}")
+    except Exception as _e:
+        image_model_error = str(_e)
+        print(f"[WARN]  ONNX load failed: {_e}")
+elif tf is not None and (os.path.isfile(IMAGE_MODEL_PATH) or os.path.isdir(IMAGE_MODEL_PATH)):
+    # Fallback: TensorFlow/Keras (local dev)
+    try:
+        image_model = tf.keras.models.load_model(IMAGE_MODEL_PATH)
+        image_model_type = "keras"
+        print(f"[OK]  Image classifier loaded via Keras from: {IMAGE_MODEL_PATH}")
+    except Exception as _e:
+        image_model_error = str(_e)
+        print(f"[WARN]  Keras load failed: {_e}")
+else:
+    image_model_error = "No image model found (ONNX or Keras)"
+    print(f"[WARN]  Image classifier disabled: {image_model_error}")
+
 
 # ─────────────────────────────────────────────────────────────
 # State encoding tables
@@ -339,6 +424,7 @@ def root():
             "service": "Myopia Risk API",
             "health": "/health",
             "predict": "POST /predict",
+            "predict_image": "POST /predict-image (multipart form field: image)",
             "auth": "/auth/login, /auth/signup, /auth/google",
         }
     )
@@ -347,7 +433,14 @@ def root():
 @app.route("/health", methods=["GET"])
 def health():
     logger.info("Health check endpoint called")
-    return jsonify({"status": "ok", "features": len(FEATURE_COLS)})
+    return jsonify(
+        {
+            "status": "ok",
+            "features": len(FEATURE_COLS),
+            "image_model_loaded": image_model is not None,
+            "image_model_error": image_model_error,
+        }
+    )
 
 
 @app.route("/predict", methods=["POST"])
@@ -524,11 +617,66 @@ def predict():
     except Exception as e:
         logger.error(f"Prediction error: {type(e).__name__}: {str(e)}", exc_info=True)
         request_logger.log_error(e, context="predict endpoint")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route("/predict-image", methods=["POST"])
+def predict_image():
+    """
+    Predict myopia likelihood from an uploaded image.
+    Expects multipart/form-data with field name: image
+    """
+    start_time = time.time()
+
+    if image_model is None:
+        return jsonify({"error": f"Image model unavailable: {image_model_error}"}), 503
+
+    if "image" not in request.files:
+        return jsonify({"error": "No image file uploaded. Use form field 'image'."}), 400
+
+    file = request.files["image"]
+    if file is None or not file.filename:
+        return jsonify({"error": "Empty upload."}), 400
+
+    try:
+        pil_img = Image.open(file.stream).convert("RGB").resize((224, 224))
+        arr = np.asarray(pil_img, dtype=np.float32)
+        arr = np.expand_dims(arr, axis=0)
+
+        if image_model_type == "onnx":
+            input_name = image_model.get_inputs()[0].name
+            pred = image_model.run(None, {input_name: arr})[0]
+        else:
+            pred = image_model.predict(arr, verbose=0)
+
+        raw_prob = float(np.squeeze(pred))
+        raw_prob = max(0.0, min(1.0, raw_prob))
+
+        # The model's sigmoid output is P(NORMAL) — class 1 = Normal in training.
+        # So myopia probability = 1 - raw_prob.
+        myopia_prob = 1.0 - raw_prob
+        normal_prob = raw_prob
+        label = "MYOPIA" if myopia_prob >= 0.5 else "NORMAL"
+
+        duration_ms = (time.time() - start_time) * 1000
+        result = {
+            "label": label,
+            "myopia_probability": round(myopia_prob, 4),
+            "normal_probability": round(normal_prob, 4),
+            "threshold": 0.5,
+            "model_input_size": [224, 224],
+            "duration_ms": round(duration_ms, 2),
+        }
+        logger.info(
+            f"Image prediction complete: label={label}, prob={myopia_prob:.4f}, duration={duration_ms:.2f}ms"
+        )
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Image prediction error: {type(e).__name__}: {str(e)}", exc_info=True)
+        request_logger.log_error(e, context="predict_image endpoint")
+        return jsonify({"error": "Failed to process image"}), 500
 
 
 if __name__ == "__main__":
     print("Starting Myopia Risk API on http://localhost:5001")
-    app.run(host="0.0.0.0", port=5001, debug=False)
+    app.run(host=config.API_HOST, port=config.API_PORT, debug=config.DEBUG)

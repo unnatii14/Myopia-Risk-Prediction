@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { jsPDF } from "jspdf";
 import {
   Download, AlertTriangle, CheckCircle, Sun,
   Smartphone, Users, Calendar, ExternalLink,
-  Eye, Loader2
+  Eye, Loader2, BookmarkCheck
 } from "lucide-react";
 import RiskGauge from "../components/RiskGauge";
 import {
@@ -15,11 +15,11 @@ import {
   AccordionTrigger,
 } from "../components/ui/accordion";
 import { useAuth } from "../context/AuthContext";
-
-
-const API_URL = "http://localhost:5001";
+import { API_URL } from "../lib/apiConfig";
+import { saveScreening } from "../lib/historyApi";
 
 interface ScreeningData {
+  childName?: string;
   age: number;
   sex: string;
   height: number;
@@ -57,6 +57,8 @@ export default function Results() {
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [savedToHistory, setSavedToHistory] = useState(false);
+  const resolvedChildName = (data?.childName || user?.childName || "").trim();
 
   const downloadPdf = () => {
     if (!data) return;
@@ -89,17 +91,17 @@ export default function Results() {
     doc.text("Child Profile", margin + 4, y + 8);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    if (user?.childName) doc.text(`Child Name: ${user.childName}`, margin + 4, y + 16);
-    doc.text(`Age: ${data.age} years`, margin + 4, user?.childName ? y + 24 : y + 16);
-    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, user?.childName ? y + 24 : y + 16);
-    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, user?.childName ? y + 24 : y + 16);
-    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, user?.childName ? y + 24 : y + 16);
+    if (resolvedChildName) doc.text(`Child Name: ${resolvedChildName}`, margin + 4, y + 16);
+    doc.text(`Age: ${data.age} years`, margin + 4, resolvedChildName ? y + 24 : y + 16);
+    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, resolvedChildName ? y + 24 : y + 16);
+    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, resolvedChildName ? y + 24 : y + 16);
+    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, resolvedChildName ? y + 24 : y + 16);
     if (data?.existingMyopiaStatus === "distance") {
-      y += user?.childName ? 34 : 26;
+      y += resolvedChildName ? 34 : 26;
       if (data.currentPrescription) doc.text(`Prescription: -${data.currentPrescription.toFixed(2)}D`, margin + 4, y);
       if (data.diagnosisAge) doc.text(`Diagnosed: ${data.diagnosisAge} years old`, margin + 4, y + (data.currentPrescription ? 8 : 0));
     }
-    y += user?.childName ? 42 : 34;
+    y += resolvedChildName ? 42 : 34;
 
     // ── Risk result box ──
     const riskColors: Record<string, [number, number, number]> = {
@@ -205,7 +207,9 @@ export default function Results() {
     const disclaimer = "DISCLAIMER: This AI assessment is not a medical diagnosis. It provides a risk estimate based on lifestyle and family history. Please consult a qualified ophthalmologist for proper examination and diagnosis.";
     doc.text(doc.splitTextToSize(disclaimer, col - 6), margin + 3, y + 6);
 
-    doc.save(`MyopiaGuard_Report_${data.age}yr_${new Date().toISOString().slice(0,10)}.pdf`);
+    const safeName = resolvedChildName.replace(/[^a-zA-Z0-9_-]+/g, "_").replace(/^_+|_+$/g, "");
+    const nameSuffix = safeName ? `${safeName}_` : "";
+    doc.save(`MyopiaGuard_Report_${nameSuffix}${data.age}yr_${new Date().toISOString().slice(0,10)}.pdf`);
   };
 
   useEffect(() => {
@@ -233,18 +237,28 @@ export default function Results() {
         setRiskScore(result.risk_score);
         setRiskLevel(result.risk_level);
         setLoading(false);
-        // (record saving via MongoDB not active in this deployment)
+        // Save to history if user is logged in
+        if (user?.token) {
+          saveScreening(user.token, parsedData as unknown as Record<string, unknown>, {
+            risk_score: result.risk_score,
+            risk_level: result.risk_level,
+            has_re: result.has_re,
+            diopters: result.diopters,
+            severity: result.severity,
+          }).then(() => {
+            setSavedToHistory(true);
+            setTimeout(() => setSavedToHistory(false), 4000);
+          }).catch(() => {});
+        }
       })
       .catch((err) => {
         console.error("API call failed:", err);
         setApiError("Could not reach prediction server. Showing rule-based estimate.");
-        // Fallback to rule-based scoring
         const score = fallbackRiskScore(parsedData);
         const level: "LOW" | "MODERATE" | "HIGH" = score < 40 ? "LOW" : score < 70 ? "MODERATE" : "HIGH";
         setRiskScore(score);
         setRiskLevel(level);
         setLoading(false);
-        // (record saving via MongoDB not active in this deployment)
       });
   }, [navigate]);
 
@@ -378,6 +392,23 @@ export default function Results() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
       <div className="max-w-5xl mx-auto">
+
+        {/* ── Saved-to-history toast ── */}
+        <AnimatePresence>
+          {savedToHistory && (
+            <motion.div
+              initial={{ opacity: 0, y: -16, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 0.96 }}
+              transition={{ duration: 0.25 }}
+              className="fixed top-24 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2.5 rounded-2xl border border-green-200 bg-white px-5 py-3 shadow-xl"
+            >
+              <BookmarkCheck className="h-5 w-5 text-green-600 shrink-0" />
+              <span className="text-sm font-semibold text-[var(--text-dark)]">Result saved to your Dashboard</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* HERO RESULT CARD */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -393,6 +424,11 @@ export default function Results() {
                   : "Risk Assessment Complete"}
               </h2>
               <div className="space-y-2 text-sm text-[var(--text-muted)]">
+                {resolvedChildName && (
+                  <p>
+                    <strong>Child Name:</strong> {resolvedChildName}
+                  </p>
+                )}
                 <p>
                   <strong>Age:</strong> {data.age} years
                 </p>
@@ -531,15 +567,30 @@ export default function Results() {
             )}
           </div>
 
-          {apiError && (
-            <div className="mt-4 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
-              ⚠️ {apiError}
-            </div>
-          )}
-          <div className="mt-6 pt-6 border-t border-gray-200 text-xs text-[var(--text-muted)] text-center">
-            {prediction
-              ? "Powered by GradientBoosting ML Model · AUC 0.893 · Trained on 5,000+ Indian children · Live ML Prediction"
-              : "Rule-based estimate (ML server offline) · For real predictions, start the backend"}
+          {/* ── ML Backend Status Badge ── */}
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            {prediction ? (
+              <div className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-semibold text-emerald-700">Live ML Prediction</span>
+                <span className="text-xs text-emerald-600 hidden sm:inline">· GradientBoosting · AUC 0.893 · 5,000+ Indian children</span>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl">
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                  <span className="text-xs font-semibold text-amber-700">Rule-based Estimate</span>
+                  <span className="text-xs text-amber-600 hidden sm:inline">· ML server offline</span>
+                </div>
+                <p className="text-xs text-center text-[var(--text-muted)]">
+                  ⚠️ {apiError ?? "Could not reach ML backend"} —{" "}
+                  <span className="font-medium">run <code className="bg-gray-100 px-1 py-0.5 rounded text-gray-700">python backend/api.py</code> to enable live predictions</span>
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
 

@@ -5,6 +5,7 @@ import { Eye, EyeOff, Mail, Lock, User, UserPlus } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../lib/apiConfig";
 
 export default function Signup() {
   const navigate = useNavigate();
@@ -55,7 +56,7 @@ export default function Signup() {
     setErrors({});
     setLoading(true);
     try {
-      const res = await fetch("http://localhost:5001/auth/signup", {
+      const res = await fetch(`${API_URL}/auth/signup`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ name: form.name, childName: form.childName, email: form.email, password: form.password }),
@@ -66,7 +67,7 @@ export default function Signup() {
         return;
       }
       login(data.name, data.email, data.token, form.childName);
-      navigate("/");
+      navigate("/dashboard");
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });
     } finally {

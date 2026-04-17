@@ -1,14 +1,14 @@
 import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
+import { Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../lib/apiConfig";
 
 export default function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -49,7 +49,7 @@ export default function Login() {
       setLoadingStage("finalizing");
 
       // Make API call
-      const res = await fetch("http://localhost:5001/auth/login", {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, password: form.password }),
@@ -60,8 +60,7 @@ export default function Login() {
         return;
       }
       login(data.name, data.email, data.token, undefined, rememberMe);
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
-      navigate(from, { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });
     } finally {
@@ -221,15 +220,15 @@ export default function Login() {
             </motion.button>
           </form>
 
-          {/* Google Login */}
-          <GoogleLoginButton onError={(msg) => setErrors({ general: msg })} />
-
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-[var(--border)]" />
             <span className="text-xs text-[var(--text-muted)]">or</span>
             <div className="flex-1 h-px bg-[var(--border)]" />
           </div>
+
+          {/* Google Login */}
+          <GoogleLoginButton onError={(msg) => setErrors({ general: msg })} />
 
           {/* Sign up link */}
           <p className="text-center text-sm text-[var(--text-muted)]">
