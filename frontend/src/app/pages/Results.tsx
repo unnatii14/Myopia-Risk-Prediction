@@ -16,6 +16,7 @@ import {
 } from "../components/ui/accordion";
 import { useAuth } from "../context/AuthContext";
 import { API_URL } from "../lib/apiConfig";
+import { saveScreening } from "../lib/historyApi";
 
 interface ScreeningData {
   childName?: string;
@@ -235,18 +236,25 @@ export default function Results() {
         setRiskScore(result.risk_score);
         setRiskLevel(result.risk_level);
         setLoading(false);
-        // (record saving via MongoDB not active in this deployment)
+        // Save to history if user is logged in
+        if (user?.token) {
+          saveScreening(user.token, parsedData as unknown as Record<string, unknown>, {
+            risk_score: result.risk_score,
+            risk_level: result.risk_level,
+            has_re: result.has_re,
+            diopters: result.diopters,
+            severity: result.severity,
+          }).catch(() => {}); // silent — don't block UX
+        }
       })
       .catch((err) => {
         console.error("API call failed:", err);
         setApiError("Could not reach prediction server. Showing rule-based estimate.");
-        // Fallback to rule-based scoring
         const score = fallbackRiskScore(parsedData);
         const level: "LOW" | "MODERATE" | "HIGH" = score < 40 ? "LOW" : score < 70 ? "MODERATE" : "HIGH";
         setRiskScore(score);
         setRiskLevel(level);
         setLoading(false);
-        // (record saving via MongoDB not active in this deployment)
       });
   }, [navigate]);
 

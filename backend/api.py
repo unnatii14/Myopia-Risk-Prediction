@@ -17,6 +17,7 @@ import numpy as np
 import pandas as pd
 from logger import setup_logger, RequestLogger
 from auth import auth_bp
+from history import history_bp
 from config import get_config, get_cors_origins, validate_production_config
 
 try:
@@ -45,6 +46,7 @@ if fatal_config_issues:
 
 CORS(app, origins=get_cors_origins())  # Restrict origins to configured allowlist
 app.register_blueprint(auth_bp, url_prefix="/auth")
+app.register_blueprint(history_bp, url_prefix="/history")
 
 # Setup logging
 logger = setup_logger('api', log_file='logs/api.log', level='INFO')

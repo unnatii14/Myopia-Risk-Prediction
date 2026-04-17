@@ -1,4 +1,4 @@
-import React, { useState } from "react";
+import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import {
@@ -6,6 +6,8 @@ import {
   ChevronRight, ChevronLeft
 } from "lucide-react";
 import { Slider } from "../components/ui/slider";
+import { useAuth } from "../context/AuthContext";
+import { fetchLatestScreening } from "../lib/historyApi";
 
 interface FormData {
   // Step 0 (NEW)
@@ -56,10 +58,27 @@ const initialFormData: FormData = {
 
 export default function Screen() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [direction, setDirection] = useState(1);
   const [touched, setTouched] = useState<Record<string, boolean>>({});
+
+  // Pre-fill child name and age from last screening
+  useEffect(() => {
+    if (!user?.token) return;
+    fetchLatestScreening(user.token).then((rec) => {
+      if (!rec) return;
+      setFormData((prev) => ({
+        ...prev,
+        childName: rec.child_name || prev.childName,
+        age: (rec.input_data?.age as number) || prev.age,
+        sex: (rec.input_data?.sex as FormData["sex"]) || prev.sex,
+        height: (rec.input_data?.height as number) || prev.height,
+        weight: (rec.input_data?.weight as number) || prev.weight,
+      }));
+    }).catch(() => {});
+  }, [user?.token]);
 
   const totalSteps = 3;
 
