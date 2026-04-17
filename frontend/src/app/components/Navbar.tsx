@@ -226,6 +226,15 @@ export default function Navbar() {
                           <p className="text-sm font-bold text-[var(--text-dark)] truncate">{user.name}</p>
                           <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
                         </div>
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 w-full px-4 py-3 text-sm text-[var(--text-dark)] hover:bg-[var(--background-mint)] transition-colors"
+                        >
+                          <Activity className="w-4 h-4" style={{ color: "var(--primary-green)" }} />
+                          Dashboard
+                        </Link>
+                        <div className="h-px bg-[var(--border)]" />
                         <button
                           onClick={() => { setUserMenuOpen(false); logout(); navigate("/"); }}
                           className="flex items-center gap-2 w-full px-4 py-3 text-sm text-[var(--warning-coral)] hover:bg-red-50 transition-colors"

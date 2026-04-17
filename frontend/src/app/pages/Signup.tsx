@@ -67,7 +67,7 @@ export default function Signup() {
         return;
       }
       login(data.name, data.email, data.token, form.childName);
-      navigate("/");
+      navigate("/dashboard");
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });
     } finally {

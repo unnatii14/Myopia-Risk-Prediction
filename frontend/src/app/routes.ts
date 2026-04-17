@@ -1,5 +1,6 @@
 import { createBrowserRouter } from "react-router";
 import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
 import Screen from "./pages/Screen";
 import Results from "./pages/Results";
 import Progression from "./pages/Progression";
@@ -27,6 +28,10 @@ export const router = createBrowserRouter([
       {
         Component: PrivateRoute,
         children: [
+          {
+            path: "dashboard",
+            Component: Dashboard,
+          },
           {
             path: "screen",
             Component: Screen,

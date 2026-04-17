@@ -1,6 +1,6 @@
-import { useMemo, useState } from "react";
-import { motion } from "motion/react";
-import { Upload, Loader2, Eye, AlertTriangle, CheckCircle2 } from "lucide-react";
+import { useCallback, useMemo, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
+import { Upload, Loader2, Eye, AlertTriangle, CheckCircle2, XCircle, Camera, Info, RotateCcw } from "lucide-react";
 import { predictMyopiaFromImage, type ImagePredictionResult } from "../lib/imageApi";
 
 export default function ImagePredictor() {
@@ -8,18 +8,29 @@ export default function ImagePredictor() {
   const [loading, setLoading] = useState(false);
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImagePredictionResult | null>(null);
+  const [dragging, setDragging] = useState(false);
 
   const previewUrl = useMemo(() => {
     if (!file) return null;
     return URL.createObjectURL(file);
   }, [file]);
 
-  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const selected = e.target.files?.[0] ?? null;
+  const handleFile = (selected: File | null) => {
     setResult(null);
     setError(null);
     setFile(selected);
   };
+
+  const onFileChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    handleFile(e.target.files?.[0] ?? null);
+  };
+
+  const onDrop = useCallback((e: React.DragEvent<HTMLDivElement>) => {
+    e.preventDefault();
+    setDragging(false);
+    const dropped = e.dataTransfer.files?.[0];
+    if (dropped && dropped.type.startsWith("image/")) handleFile(dropped);
+  }, []);
 
   const onPredict = async () => {
     if (!file) return;
@@ -36,98 +47,250 @@ export default function ImagePredictor() {
     }
   };
 
+  const reset = () => {
+    setFile(null);
+    setResult(null);
+    setError(null);
+  };
+
+  const isMyopia = result?.label === "MYOPIA";
+  const prob = result ? result.myopia_probability * 100 : 0;
+
   return (
-    <div className="min-h-screen bg-[var(--background-light)] px-4 py-10 sm:px-6 lg:px-8">
+    <div className="min-h-screen bg-[var(--background-mint)] px-4 py-10 sm:px-6 lg:px-8">
       <div className="mx-auto max-w-4xl">
+
+        {/* Header */}
         <motion.div
-          initial={{ opacity: 0, y: 20 }}
+          initial={{ opacity: 0, y: 16 }}
           animate={{ opacity: 1, y: 0 }}
-          transition={{ duration: 0.35 }}
-          className="rounded-3xl border border-[var(--border)] bg-white p-6 shadow-sm sm:p-8"
+          transition={{ duration: 0.4 }}
+          className="mb-8 text-center"
         >
-          <div className="mb-6 flex items-center gap-3">
-            <div className="flex h-11 w-11 items-center justify-center rounded-2xl bg-[var(--primary-green)]/10">
-              <Eye className="h-5 w-5" style={{ color: "var(--primary-green)" }} />
-            </div>
-            <div>
-              <h1 className="text-2xl font-bold text-[var(--text-dark)]">Image-Based Myopia Classifier</h1>
-              <p className="text-sm text-[var(--text-muted)]">
-                Upload a retinal/eye image to run your Keras classifier via backend API.
-              </p>
-            </div>
+          <div className="mx-auto mb-4 flex h-16 w-16 items-center justify-center rounded-2xl bg-purple-100">
+            <Camera className="h-8 w-8 text-purple-600" />
           </div>
+          <h1 className="text-3xl font-bold text-[var(--text-dark)]">Image-Based Myopia Detection</h1>
+          <p className="mt-2 text-[var(--text-muted)]">
+            Upload a retinal or eye photograph. Our deep-learning model analyses the image and returns a myopia probability score.
+          </p>
+        </motion.div>
 
-          <div className="grid gap-6 lg:grid-cols-2">
-            <div className="rounded-2xl border border-dashed border-[var(--border)] p-5">
-              <label className="mb-3 block text-sm font-semibold text-[var(--text-dark)]">Upload Image</label>
-              <label className="flex cursor-pointer items-center justify-center gap-2 rounded-xl border border-[var(--border)] bg-[var(--background-mint)] px-4 py-3 text-sm font-medium text-[var(--text-dark)] hover:opacity-90">
-                <Upload className="h-4 w-4" />
-                Choose File
-                <input type="file" accept="image/*" className="hidden" onChange={onFileChange} />
-              </label>
+        <div className="grid gap-6 lg:grid-cols-5">
 
-              <p className="mt-3 text-xs text-[var(--text-muted)]">
-                Model input is auto-resized to 224 x 224 x 3.
-              </p>
+          {/* Left: Upload + Preview */}
+          <motion.div
+            initial={{ opacity: 0, x: -16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.05 }}
+            className="lg:col-span-3 flex flex-col gap-4"
+          >
+            {/* Drop zone */}
+            <div
+              onDragOver={(e) => { e.preventDefault(); setDragging(true); }}
+              onDragLeave={() => setDragging(false)}
+              onDrop={onDrop}
+              className={`relative flex flex-col items-center justify-center rounded-2xl border-2 border-dashed p-8 text-center transition-all cursor-pointer ${
+                dragging
+                  ? "border-purple-400 bg-purple-50"
+                  : file
+                  ? "border-[var(--primary-green)] bg-[var(--background-mint)]"
+                  : "border-[var(--border)] bg-white hover:border-purple-300 hover:bg-purple-50/30"
+              }`}
+              style={{ minHeight: "260px" }}
+              onClick={() => !file && document.getElementById("file-input")?.click()}
+            >
+              <input
+                id="file-input"
+                type="file"
+                accept="image/*"
+                className="hidden"
+                onChange={onFileChange}
+              />
 
-              {file && (
-                <p className="mt-3 text-sm text-[var(--text-dark)]">
-                  Selected: <span className="font-semibold">{file.name}</span>
-                </p>
+              {previewUrl ? (
+                <>
+                  <img
+                    src={previewUrl}
+                    alt="Uploaded preview"
+                    className="max-h-52 w-full rounded-xl object-contain"
+                  />
+                  <p className="mt-3 text-sm font-medium text-[var(--text-dark)]">{file?.name}</p>
+                  <p className="text-xs text-[var(--text-muted)]">
+                    {file ? (file.size / 1024).toFixed(0) + " KB" : ""}
+                  </p>
+                </>
+              ) : (
+                <>
+                  <div className="mb-4 flex h-14 w-14 items-center justify-center rounded-full bg-purple-100">
+                    <Upload className="h-6 w-6 text-purple-500" />
+                  </div>
+                  <p className="font-semibold text-[var(--text-dark)]">
+                    {dragging ? "Drop your image here" : "Drag & drop or click to upload"}
+                  </p>
+                  <p className="mt-1 text-sm text-[var(--text-muted)]">PNG, JPG, WEBP up to 5 MB</p>
+                  <p className="mt-3 text-xs text-[var(--text-muted)] opacity-70">
+                    Model input auto-resized to 224 × 224 px
+                  </p>
+                </>
               )}
+            </div>
 
+            {/* Action buttons */}
+            <div className="flex gap-3">
+              {file && (
+                <button
+                  onClick={reset}
+                  className="flex items-center gap-2 rounded-xl border border-[var(--border)] bg-white px-4 py-3 text-sm font-medium text-[var(--text-muted)] transition-colors hover:bg-red-50 hover:text-red-500"
+                >
+                  <RotateCcw className="h-4 w-4" />
+                  Clear
+                </button>
+              )}
               <button
-                onClick={onPredict}
-                disabled={!file || loading}
-                className="mt-5 inline-flex w-full items-center justify-center gap-2 rounded-xl bg-[var(--primary-green)] px-4 py-3 font-semibold text-white transition-opacity disabled:cursor-not-allowed disabled:opacity-60"
+                onClick={file ? onPredict : () => document.getElementById("file-input")?.click()}
+                disabled={loading}
+                className="flex flex-1 items-center justify-center gap-2 rounded-xl px-4 py-3 font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-60"
+                style={{ background: loading ? "#6B8F80" : "var(--primary-green)" }}
               >
-                {loading ? <Loader2 className="h-4 w-4 animate-spin" /> : <Eye className="h-4 w-4" />}
-                {loading ? "Predicting..." : "Run Prediction"}
+                {loading ? (
+                  <><Loader2 className="h-4 w-4 animate-spin" />Analysing image…</>
+                ) : file ? (
+                  <><Eye className="h-4 w-4" />Run Detection</>
+                ) : (
+                  <><Upload className="h-4 w-4" />Choose Image</>
+                )}
               </button>
             </div>
 
-            <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
-              <p className="mb-3 text-sm font-semibold text-[var(--text-dark)]">Preview</p>
-              {previewUrl ? (
-                <img src={previewUrl} alt="Uploaded preview" className="h-64 w-full rounded-xl object-cover" />
-              ) : (
-                <div className="flex h-64 items-center justify-center rounded-xl bg-[var(--background-mint)] text-sm text-[var(--text-muted)]">
-                  No image selected
-                </div>
+            {/* Error */}
+            <AnimatePresence>
+              {error && (
+                <motion.div
+                  initial={{ opacity: 0, y: -8 }}
+                  animate={{ opacity: 1, y: 0 }}
+                  exit={{ opacity: 0 }}
+                  className="flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700"
+                >
+                  <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0" />
+                  <span>{error}</span>
+                </motion.div>
               )}
-            </div>
-          </div>
+            </AnimatePresence>
+          </motion.div>
 
-          {error && (
-            <div className="mt-6 flex items-start gap-3 rounded-xl border border-red-200 bg-red-50 p-4 text-sm text-red-700">
-              <AlertTriangle className="mt-0.5 h-4 w-4" />
-              <span>{error}</span>
-            </div>
-          )}
+          {/* Right: Result + Info */}
+          <motion.div
+            initial={{ opacity: 0, x: 16 }}
+            animate={{ opacity: 1, x: 0 }}
+            transition={{ duration: 0.4, delay: 0.1 }}
+            className="lg:col-span-2 flex flex-col gap-4"
+          >
+            {/* Result card */}
+            <AnimatePresence mode="wait">
+              {result ? (
+                <motion.div
+                  key="result"
+                  initial={{ opacity: 0, scale: 0.95 }}
+                  animate={{ opacity: 1, scale: 1 }}
+                  exit={{ opacity: 0 }}
+                  transition={{ duration: 0.3 }}
+                  className={`rounded-2xl border-2 p-6 ${
+                    isMyopia ? "border-red-200 bg-red-50" : "border-green-200 bg-green-50"
+                  }`}
+                >
+                  {/* Verdict */}
+                  <div className="mb-4 flex items-center gap-3">
+                    {isMyopia
+                      ? <XCircle className="h-8 w-8 text-red-500" />
+                      : <CheckCircle2 className="h-8 w-8 text-green-500" />
+                    }
+                    <div>
+                      <p className="text-xs font-semibold uppercase tracking-wide text-[var(--text-muted)]">
+                        Detection Result
+                      </p>
+                      <p className={`text-2xl font-bold ${isMyopia ? "text-red-600" : "text-green-600"}`}>
+                        {result.label}
+                      </p>
+                    </div>
+                  </div>
 
-          {result && (
-            <div className="mt-6 rounded-2xl border border-[var(--border)] bg-[var(--background-mint)] p-5">
+                  {/* Probability bar */}
+                  <div className="mb-4">
+                    <div className="mb-1.5 flex justify-between text-xs font-medium text-[var(--text-muted)]">
+                      <span>Myopia probability</span>
+                      <span className="font-bold text-[var(--text-dark)]">{prob.toFixed(1)}%</span>
+                    </div>
+                    <div className="h-3 w-full overflow-hidden rounded-full bg-white/60">
+                      <motion.div
+                        initial={{ width: 0 }}
+                        animate={{ width: `${prob}%` }}
+                        transition={{ duration: 0.8, ease: "easeOut" }}
+                        className="h-full rounded-full"
+                        style={{ background: isMyopia ? "#EF4444" : "#22C55E" }}
+                      />
+                    </div>
+                  </div>
+
+                  {/* Stats grid */}
+                  <div className="grid grid-cols-2 gap-3 text-sm">
+                    {[
+                      { label: "Myopia", value: `${(result.myopia_probability * 100).toFixed(1)}%` },
+                      { label: "Normal", value: `${(result.normal_probability * 100).toFixed(1)}%` },
+                      { label: "Threshold", value: `${result.threshold * 100}%` },
+                      { label: "Response", value: `${result.duration_ms} ms` },
+                    ].map((s) => (
+                      <div key={s.label} className="rounded-xl bg-white/70 p-3">
+                        <p className="text-xs text-[var(--text-muted)]">{s.label}</p>
+                        <p className="font-bold text-[var(--text-dark)]">{s.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  <p className="mt-4 text-xs leading-relaxed text-[var(--text-muted)]">
+                    This is a research tool. Always consult a qualified eye-care professional for diagnosis.
+                  </p>
+                </motion.div>
+              ) : (
+                <motion.div
+                  key="placeholder"
+                  initial={{ opacity: 0 }}
+                  animate={{ opacity: 1 }}
+                  exit={{ opacity: 0 }}
+                  className="flex flex-col items-center justify-center rounded-2xl border border-dashed border-[var(--border)] bg-white p-8 text-center"
+                  style={{ minHeight: "280px" }}
+                >
+                  <Eye className="mb-3 h-10 w-10 text-[var(--border)]" />
+                  <p className="font-semibold text-[var(--text-muted)]">No result yet</p>
+                  <p className="mt-1 text-sm text-[var(--text-muted)] opacity-70">
+                    Upload an image and run detection
+                  </p>
+                </motion.div>
+              )}
+            </AnimatePresence>
+
+            {/* Info card */}
+            <div className="rounded-2xl border border-[var(--border)] bg-white p-5">
               <div className="mb-3 flex items-center gap-2">
-                <CheckCircle2 className="h-4 w-4" style={{ color: "var(--primary-green)" }} />
-                <p className="text-sm font-semibold text-[var(--text-dark)]">Prediction Result</p>
+                <Info className="h-4 w-4" style={{ color: "var(--primary-green)" }} />
+                <p className="text-sm font-semibold text-[var(--text-dark)]">How it works</p>
               </div>
-              <div className="grid gap-2 text-sm text-[var(--text-dark)] sm:grid-cols-2">
-                <p>
-                  Label: <span className="font-bold">{result.label}</span>
-                </p>
-                <p>
-                  Myopia Probability: <span className="font-bold">{(result.myopia_probability * 100).toFixed(2)}%</span>
-                </p>
-                <p>
-                  Normal Probability: <span className="font-bold">{(result.normal_probability * 100).toFixed(2)}%</span>
-                </p>
-                <p>
-                  Response Time: <span className="font-bold">{result.duration_ms} ms</span>
-                </p>
-              </div>
+              <ul className="space-y-2 text-xs text-[var(--text-muted)]">
+                {[
+                  "Image is auto-resized to 224 × 224 px before inference",
+                  "Deep-learning classifier (Keras → ONNX, no GPU required)",
+                  "Threshold: ≥ 50% probability = MYOPIA classification",
+                  "Best results with clear, front-on eye or fundus photos",
+                ].map((tip) => (
+                  <li key={tip} className="flex items-start gap-2">
+                    <span className="mt-0.5 h-1.5 w-1.5 shrink-0 rounded-full bg-[var(--primary-green)]" />
+                    {tip}
+                  </li>
+                ))}
+              </ul>
             </div>
-          )}
-        </motion.div>
+          </motion.div>
+        </div>
       </div>
     </div>
   );

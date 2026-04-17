@@ -61,7 +61,7 @@ export default function Login() {
         return;
       }
       login(data.name, data.email, data.token, undefined, rememberMe);
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
+      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard";
       navigate(from, { replace: true });
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });

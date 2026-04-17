@@ -54,7 +54,7 @@ export default function GoogleLoginButton({ onError }: GoogleLoginButtonProps) {
 
         if (res.ok) {
           login(data.name, data.email, data.token, undefined, true);
-          const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
+          const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/dashboard";
           navigate(from, { replace: true });
           loggedIn = true;
           break;
