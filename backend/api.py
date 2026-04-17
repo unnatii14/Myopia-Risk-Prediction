@@ -666,7 +666,7 @@ def predict_image():
             "duration_ms": round(duration_ms, 2),
         }
         logger.info(
-            f"Image prediction complete: label={label}, prob={prob:.4f}, duration={duration_ms:.2f}ms"
+            f"Image prediction complete: label={label}, prob={myopia_prob:.4f}, duration={duration_ms:.2f}ms"
         )
         return jsonify(result)
     except Exception as e:
