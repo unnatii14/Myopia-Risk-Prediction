@@ -1,11 +1,11 @@
 import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { jsPDF } from "jspdf";
 import {
   Download, AlertTriangle, CheckCircle, Sun,
   Smartphone, Users, Calendar, ExternalLink,
-  Eye, Loader2
+  Eye, Loader2, BookmarkCheck
 } from "lucide-react";
 import RiskGauge from "../components/RiskGauge";
 import {
@@ -57,6 +57,7 @@ export default function Results() {
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [savedToHistory, setSavedToHistory] = useState(false);
   const resolvedChildName = (data?.childName || user?.childName || "").trim();
 
   const downloadPdf = () => {
@@ -244,7 +245,10 @@ export default function Results() {
             has_re: result.has_re,
             diopters: result.diopters,
             severity: result.severity,
-          }).catch(() => {}); // silent — don't block UX
+          }).then(() => {
+            setSavedToHistory(true);
+            setTimeout(() => setSavedToHistory(false), 4000);
+          }).catch(() => {});
         }
       })
       .catch((err) => {
@@ -388,6 +392,23 @@ export default function Results() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
       <div className="max-w-5xl mx-auto">
+
+        {/* ── Saved-to-history toast ── */}
+        <AnimatePresence>
+          {savedToHistory && (
+            <motion.div
+              initial={{ opacity: 0, y: -16, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 0.96 }}
+              transition={{ duration: 0.25 }}
+              className="fixed top-24 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2.5 rounded-2xl border border-green-200 bg-white px-5 py-3 shadow-xl"
+            >
+              <BookmarkCheck className="h-5 w-5 text-green-600 shrink-0" />
+              <span className="text-sm font-semibold text-[var(--text-dark)]">Result saved to your Dashboard</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* HERO RESULT CARD */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}

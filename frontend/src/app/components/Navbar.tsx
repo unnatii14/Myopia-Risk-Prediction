@@ -39,6 +39,11 @@ export default function Navbar() {
 
   const handleSectionClick = (sectionId: string) => {
     setMobileMenuOpen(false);
+    // Logged-in users don't see the landing page sections — go to about/faq instead
+    if (user) {
+      navigate(sectionId === "research" ? "/about" : "/faq");
+      return;
+    }
     if (location.pathname !== "/") {
       navigate("/");
       setTimeout(() => {
@@ -65,7 +70,7 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <Link to="/" className="flex items-center gap-2 group">
+            <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
               <div className="w-10 h-10 rounded-full bg-[var(--primary-green)] flex items-center justify-center">
                 <Eye className="w-5 h-5 text-white" />
               </div>
@@ -82,13 +87,13 @@ export default function Navbar() {
                 onClick={() => handleSectionClick("how-it-works")}
                 className="text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors"
               >
-                How It Works
+                {user ? "FAQ" : "How It Works"}
               </button>
               <button
                 onClick={() => handleSectionClick("research")}
                 className="text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors"
               >
-                Research
+                {user ? "About" : "Research"}
               </button>
 
               {/* Tools dropdown */}

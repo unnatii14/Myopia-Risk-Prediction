@@ -7,7 +7,8 @@ import {
   ClipboardList, TrendingUp, Ruler, AlertCircle,
   Camera, ChevronRight, Activity, BookOpen, HelpCircle,
   Clock, ArrowUpRight, ArrowDownRight, Minus, CalendarDays,
-  ShieldCheck, ShieldAlert, ShieldX, History,
+  ShieldCheck, ShieldAlert, ShieldX, History, X,
+  User, Eye, Smartphone, Sun, Users, Dna,
 } from "lucide-react";
 
 // ── Tool definitions ──────────────────────────────────────────
@@ -72,8 +73,9 @@ export default function Dashboard() {
   const { user } = useAuth();
   const navigate = useNavigate();
 
-  const [latest, setLatest]   = useState<ScreeningRecord | null | undefined>(undefined); // undefined = loading
-  const [history, setHistory] = useState<ScreeningRecord[]>([]);
+  const [latest, setLatest]       = useState<ScreeningRecord | null | undefined>(undefined);
+  const [history, setHistory]     = useState<ScreeningRecord[]>([]);
+  const [selected, setSelected]   = useState<ScreeningRecord | null>(null);
 
   const firstName = user?.name?.split(" ")[0] ?? "there";
   const hour      = new Date().getHours();
@@ -215,15 +217,17 @@ export default function Dashboard() {
                 const cfg = RISK_CONFIG[rec.risk_level];
                 const d   = daysSince(rec.screened_at);
                 return (
-                  <div
+                  <button
                     key={rec.id}
-                    className="flex-shrink-0 rounded-xl border bg-white px-4 py-3 text-center min-w-[90px]"
+                    onClick={() => setSelected(rec)}
+                    className="flex-shrink-0 rounded-xl border bg-white px-4 py-3 text-center min-w-[90px] transition-shadow hover:shadow-md hover:-translate-y-0.5 transition-transform"
                     style={{ borderColor: cfg.border }}
                   >
                     <p className="text-xs text-[var(--text-muted)]">{i === 0 ? "Latest" : `${d}d ago`}</p>
                     <p className="text-lg font-bold mt-0.5" style={{ color: cfg.color }}>{rec.risk_score}%</p>
                     <p className="text-[10px] font-semibold uppercase tracking-wide" style={{ color: cfg.color }}>{rec.risk_level}</p>
-                  </div>
+                    <p className="text-[10px] text-[var(--text-muted)] mt-0.5">tap to view</p>
+                  </button>
                 );
               })}
             </div>
@@ -285,6 +289,113 @@ export default function Dashboard() {
         </motion.div>
 
       </div>
+
+      {/* ── History detail modal ── */}
+      <AnimatePresence>
+        {selected && (() => {
+          const cfg = RISK_CONFIG[selected.risk_level];
+          const d   = selected.input_data;
+          const days = daysSince(selected.screened_at);
+          const dateStr = new Date(selected.screened_at).toLocaleDateString("en-IN", {
+            day: "numeric", month: "long", year: "numeric",
+          });
+          return (
+            <motion.div
+              key="modal-backdrop"
+              initial={{ opacity: 0 }}
+              animate={{ opacity: 1 }}
+              exit={{ opacity: 0 }}
+              className="fixed inset-0 z-50 flex items-end sm:items-center justify-center bg-black/40 px-4 pb-4 sm:pb-0"
+              onClick={() => setSelected(null)}
+            >
+              <motion.div
+                key="modal-panel"
+                initial={{ opacity: 0, y: 40 }}
+                animate={{ opacity: 1, y: 0 }}
+                exit={{ opacity: 0, y: 40 }}
+                transition={{ type: "spring", stiffness: 320, damping: 32 }}
+                className="w-full max-w-md rounded-3xl bg-white shadow-2xl overflow-hidden"
+                onClick={(e) => e.stopPropagation()}
+              >
+                {/* Header */}
+                <div className="flex items-center justify-between px-5 py-4" style={{ background: cfg.bg }}>
+                  <div className="flex items-center gap-2" style={{ color: cfg.color }}>
+                    {cfg.icon}
+                    <span className="font-bold">{cfg.label} — {selected.risk_score}%</span>
+                  </div>
+                  <button onClick={() => setSelected(null)} className="rounded-full p-1.5 hover:bg-black/10 transition-colors">
+                    <X className="h-4 w-4 text-[var(--text-muted)]" />
+                  </button>
+                </div>
+
+                <div className="px-5 py-4 space-y-4">
+                  {/* Date */}
+                  <p className="text-xs text-[var(--text-muted)] flex items-center gap-1.5">
+                    <CalendarDays className="h-3.5 w-3.5" />
+                    {dateStr} &nbsp;·&nbsp; {days === 0 ? "Today" : days === 1 ? "Yesterday" : `${days} days ago`}
+                  </p>
+
+                  {/* Child info row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    {[
+                      { icon: <User className="h-3.5 w-3.5"/>, label: "Child", value: selected.child_name || "—" },
+                      { icon: <CalendarDays className="h-3.5 w-3.5"/>, label: "Age", value: d?.age ? `${d.age} yrs` : "—" },
+                      { icon: <Users className="h-3.5 w-3.5"/>, label: "Sex", value: d?.sex ? String(d.sex) : "—" },
+                      { icon: <Dna className="h-3.5 w-3.5"/>, label: "Family history", value: d?.familyHistory ? "Yes" : "No" },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-xl bg-[var(--background-mint)] px-3 py-2.5">
+                        <div className="flex items-center gap-1 text-[var(--text-muted)] mb-1">{item.icon}<p className="text-[10px]">{item.label}</p></div>
+                        <p className="text-sm font-semibold text-[var(--text-dark)]">{item.value}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* Lifestyle row */}
+                  <div className="grid grid-cols-3 gap-3">
+                    {[
+                      { icon: <Smartphone className="h-3.5 w-3.5"/>, label: "Screen time", value: d?.screenTime ? `${d.screenTime}h/day` : "—" },
+                      { icon: <Sun className="h-3.5 w-3.5"/>, label: "Outdoor time", value: d?.outdoorTime ? `${d.outdoorTime}h/day` : "—" },
+                      { icon: <Eye className="h-3.5 w-3.5"/>, label: "Near work", value: d?.nearWork ? `${d.nearWork}h/day` : "—" },
+                    ].map((item) => (
+                      <div key={item.label} className="rounded-xl bg-[var(--background-mint)] px-3 py-2.5 text-center">
+                        <div className="flex items-center justify-center gap-1 text-[var(--text-muted)] mb-1">{item.icon}</div>
+                        <p className="text-sm font-bold text-[var(--text-dark)]">{item.value}</p>
+                        <p className="text-[10px] text-[var(--text-muted)]">{item.label}</p>
+                      </div>
+                    ))}
+                  </div>
+
+                  {/* ML result row */}
+                  <div className="grid grid-cols-2 gap-3">
+                    <div className="rounded-xl border px-3 py-2.5" style={{ borderColor: cfg.border, background: cfg.bg }}>
+                      <p className="text-[10px] text-[var(--text-muted)]">Refractive Error</p>
+                      <p className="font-bold text-sm mt-0.5" style={{ color: selected.has_re ? "#dc2626" : "#16a34a" }}>
+                        {selected.has_re ? "Detected" : "Unlikely"}
+                      </p>
+                    </div>
+                    <div className="rounded-xl border px-3 py-2.5" style={{ borderColor: cfg.border, background: cfg.bg }}>
+                      <p className="text-[10px] text-[var(--text-muted)]">Est. Severity</p>
+                      <p className="font-bold text-sm mt-0.5" style={{ color: cfg.color }}>
+                        {selected.diopters ? `-${selected.diopters}D · ${selected.severity}` : selected.has_re ? "—" : "None"}
+                      </p>
+                    </div>
+                  </div>
+
+                  {/* Action button */}
+                  <button
+                    onClick={() => { setSelected(null); navigate("/screen"); }}
+                    className="w-full rounded-2xl py-3 text-sm font-bold text-white transition-opacity hover:opacity-90"
+                    style={{ background: "var(--primary-green)" }}
+                  >
+                    Run New Screening
+                  </button>
+                </div>
+              </motion.div>
+            </motion.div>
+          );
+        })()}
+      </AnimatePresence>
+
     </div>
   );
 }
