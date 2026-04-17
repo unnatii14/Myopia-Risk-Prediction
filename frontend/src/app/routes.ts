@@ -1,6 +1,7 @@
 import { createBrowserRouter } from "react-router";
 import Landing from "./pages/Landing";
 import Dashboard from "./pages/Dashboard";
+import HomeRedirect from "./components/HomeRedirect";
 import Screen from "./pages/Screen";
 import Results from "./pages/Results";
 import Progression from "./pages/Progression";
@@ -22,7 +23,7 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: Landing,
+        Component: HomeRedirect,
       },
       // Protected — must be logged in
       {
@@ -57,6 +58,10 @@ export const router = createBrowserRouter([
             Component: ImagePredictor,
           },
         ],
+      },
+      {
+        path: "landing",
+        Component: Landing,
       },
       {
         path: "faq",
