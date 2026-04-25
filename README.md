@@ -333,8 +333,8 @@ MIT License — free to use, modify, and distribute with attribution.
 
 | | Name | GitHub |
 |--|------|--------|
+| 👩‍💻 | **Nency Pansuria** | [@Nency02](https://github.com/Nency02) |
 | 👩‍💻 | **Unnati Tank** | [@unnatii14](https://github.com/unnatii14) |
-| 👩‍💻 | **Nency** | [@Nency02](https://github.com/Nency02) |
 
 ---
 
