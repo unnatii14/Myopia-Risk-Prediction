@@ -329,7 +329,15 @@ MIT License — free to use, modify, and distribute with attribution.
 
 ---
 
+## Contributors
+
+| | Name | GitHub |
+|--|------|--------|
+| 👩‍💻 | **Unnati Tank** | [@unnatii14](https://github.com/unnatii14) |
+| 👩‍💻 | **Nency** | [@Nency02](https://github.com/Nency02) |
+
+---
+
 ## Contact
 
-Built by **Unnati Tank**
 📧 [GitHub Issues](https://github.com/unnatii14/Myopia-Risk-Prediction/issues) for questions or collaboration.
