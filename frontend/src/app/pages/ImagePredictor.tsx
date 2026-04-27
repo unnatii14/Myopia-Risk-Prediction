@@ -72,7 +72,7 @@ export default function ImagePredictor() {
           </div>
           <h1 className="text-3xl font-bold text-[var(--text-dark)]">Image-Based Myopia Detection</h1>
           <p className="mt-2 text-[var(--text-muted)]">
-            Upload a <strong>fundus (retinal) photograph</strong> taken with medical eye equipment. The model is not designed for regular phone photos.
+            Upload a <strong>blue-channel fundus (retinal) photograph</strong> taken with medical eye equipment. The model is not designed for regular phone photos.
           </p>
         </motion.div>
 
@@ -86,12 +86,15 @@ export default function ImagePredictor() {
           <div className="flex items-start gap-3">
             <AlertTriangle className="mt-0.5 h-5 w-5 shrink-0 text-amber-500" />
             <div>
-              <p className="font-semibold text-amber-800 text-sm">This tool requires fundus / retinal photographs</p>
+              <p className="font-semibold text-amber-800 text-sm">⚠️ This tool requires blue-channel fundus / retinal photographs only</p>
               <p className="mt-1 text-xs text-amber-700 leading-relaxed">
-                Regular phone selfies or close-up eye photos <strong>will not work</strong> — the model was trained on medical fundus camera images (the orange circular retinal scans taken by eye doctors). Uploading a phone photo will always give unreliable results.
+                The model was trained exclusively on <strong>blue-channel fundus images</strong> — the single-channel blue layer extracted from medical retinal scans. Colour fundus images, phone selfies, or close-up eye photos <strong>will not work</strong> and will always give unreliable results.
+              </p>
+              <p className="mt-2 text-xs text-amber-700 leading-relaxed">
+                <strong>What is a blue-channel fundus image?</strong> It is the blue (B) layer isolated from a standard RGB retinal photograph taken by an ophthalmologist's fundus camera. These appear as a <strong>dark, high-contrast greyscale image</strong> of the retina — not the typical orange/red colour scan.
               </p>
               <p className="mt-2 text-xs text-amber-700">
-                <strong>How to get a fundus image:</strong> Visit an optometrist and ask for a retinal photograph, or use a sample image from the{" "}
+                <strong>Where to get one:</strong> Ask your eye doctor for the blue-channel export of your retinal scan, or download sample images from the{" "}
                 <a href="https://www.kaggle.com/datasets/sshikamaru/fundus-image-dataset" target="_blank" rel="noreferrer" className="underline font-medium">ORIGA / Kaggle fundus dataset</a>.
               </p>
             </div>
@@ -151,7 +154,10 @@ export default function ImagePredictor() {
                     {dragging ? "Drop your image here" : "Drag & drop or click to upload"}
                   </p>
                   <p className="mt-1 text-sm text-[var(--text-muted)]">PNG, JPG, WEBP up to 5 MB</p>
-                  <p className="mt-3 text-xs text-[var(--text-muted)] opacity-70">
+                  <p className="mt-2 text-xs font-semibold text-purple-500 opacity-90">
+                    Blue-channel fundus images only
+                  </p>
+                  <p className="mt-1 text-xs text-[var(--text-muted)] opacity-70">
                     Model input auto-resized to 224 × 224 px
                   </p>
                 </>
@@ -273,7 +279,7 @@ export default function ImagePredictor() {
                     <div className="mt-3 flex items-start gap-2 rounded-xl border border-amber-200 bg-amber-50 p-3 text-xs text-amber-800">
                       <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0 text-amber-500" />
                       <span>
-                        <strong>Unreliable result.</strong> Extreme confidence ({prob.toFixed(1)}%) usually means the image is not a fundus/retinal photograph. Please upload a medical eye scan, not a regular phone photo.
+                        <strong>Unreliable result.</strong> Extreme confidence ({prob.toFixed(1)}%) usually means the image is not a blue-channel fundus photograph. Please upload a blue-channel retinal image (the dark, high-contrast B-layer from a medical fundus camera) — not a colour scan or phone photo.
                       </span>
                     </div>
                   )}
@@ -307,8 +313,9 @@ export default function ImagePredictor() {
               </div>
               <ul className="space-y-2 text-xs text-[var(--text-muted)]">
                 {[
-                  "Requires fundus (retinal) photographs from medical eye equipment",
-                  "Phone selfies or casual eye photos will give wrong results",
+                  "Requires blue-channel fundus (retinal) images — not colour photos",
+                  "Blue-channel = the B layer isolated from an RGB retinal scan (dark, high-contrast greyscale)",
+                  "Phone selfies, colour fundus scans, or eye close-ups will give wrong results",
                   "Image is auto-resized to 224 × 224 px before inference",
                   "Deep-learning classifier (Keras → ONNX, no GPU required)",
                   "Threshold: ≥ 50% probability = MYOPIA classification",
