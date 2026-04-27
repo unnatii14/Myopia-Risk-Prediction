@@ -95,7 +95,7 @@ export default function ImagePredictor() {
               </p>
               <p className="mt-2 text-xs text-amber-700">
                 <strong>Where to get one:</strong> Ask your eye doctor for the blue-channel export of your retinal scan, or download sample images from the{" "}
-                <a href="https://www.kaggle.com/datasets/sshikamaru/fundus-image-dataset" target="_blank" rel="noreferrer" className="underline font-medium">ORIGA / Kaggle fundus dataset</a>.
+                <a href="https://www.kaggle.com/datasets/kellysanderson/myopia-image-dataset" target="_blank" rel="noreferrer" className="underline font-medium">Myopia Image Dataset on Kaggle</a>.
               </p>
             </div>
           </div>
