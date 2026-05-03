@@ -1,4 +1,4 @@
-const express = require("express");
+﻿const express = require("express");
 const jwt = require("jsonwebtoken");
 const { OAuth2Client } = require("google-auth-library");
 const User = require("../models/User");
@@ -11,7 +11,7 @@ const signToken = (id) =>
     expiresIn: process.env.JWT_EXPIRES_IN || "7d",
   });
 
-// ── POST /api/auth/signup ─────────────────────────────────────
+// â”€â”€ POST /api/auth/signup â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.post("/signup", async (req, res) => {
   try {
     const { name, email, password } = req.body;
@@ -38,7 +38,7 @@ router.post("/signup", async (req, res) => {
   }
 });
 
-// ── POST /api/auth/login ──────────────────────────────────────
+// â”€â”€ POST /api/auth/login â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.post("/login", async (req, res) => {
   try {
     const { email, password } = req.body;
@@ -60,7 +60,7 @@ router.post("/login", async (req, res) => {
   }
 });
 
-// ── POST /api/auth/google ─────────────────────────────────────
+// â”€â”€ POST /api/auth/google â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 router.post("/google", async (req, res) => {
   try {
     const { token } = req.body;
@@ -86,8 +86,7 @@ router.post("/google", async (req, res) => {
       return res.status(400).json({ error: "Email not found in Google token" });
     }
 
-    // Ensure user exists in MongoDB. Use Google subject to build a placeholder
-    // password because the schema requires password.
+    // Keep schema compatibility where password is required for persisted users.
     let user = await User.findOne({ email });
     if (!user) {
       const placeholderPassword = `google_${googleSub || Date.now()}_${Math.random().toString(36).slice(2, 10)}`;

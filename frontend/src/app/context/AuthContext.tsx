@@ -23,10 +23,11 @@ const TOKEN_MAX_AGE_HOURS = 24;
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     try {
-      const stored = localStorage.getItem(STORAGE_KEY);
+      const stored = localStorage.getItem(STORAGE_KEY) || sessionStorage.getItem(STORAGE_KEY);
       if (!stored) return null;
 
-      const timestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+      const timestamp =
+        localStorage.getItem(STORAGE_TIMESTAMP_KEY) || sessionStorage.getItem(STORAGE_TIMESTAMP_KEY);
       if (!timestamp) return null;
 
       const lastLoginTime = parseInt(timestamp, 10);
@@ -36,6 +37,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       if (ageInHours > TOKEN_MAX_AGE_HOURS) {
         localStorage.removeItem(STORAGE_KEY);
         localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
+        sessionStorage.removeItem(STORAGE_KEY);
+        sessionStorage.removeItem(STORAGE_TIMESTAMP_KEY);
         return null;
       }
 
@@ -47,7 +50,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
 
   const isTokenValid = () => {
     if (!user) return false;
-    const timestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY);
+    const timestamp = localStorage.getItem(STORAGE_TIMESTAMP_KEY) || sessionStorage.getItem(STORAGE_TIMESTAMP_KEY);
     if (!timestamp) return false;
 
     const lastLoginTime = parseInt(timestamp, 10);
@@ -63,8 +66,8 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
       localStorage.setItem(STORAGE_KEY, JSON.stringify(u));
       localStorage.setItem(STORAGE_TIMESTAMP_KEY, Date.now().toString());
     } else {
-      // Session-only login: store temporarily but mark with expired timestamp
       sessionStorage.setItem(STORAGE_KEY, JSON.stringify(u));
+      sessionStorage.setItem(STORAGE_TIMESTAMP_KEY, Date.now().toString());
     }
   };
 
@@ -73,6 +76,7 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
     sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(STORAGE_TIMESTAMP_KEY);
   };
 
   return (

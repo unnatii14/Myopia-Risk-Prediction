@@ -1,9 +1,9 @@
-"""
+﻿"""
 Myopia Risk Prediction Backend API
 Three-stage ML pipeline:
-  Stage 1 → Has Refractive Error? (has_re_model)
-  Stage 2 → Progression Risk Level? (risk_progression_model)
-  Stage 3 → Diopter Severity Estimate (diopter_regression_model)
+  Stage 1 â†’ Has Refractive Error? (has_re_model)
+  Stage 2 â†’ Progression Risk Level? (risk_progression_model)
+  Stage 3 â†’ Diopter Severity Estimate (diopter_regression_model)
 """
 
 from flask import Flask, request, jsonify, g
@@ -12,39 +12,87 @@ import joblib
 import json
 import os
 import time
+import importlib
 import numpy as np
 import pandas as pd
 from logger import setup_logger, RequestLogger
+from auth import auth_bp
+from history import history_bp
+from config import get_config, get_cors_origins, validate_production_config
+
+try:
+    tf = importlib.import_module("tensorflow")
+except Exception:
+    tf = None
+
+try:
+    import onnxruntime as ort
+except Exception:
+    ort = None
+
+try:
+    from PIL import Image
+except Exception:
+    Image = None
 
 app = Flask(__name__)
-CORS(app)  # Allow requests from the React frontend
+config = get_config()
+app.config['MAX_CONTENT_LENGTH'] = config.MAX_CONTENT_LENGTH
+app.config['SECRET_KEY'] = config.SECRET_KEY
+
+fatal_config_issues = validate_production_config()
+if fatal_config_issues:
+    raise RuntimeError('Invalid production configuration: ' + ' | '.join(fatal_config_issues))
+
+CORS(app, origins=get_cors_origins())  # Restrict origins to configured allowlist
+app.register_blueprint(auth_bp, url_prefix="/auth")
+app.register_blueprint(history_bp, url_prefix="/history")
 
 # Setup logging
 logger = setup_logger('api', log_file='logs/api.log', level='INFO')
 request_logger = RequestLogger(logger)
 
-# ─────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # Load model artifacts once at startup
-# ─────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 BASE_DIR  = os.path.dirname(os.path.abspath(__file__))
-MODEL_DIR = os.path.join(BASE_DIR, "..", "models")
+MODEL_DIR = os.path.realpath(os.path.join(BASE_DIR, "..", "models"))
 
 print("Loading models...")
-risk_model    = joblib.load(os.path.join(MODEL_DIR, "risk_progression_model.pkl"))
-scaler_cls    = joblib.load(os.path.join(MODEL_DIR, "scaler_classification.pkl"))
+print(f"[INFO] MODEL_DIR resolved to: {MODEL_DIR}")
+print(f"[INFO] Files found: {os.listdir(MODEL_DIR) if os.path.isdir(MODEL_DIR) else 'DIRECTORY NOT FOUND'}")
+
+try:
+    risk_model    = joblib.load(os.path.join(MODEL_DIR, "risk_progression_model.pkl"))
+    scaler_cls    = joblib.load(os.path.join(MODEL_DIR, "scaler_classification.pkl"))
+    print("[OK]  Risk + scaler models loaded.")
+except Exception as _e:
+    risk_model = None
+    scaler_cls = None
+    print(f"[ERROR]  Failed to load risk models: {_e}")
 
 # Load IMPROVED Stage 1 model (AUC 0.94!)
-re_model      = joblib.load(os.path.join(MODEL_DIR, "has_re_model_improved.pkl"))
-re_scaler     = joblib.load(os.path.join(MODEL_DIR, "has_re_scaler.pkl"))
+try:
+    re_model      = joblib.load(os.path.join(MODEL_DIR, "has_re_model_improved.pkl"))
+    re_scaler     = joblib.load(os.path.join(MODEL_DIR, "has_re_scaler.pkl"))
+    print("[OK]  Stage 1 RE model loaded.")
+except Exception as _e:
+    re_model = None
+    re_scaler = None
+    print(f"[ERROR]  Failed to load RE model: {_e}")
 
-with open(os.path.join(MODEL_DIR, "has_re_features.json")) as f:
-    RE_FEATURE_META = json.load(f)
-    RE_FEATURE_COLS = RE_FEATURE_META['feature_columns']
-    
-print(f"[OK]  Stage 1 (Has_RE) model: {RE_FEATURE_META.get('model_type','XGBoost')}  AUC={RE_FEATURE_META['metrics']['auc']:.4f}")
+try:
+    with open(os.path.join(MODEL_DIR, "has_re_features.json")) as f:
+        RE_FEATURE_META = json.load(f)
+        RE_FEATURE_COLS = RE_FEATURE_META['feature_columns']
+    print(f"[OK]  Stage 1 (Has_RE) model: {RE_FEATURE_META.get('model_type','XGBoost')}  AUC={RE_FEATURE_META['metrics']['auc']:.4f}")
+except Exception as _e:
+    RE_FEATURE_META = {}
+    RE_FEATURE_COLS = []
+    print(f"[ERROR]  Failed to load RE feature metadata: {_e}")
 
 # Diopter severity model may fail to load if sklearn version mismatches.
-# It is optional — Stage 1+2 still work without it.
+# It is optional â€” Stage 1+2 still work without it.
 diopter_model = None
 scaler_reg    = None
 try:
@@ -55,18 +103,55 @@ except Exception as _e:
     print(f"[WARN]  Diopter model skipped (sklearn version mismatch): {_e}")
     print("    Stage 3 (diopter estimate) will use rule-based fallback.")
 
-with open(os.path.join(MODEL_DIR, "feature_columns.json")) as f:
-    FEATURE_COLS = json.load(f)
+try:
+    with open(os.path.join(MODEL_DIR, "feature_columns.json")) as f:
+        FEATURE_COLS = json.load(f)
+    print(f"[OK]  Models loaded. Feature count: {len(FEATURE_COLS)}")
+except Exception as _e:
+    FEATURE_COLS = []
+    print(f"[ERROR]  Failed to load feature_columns.json: {_e}")
 
-print(f"[OK]  Models loaded. Feature count: {len(FEATURE_COLS)}")
+# Image classifier â€” tries ONNX first (no TensorFlow needed), falls back to Keras
+image_model       = None   # onnxruntime.InferenceSession or tf.keras model
+image_model_type  = None   # "onnx" or "keras"
+image_model_error = None
 
-# ─────────────────────────────────────────────────────────────
+ONNX_MODEL_PATH  = os.path.join(MODEL_DIR, "myopia_classifier.onnx")
+IMAGE_MODEL_ZIP  = os.path.join(MODEL_DIR, "myopia_image_classifier_v2.keras")
+IMAGE_MODEL_DIR  = os.path.join(MODEL_DIR, "myopia_image_classifier.keras")
+IMAGE_MODEL_PATH = IMAGE_MODEL_ZIP if os.path.isfile(IMAGE_MODEL_ZIP) else IMAGE_MODEL_DIR
+
+if Image is None:
+    image_model_error = "Pillow is not installed"
+    print(f"[WARN]  Image classifier disabled: {image_model_error}")
+elif ort is not None and os.path.isfile(ONNX_MODEL_PATH):
+    try:
+        image_model = ort.InferenceSession(ONNX_MODEL_PATH, providers=["CPUExecutionProvider"])
+        image_model_type = "onnx"
+        print(f"[OK]  Image classifier loaded via ONNX from: {ONNX_MODEL_PATH}")
+    except Exception as _e:
+        image_model_error = str(_e)
+        print(f"[WARN]  ONNX load failed: {_e}")
+elif tf is not None and (os.path.isfile(IMAGE_MODEL_PATH) or os.path.isdir(IMAGE_MODEL_PATH)):
+    try:
+        image_model = tf.keras.models.load_model(IMAGE_MODEL_PATH)
+        image_model_type = "keras"
+        print(f"[OK]  Image classifier loaded via Keras from: {IMAGE_MODEL_PATH}")
+    except Exception as _e:
+        image_model_error = str(_e)
+        print(f"[WARN]  Keras load failed: {_e}")
+else:
+    image_model_error = "No image model found (ONNX or Keras)"
+    print(f"[WARN]  Image classifier disabled: {image_model_error}")
+
+
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # State encoding tables
 # Matches what the notebook did during training:
 #   pd.get_dummies(State, prefix='State', drop_first=True)
-#   → first state alphabetically was dropped (Andhra Pradesh)
+#   â†’ first state alphabetically was dropped (Andhra Pradesh)
 #   factorize() order approximated by sorted alphabetical index
-# ─────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # All 12 states in dataset (Andhra Pradesh = reference, dropped by drop_first)
 ALL_STATES_SORTED = [
     "Andhra Pradesh", "Delhi", "Gujarat", "Karnataka", "Kerala",
@@ -95,7 +180,7 @@ def compute_bmi_category(bmi: float) -> int:
 def build_stage1_features(d: dict) -> np.ndarray:
     """
     Build feature vector for IMPROVED Stage 1 (Has_RE) model.
-    Includes enhanced interaction features that boosted AUC 0.50 → 0.94.
+    Includes enhanced interaction features that boosted AUC 0.50 â†’ 0.94.
     """
     age          = float(d.get("age", 10))
     height       = float(d.get("height", 150))
@@ -122,8 +207,8 @@ def build_stage1_features(d: dict) -> np.ndarray:
     sports_map = {"rare": 0, "occasional": 1, "regular": 2}
     sports     = sports_map.get(d.get("sports", "occasional"), 1)
     
-    # ── ENHANCED FEATURES (THE BREAKTHROUGH!) ────────────────
-    # These interaction features improved AUC from 0.50 → 0.94
+    # â”€â”€ ENHANCED FEATURES (THE BREAKTHROUGH!) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+    # These interaction features improved AUC from 0.50 â†’ 0.94
     age_screen           = age * screen_time
     screen_near_total    = screen_time + near_work
     outdoor_deficit      = max(0, 2 - outdoor_time)
@@ -237,7 +322,7 @@ def rule_based_risk(d: dict) -> float:
 def build_feature_row(d: dict) -> np.ndarray:
     """
     Build feature vector for Stage 2 (Risk Progression) model.
-    Matches risk_cols used in retrain_improved.py — GradientBoosting model.
+    Matches risk_cols used in retrain_improved.py â€” GradientBoosting model.
     """
     age          = float(d.get("age", 10))
     height       = float(d.get("height", 150))
@@ -265,7 +350,7 @@ def build_feature_row(d: dict) -> np.ndarray:
     sports_map = {"rare": 0, "occasional": 1, "regular": 2}
     sports     = sports_map.get(d.get("sports", "occasional"), 1)
 
-    # ── Enhanced interaction features (same as retrain_improved.py) ──
+    # â”€â”€ Enhanced interaction features (same as retrain_improved.py) â”€â”€
     age_screen           = age * screen_time
     screen_near_total    = screen_time + near_work
     outdoor_deficit      = max(0, 2 - outdoor_time)
@@ -275,7 +360,7 @@ def build_feature_row(d: dict) -> np.ndarray:
     high_risk_parent = 1 if parents_myopic >= 2 else 0
     family_load      = parents_myopic * 2 + family_hist
 
-    # ── State one-hots ────────────────────────────────────────
+    # â”€â”€ State one-hots â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
     state = d.get("state", "Maharashtra")
     state_onehots = {col: 0 for col in STATE_ONEHOT_COLS}
     col_key = f"State_{state}"
@@ -309,9 +394,9 @@ def build_feature_row(d: dict) -> np.ndarray:
     return np.array(values, dtype=float).reshape(1, -1)
 
 
-# ─────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 # API Endpoints
-# ─────────────────────────────────────────────────────────────
+# â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 
 @app.before_request
 def before_request():
@@ -329,10 +414,31 @@ def after_request(response):
     return response
 
 
+@app.route("/", methods=["GET"])
+def root():
+    """Avoid Flask's generic 404 when someone opens the API base URL in a browser."""
+    return jsonify(
+        {
+            "service": "Myopia Risk API",
+            "health": "/health",
+            "predict": "POST /predict",
+            "predict_image": "POST /predict-image (multipart form field: image)",
+            "auth": "/auth/login, /auth/signup, /auth/google",
+        }
+    )
+
+
 @app.route("/health", methods=["GET"])
 def health():
     logger.info("Health check endpoint called")
-    return jsonify({"status": "ok", "features": len(FEATURE_COLS)})
+    return jsonify(
+        {
+            "status": "ok",
+            "features": len(FEATURE_COLS),
+            "image_model_loaded": image_model is not None,
+            "image_model_error": image_model_error,
+        }
+    )
 
 
 @app.route("/predict", methods=["POST"])
@@ -352,7 +458,7 @@ def predict():
         
         logger.info(f"Prediction request received for age={data.get('age')}, sex={data.get('sex')}")
         
-        # ── Input Validation ──
+        # â”€â”€ Input Validation â”€â”€
         from validation import validate_screening_data, ValidationError
         try:
             validated_data = validate_screening_data(data)
@@ -389,27 +495,27 @@ def predict():
         X = build_feature_row(data)
         X_cls = scaler_cls.transform(X)
 
-        # ── Stage 1: Has Refractive Error? (IMPROVED MODEL) ───
+        # â”€â”€ Stage 1: Has Refractive Error? (IMPROVED MODEL) â”€â”€â”€
         X_re = build_stage1_features(data)
         X_re_scaled = re_scaler.transform(X_re)
         re_prob  = float(re_model.predict_proba(X_re_scaled)[0][1])
         has_re   = re_prob >= 0.5
 
-        # ── Stage 2: Progression Risk ─────────────────────────
+        # â”€â”€ Stage 2: Progression Risk â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         ml_prob   = float(risk_model.predict_proba(X_cls)[0][1])
         rule_prob = rule_based_risk(data)
 
-        # ── Adaptive hybrid scoring ───────────────────────────
+        # â”€â”€ Adaptive hybrid scoring â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
         # Model: GradientBoosting (AUC=0.893). More reliable than old XGBoost.
         # Hybrid still used since clinical rules encode WHO evidence directly.
         if ml_prob >= 0.65:
-            # ML confidently HIGH → trust ML 60%, rule 40%
+            # ML confidently HIGH â†’ trust ML 60%, rule 40%
             risk_prob = 0.60 * ml_prob + 0.40 * rule_prob
         elif ml_prob >= 0.35:
-            # ML uncertain → balanced 50/50
+            # ML uncertain â†’ balanced 50/50
             risk_prob = 0.50 * ml_prob + 0.50 * rule_prob
         else:
-            # ML giving LOW → lean on rules 80%
+            # ML giving LOW â†’ lean on rules 80%
             risk_prob = 0.20 * ml_prob + 0.80 * rule_prob
 
         # Hard floor: clinical rules set a minimum
@@ -424,7 +530,7 @@ def predict():
         else:
             risk_level = "HIGH"
 
-# ── Stage 3: Diopter Estimate (only if RE likely) ─────
+# â”€â”€ Stage 3: Diopter Estimate (only if RE likely) â”€â”€â”€â”€â”€
         diopters = None
         severity = None
         if has_re:
@@ -534,11 +640,66 @@ def predict():
     except Exception as e:
         logger.error(f"Prediction error: {type(e).__name__}: {str(e)}", exc_info=True)
         request_logger.log_error(e, context="predict endpoint")
-        import traceback
-        traceback.print_exc()
-        return jsonify({"error": str(e)}), 500
+        return jsonify({"error": "Internal server error"}), 500
+
+
+@app.route("/predict-image", methods=["POST"])
+def predict_image():
+    """
+    Predict myopia likelihood from an uploaded image.
+    Expects multipart/form-data with field name: image
+    """
+    start_time = time.time()
+
+    if image_model is None:
+        return jsonify({"error": f"Image model unavailable: {image_model_error}"}), 503
+
+    if "image" not in request.files:
+        return jsonify({"error": "No image file uploaded. Use form field 'image'."}), 400
+
+    file = request.files["image"]
+    if file is None or not file.filename:
+        return jsonify({"error": "Empty upload."}), 400
+
+    try:
+        pil_img = Image.open(file.stream).convert("RGB").resize((224, 224))
+        arr = np.asarray(pil_img, dtype=np.float32)
+        arr = np.expand_dims(arr, axis=0)
+
+        if image_model_type == "onnx":
+            input_name = image_model.get_inputs()[0].name
+            pred = image_model.run(None, {input_name: arr})[0]
+        else:
+            pred = image_model.predict(arr, verbose=0)
+
+        raw_prob = float(np.squeeze(pred))
+        raw_prob = max(0.0, min(1.0, raw_prob))
+
+        # The model's sigmoid output is P(NORMAL) â€” class 1 = Normal in training.
+        # So myopia probability = 1 - raw_prob.
+        myopia_prob = 1.0 - raw_prob
+        normal_prob = raw_prob
+        label = "MYOPIA" if myopia_prob >= 0.5 else "NORMAL"
+
+        duration_ms = (time.time() - start_time) * 1000
+        result = {
+            "label": label,
+            "myopia_probability": round(myopia_prob, 4),
+            "normal_probability": round(normal_prob, 4),
+            "threshold": 0.5,
+            "model_input_size": [224, 224],
+            "duration_ms": round(duration_ms, 2),
+        }
+        logger.info(
+            f"Image prediction complete: label={label}, prob={myopia_prob:.4f}, duration={duration_ms:.2f}ms"
+        )
+        return jsonify(result)
+    except Exception as e:
+        logger.error(f"Image prediction error: {type(e).__name__}: {str(e)}", exc_info=True)
+        request_logger.log_error(e, context="predict_image endpoint")
+        return jsonify({"error": "Failed to process image"}), 500
 
 
 if __name__ == "__main__":
     print("Starting Myopia Risk API on http://localhost:5001")
-    app.run(host="0.0.0.0", port=5001, debug=False)
+    app.run(host=config.API_HOST, port=config.API_PORT, debug=config.DEBUG)

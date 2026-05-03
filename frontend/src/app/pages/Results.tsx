@@ -1,11 +1,11 @@
-import { useEffect, useState } from "react";
-import { motion } from "motion/react";
+﻿import { useEffect, useState } from "react";
+import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { jsPDF } from "jspdf";
 import {
   Download, AlertTriangle, CheckCircle, Sun,
   Smartphone, Users, Calendar, ExternalLink,
-  Eye, Loader2
+  Eye, Loader2, BookmarkCheck
 } from "lucide-react";
 import RiskGauge from "../components/RiskGauge";
 import {
@@ -15,11 +15,11 @@ import {
   AccordionTrigger,
 } from "../components/ui/accordion";
 import { useAuth } from "../context/AuthContext";
-
-const API_URL  = "http://localhost:5001";
-const NODE_URL = "http://localhost:5000";
+import { API_URL } from "../lib/apiConfig";
+import { saveScreening } from "../lib/historyApi";
 
 interface ScreeningData {
+  childName?: string;
   age: number;
   sex: string;
   height: number;
@@ -36,8 +36,6 @@ interface ScreeningData {
   diagnosisAge?: number;
   myopiaControl?: string;
   progressionRate?: "slow" | "moderate" | "fast";
-  leftEyeSE?: number;
-  rightEyeSE?: number;
 }
 
 interface PredictionResult {
@@ -48,10 +46,6 @@ interface PredictionResult {
   re_probability: number;
   diopters: number | null;
   severity: string | null;
-  anisometropia_diopters?: number | null;
-  anisometropia_flag?: boolean;
-  severe_anisometropia_flag?: boolean;
-  amblyopia_risk_note?: string | null;
 }
 
 export default function Results() {
@@ -63,18 +57,29 @@ export default function Results() {
   const [prediction, setPrediction] = useState<PredictionResult | null>(null);
   const [loading, setLoading] = useState(true);
   const [apiError, setApiError] = useState<string | null>(null);
+  const [savedToHistory, setSavedToHistory] = useState(false);
+  const resolvedChildName = (data?.childName || user?.childName || "").trim();
 
-  // Save screening result to MongoDB (only when user is logged in)
-  const saveRecord = (screeningData: ScreeningData, pred: PredictionResult) => {
+  const persistHistory = async (
+    screeningData: ScreeningData,
+    result: {
+      risk_score: number;
+      risk_level: "LOW" | "MODERATE" | "HIGH";
+      has_re: boolean;
+      diopters: number | null;
+      severity: string | null;
+    }
+  ) => {
     if (!user?.token) return;
-    fetch(`${NODE_URL}/api/myopia/save`, {
-      method: "POST",
-      headers: {
-        "Content-Type": "application/json",
-        Authorization: `Bearer ${user.token}`,
-      },
-      body: JSON.stringify({ screeningData, prediction: pred }),
-    }).catch(() => {/* silently ignore — saving is best-effort */});
+
+    try {
+      await saveScreening(user.token, screeningData as unknown as Record<string, unknown>, result);
+      setSavedToHistory(true);
+      setTimeout(() => setSavedToHistory(false), 4000);
+    } catch (error) {
+      console.error("Failed to save screening history:", error);
+      setApiError((current) => current || "Result was calculated, but could not be saved to history.");
+    }
   };
 
   const downloadPdf = () => {
@@ -108,17 +113,17 @@ export default function Results() {
     doc.text("Child Profile", margin + 4, y + 8);
     doc.setFont("helvetica", "normal");
     doc.setFontSize(10);
-    if (user?.childName) doc.text(`Child Name: ${user.childName}`, margin + 4, y + 16);
-    doc.text(`Age: ${data.age} years`, margin + 4, user?.childName ? y + 24 : y + 16);
-    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, user?.childName ? y + 24 : y + 16);
-    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, user?.childName ? y + 24 : y + 16);
-    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, user?.childName ? y + 24 : y + 16);
+    if (resolvedChildName) doc.text(`Child Name: ${resolvedChildName}`, margin + 4, y + 16);
+    doc.text(`Age: ${data.age} years`, margin + 4, resolvedChildName ? y + 24 : y + 16);
+    doc.text(`Sex: ${data.sex === "male" ? "Male" : "Female"}`, margin + 50, resolvedChildName ? y + 24 : y + 16);
+    if (data.height > 0) doc.text(`Height: ${data.height} cm`, margin + 100, resolvedChildName ? y + 24 : y + 16);
+    if (data.weight > 0) doc.text(`Weight: ${data.weight} kg`, margin + 145, resolvedChildName ? y + 24 : y + 16);
     if (data?.existingMyopiaStatus === "distance") {
-      y += user?.childName ? 34 : 26;
+      y += resolvedChildName ? 34 : 26;
       if (data.currentPrescription) doc.text(`Prescription: -${data.currentPrescription.toFixed(2)}D`, margin + 4, y);
       if (data.diagnosisAge) doc.text(`Diagnosed: ${data.diagnosisAge} years old`, margin + 4, y + (data.currentPrescription ? 8 : 0));
     }
-    y += user?.childName ? 42 : 34;
+    y += resolvedChildName ? 42 : 34;
 
     // ── Risk result box ──
     const riskColors: Record<string, [number, number, number]> = {
@@ -184,12 +189,6 @@ export default function Results() {
       ["Sports participation", data.sports || "Not specified"],
       ["Vitamin D", data.vitaminD ? "Taking supplement" : "Not taking"],
     ];
-    if (prediction?.anisometropia_diopters != null) {
-      factors.push([
-        "Inter-eye difference (anisometropia)",
-        `${prediction.anisometropia_diopters.toFixed(2)} D`,
-      ]);
-    }
     factors.forEach(([k, v]) => {
       doc.setFillColor(252, 252, 252);
       doc.roundedRect(margin, y, col, 9, 2, 2, "F");
@@ -230,7 +229,9 @@ export default function Results() {
     const disclaimer = "DISCLAIMER: This AI assessment is not a medical diagnosis. It provides a risk estimate based on lifestyle and family history. Please consult a qualified ophthalmologist for proper examination and diagnosis.";
     doc.text(doc.splitTextToSize(disclaimer, col - 6), margin + 3, y + 6);
 
-    doc.save(`MyopiaGuard_Report_${data.age}yr_${new Date().toISOString().slice(0,10)}.pdf`);
+    const safeName = resolvedChildName.replace(/[^a-zA-Z0-9_-]+/g, "_").replace(/^_+|_+$/g, "");
+    const nameSuffix = safeName ? `${safeName}_` : "";
+    doc.save(`MyopiaGuard_Report_${nameSuffix}${data.age}yr_${new Date().toISOString().slice(0,10)}.pdf`);
   };
 
   useEffect(() => {
@@ -258,22 +259,29 @@ export default function Results() {
         setRiskScore(result.risk_score);
         setRiskLevel(result.risk_level);
         setLoading(false);
-        saveRecord(parsedData, { ...result, source: "ml" } as PredictionResult & { source: string });
+        void persistHistory(parsedData, {
+          risk_score: result.risk_score,
+          risk_level: result.risk_level,
+          has_re: result.has_re,
+          diopters: result.diopters,
+          severity: result.severity,
+        });
       })
       .catch((err) => {
         console.error("API call failed:", err);
         setApiError("Could not reach prediction server. Showing rule-based estimate.");
-        // Fallback to rule-based scoring
         const score = fallbackRiskScore(parsedData);
         const level: "LOW" | "MODERATE" | "HIGH" = score < 40 ? "LOW" : score < 70 ? "MODERATE" : "HIGH";
         setRiskScore(score);
         setRiskLevel(level);
         setLoading(false);
-        saveRecord(parsedData, {
-          risk_score: score, risk_level: level, risk_probability: score / 100,
-          has_re: score > 60, re_probability: score * 0.8 / 100,
-          diopters: null, severity: null, source: "rule-based",
-        } as PredictionResult & { source: string });
+        void persistHistory(parsedData, {
+          risk_score: score,
+          risk_level: level,
+          has_re: false,
+          diopters: null,
+          severity: null,
+        });
       });
   }, [navigate]);
 
@@ -407,6 +415,23 @@ export default function Results() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
       <div className="max-w-5xl mx-auto">
+
+        {/* ── Saved-to-history toast ── */}
+        <AnimatePresence>
+          {savedToHistory && (
+            <motion.div
+              initial={{ opacity: 0, y: -16, scale: 0.96 }}
+              animate={{ opacity: 1, y: 0, scale: 1 }}
+              exit={{ opacity: 0, y: -16, scale: 0.96 }}
+              transition={{ duration: 0.25 }}
+              className="fixed top-24 left-1/2 z-50 -translate-x-1/2 flex items-center gap-2.5 rounded-2xl border border-green-200 bg-white px-5 py-3 shadow-xl"
+            >
+              <BookmarkCheck className="h-5 w-5 text-green-600 shrink-0" />
+              <span className="text-sm font-semibold text-[var(--text-dark)]">Result saved to your Dashboard</span>
+            </motion.div>
+          )}
+        </AnimatePresence>
+
         {/* HERO RESULT CARD */}
         <motion.div
           initial={{ opacity: 0, y: 20 }}
@@ -422,6 +447,11 @@ export default function Results() {
                   : "Risk Assessment Complete"}
               </h2>
               <div className="space-y-2 text-sm text-[var(--text-muted)]">
+                {resolvedChildName && (
+                  <p>
+                    <strong>Child Name:</strong> {resolvedChildName}
+                  </p>
+                )}
                 <p>
                   <strong>Age:</strong> {data.age} years
                 </p>
@@ -533,53 +563,63 @@ export default function Results() {
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
-                  <p className="text-xs text-[var(--text-muted)] mb-1">Stage 2</p>
-                  <p className="font-bold text-[var(--text-dark)]">Progression Risk</p>
-                  <p className="text-sm">
+                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl border-l-4 border-green-400">
+                  <p className="text-xs text-[var(--text-muted)] mb-1 font-semibold">Stage 2: Progression Risk Level</p>
+                  <p className="font-bold text-[var(--text-dark)] mb-2">How fast will myopia progress?</p>
+                  <p className="text-sm mb-2">
                     <span className={riskLevel === "HIGH" ? "text-[var(--warning-coral)]" : riskLevel === "MODERATE" ? "text-[var(--moderate-risk)]" : "text-[var(--secondary-green)]"}>
                       {riskLevel}
                     </span>
                     {" · "}
-                    <span className="text-[var(--text-muted)]">{riskScore}%</span>
+                    <span className="text-[var(--text-muted)] font-semibold">{riskScore}% risk score</span>
+                  </p>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                    <strong>Method:</strong> GradientBoosting classifier (AUC: 0.893) + clinical rules. Adaptive weighting based on ML confidence. Input: genetics, lifestyle, age, demographics. <strong>CI:</strong> ±12%
                   </p>
                 </div>
 
-                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
-                  <p className="text-xs text-[var(--text-muted)] mb-1">Stage 3</p>
-                  <p className="font-bold text-[var(--text-dark)]">Est. Severity</p>
-                  <p className="text-sm text-[var(--text-muted)]">
+                <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl border-l-4 border-purple-400">
+                  <p className="text-xs text-[var(--text-muted)] mb-1 font-semibold">Stage 3: Severity Estimate</p>
+                  <p className="font-bold text-[var(--text-dark)] mb-2">Predicted myopia level at age 18</p>
+                  <p className="text-sm mb-2 text-[var(--text-muted)]">
                     {prediction?.diopters != null
-                      ? `~-${prediction.diopters}D · ${prediction.severity ?? ""}`
+                      ? `~-${prediction.diopters}D · ${prediction.severity ?? "Estimated severity"}`
                       : prediction && !prediction.has_re
-                      ? "No RE detected"
-                      : riskLevel === "HIGH" ? "~-3.2D · Moderate" : riskLevel === "MODERATE" ? "~-1.5D · Mild" : "~-0.5D · Very Mild"}
+                      ? "No myopia detected"
+                      : riskLevel === "HIGH" ? "~-3.2D · Moderate myopia" : riskLevel === "MODERATE" ? "~-1.5D · Mild myopia" : "~-0.5D · Very mild myopia"}
+                  </p>
+                  <p className="text-xs text-[var(--text-muted)] leading-relaxed">
+                    <strong>Method:</strong> Polynomial regression (Stage 1+ only). Applies age-specific progression rates (Donovan et al. 2012) with ethnicity & gender multipliers. <strong>CI:</strong> ±0.5D
                   </p>
                 </div>
-
-                {prediction?.anisometropia_diopters != null && (
-                  <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
-                    <p className="text-xs text-[var(--text-muted)] mb-1">Clinical Safety Check</p>
-                    <p className="font-bold text-[var(--text-dark)]">Inter-eye Difference</p>
-                    <p className="text-sm text-[var(--text-muted)]">
-                      {prediction.anisometropia_diopters.toFixed(2)}D
-                      {prediction.anisometropia_flag ? " · Clinically significant" : " · Within low concern range"}
-                    </p>
-                  </div>
-                )}
               </div>
             )}
           </div>
 
-          {apiError && (
-            <div className="mt-4 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl text-xs text-amber-700">
-              ⚠️ {apiError}
-            </div>
-          )}
-          <div className="mt-6 pt-6 border-t border-gray-200 text-xs text-[var(--text-muted)] text-center">
-            {prediction
-              ? "Powered by GradientBoosting ML Model · AUC 0.893 · Trained on 5,000+ Indian children · Live ML Prediction"
-              : "Rule-based estimate (ML server offline) · For real predictions, start the backend"}
+          {/* ── ML Backend Status Badge ── */}
+          <div className="mt-6 pt-6 border-t border-gray-100">
+            {prediction ? (
+              <div className="flex items-center justify-center gap-2 px-4 py-2 bg-emerald-50 border border-emerald-200 rounded-xl">
+                <span className="relative flex h-2.5 w-2.5">
+                  <span className="animate-ping absolute inline-flex h-full w-full rounded-full bg-emerald-400 opacity-75"></span>
+                  <span className="relative inline-flex rounded-full h-2.5 w-2.5 bg-emerald-500"></span>
+                </span>
+                <span className="text-xs font-semibold text-emerald-700">Live ML Prediction</span>
+                <span className="text-xs text-emerald-600 hidden sm:inline">· GradientBoosting · AUC 0.893 · 5,000+ Indian children</span>
+              </div>
+            ) : (
+              <div className="space-y-2">
+                <div className="flex items-center justify-center gap-2 px-4 py-2 bg-amber-50 border border-amber-200 rounded-xl">
+                  <span className="flex h-2.5 w-2.5 rounded-full bg-amber-400"></span>
+                  <span className="text-xs font-semibold text-amber-700">Rule-based Estimate</span>
+                  <span className="text-xs text-amber-600 hidden sm:inline">· ML server offline</span>
+                </div>
+                <p className="text-xs text-center text-[var(--text-muted)]">
+                  ⚠️ {apiError ?? "Could not reach ML backend"} —{" "}
+                  <span className="font-medium">run <code className="bg-gray-100 px-1 py-0.5 rounded text-gray-700">python backend/api.py</code> to enable live predictions</span>
+                </p>
+              </div>
+            )}
           </div>
         </motion.div>
 
@@ -616,12 +656,23 @@ export default function Results() {
             {/* Methodology */}
             <div>
               <p className="text-sm font-semibold text-[var(--text-dark)] mb-2">
-                📋 Methodology
+                Three-Stage Prediction Pipeline
               </p>
-              <p className="text-sm text-[var(--text-muted)]">
+              <div className="text-xs text-[var(--text-muted)] space-y-2 mb-3">
+                <div className="p-2 bg-blue-50 rounded border border-blue-200">
+                  <strong className="text-blue-900">Stage 1 - Refractive Error Detection:</strong> XGBoost classifier determines if child likely has or will develop myopia (AUC: 0.94). Input: age, family history, screen time, outdoor activity.
+                </div>
+                <div className="p-2 bg-green-50 rounded border border-green-200">
+                  <strong className="text-green-900">Stage 2 - Progression Risk:</strong> GradientBoosting + adaptive rules (AUC: 0.893). If Stage 1 = positive, predicts how quickly myopia will progress (LOW/MODERATE/HIGH). Weights ML confidence for clinical safety.
+                </div>
+                <div className="p-2 bg-purple-50 rounded border border-purple-200">
+                  <strong className="text-purple-900">Stage 3 - Severity Estimate:</strong> Polynomial regression estimates refractive error magnitude at age 18 using age-specific progression rates (Donovan et al. 2012 meta-analysis). Applies ethnicity & gender adjustment factors.
+                </div>
+              </div>
+              <p className="text-xs text-[var(--text-muted)]">
                 {prediction
-                  ? "Combines ML probability with evidence-based rules. Adaptive weighting based on ML confidence to ensure clinically valid results."
-                  : "Evidence-based rule scoring using established clinical factors from myopia research."}
+                  ? "<strong>Current Mode:</strong> Live ML prediction combining all three stages with adaptive weighting based on model confidence."
+                  : "<strong>Current Mode:</strong> Rule-based estimation using clinical thresholds (ML server offline)."}
               </p>
             </div>
           </div>
@@ -672,7 +723,72 @@ export default function Results() {
             ⓘ <strong>Important:</strong> This is a screening tool, not a medical diagnosis. Please consult an ophthalmologist for professional evaluation, diagnosis, and treatment planning.
           </p>
         </motion.div>
+        {/* UNDERSTANDING YOUR RESULTS SECTION */}
+        <motion.div
+          initial={{ opacity: 0, y: 20 }}
+          animate={{ opacity: 1, y: 0 }}
+          transition={{ delay: 0.15 }}
+          className="mb-8 p-6 bg-gradient-to-br from-blue-50 to-indigo-50 rounded-2xl border border-blue-200 shadow-lg"
+        >
+          <h3 className="text-xl font-bold text-blue-900 mb-4">
+            📊 What Your Results Mean
+          </h3>
 
+          <div className="grid md:grid-cols-2 gap-6">
+            {/* Simple explanation */}
+            <div>
+              <p className="text-sm font-semibold text-blue-900 mb-3">
+                Easy-to-Understand Summary
+              </p>
+              <ul className="text-xs text-blue-800 space-y-2">
+                <li><strong>Stage 1:</strong> Shows whether the child may already have myopia or may develop it soon.</li>
+                <li><strong>Stage 2:</strong> Shows the overall risk score. A higher score means more careful eye monitoring is needed.</li>
+                <li><strong>Confidence Interval (CI):</strong> Shows how much the result may vary. A smaller range means a steadier estimate.</li>
+              </ul>
+            </div>
+
+            {/* How the app works */}
+            <div>
+              <p className="text-sm font-semibold text-blue-900 mb-3">
+                How the App Works
+              </p>
+              <ul className="text-xs text-blue-800 space-y-2">
+                <li><strong>Stage 1:</strong> Checks whether there may be a vision problem now or in the near future.</li>
+                <li><strong>Stage 2:</strong> Estimates how likely the condition is to get worse over time.</li>
+                <li><strong>Stage 3:</strong> Gives a rough idea of how strong the prescription may become later.</li>
+              </ul>
+            </div>
+
+            {/* What to do next */}
+            <div>
+              <p className="text-sm font-semibold text-blue-900 mb-3">
+                What to Do Next
+              </p>
+              <ul className="text-xs text-blue-800 space-y-2">
+                <li><span className="inline-block bg-green-100 px-2 py-1 rounded">LOW</span> Keep regular yearly eye checks and healthy habits.</li>
+                <li><span className="inline-block bg-yellow-100 px-2 py-1 rounded">MODERATE</span> Plan regular eye checks and try simple preventive steps, like more outdoor time.</li>
+                <li><span className="inline-block bg-red-100 px-2 py-1 rounded">HIGH</span> Visit an eye doctor soon and discuss treatment options.</li>
+              </ul>
+            </div>
+
+            {/* What affects the score */}
+            <div>
+              <p className="text-sm font-semibold text-blue-900 mb-3">
+                Things That Affect the Score
+              </p>
+              <ul className="text-xs text-blue-800 space-y-2">
+                <li><strong>Family history:</strong> If parents are myopic, the child may have a higher chance too.</li>
+                <li><strong>Daily habits:</strong> More screen time and less outdoor time can raise the risk.</li>
+                <li><strong>Age and growth:</strong> Younger children and growth patterns can change the result.</li>
+                <li><strong>Current eye condition:</strong> Existing glasses, progression, or treatment are also considered.</li>
+              </ul>
+            </div>
+          </div>
+
+          <div className="mt-4 p-3 bg-white rounded-lg border border-blue-200 text-xs text-blue-900">
+            <strong>Note:</strong> These results are meant to help families decide when to get an eye check. They do not replace a doctor.
+          </div>
+        </motion.div>
         {/* TOP RISK FACTORS */}
         {topRiskFactors.length > 0 && (
           <motion.div
@@ -738,33 +854,6 @@ export default function Results() {
                   <li>• No myopia control currently in use — discuss options with eye doctor</li>
                   {data.parentsMyopic === "both" && (
                     <li>• Both parents myopic — 6x increased risk, close monitoring needed</li>
-                  )}
-                </ul>
-              </div>
-            </div>
-          </motion.div>
-        )}
-
-        {prediction?.anisometropia_flag && (
-          <motion.div
-            initial={{ opacity: 0, y: 20 }}
-            animate={{ opacity: 1, y: 0 }}
-            transition={{ delay: 0.45 }}
-            className="mb-8 p-6 bg-amber-50 border-2 border-amber-300 rounded-2xl"
-          >
-            <div className="flex items-start gap-3">
-              <AlertTriangle className="w-6 h-6 text-amber-600 flex-shrink-0 mt-1" />
-              <div>
-                <h4 className="font-bold text-amber-900 mb-2">Anisometropia Alert</h4>
-                <ul className="space-y-2 text-sm text-amber-800">
-                  <li>
-                    • Difference between eyes: {prediction.anisometropia_diopters?.toFixed(2)}D
-                  </li>
-                  <li>
-                    • {prediction.amblyopia_risk_note || "Evaluate for amblyopia/lazy eye risk in pediatric eye clinic."}
-                  </li>
-                  {prediction.severe_anisometropia_flag && (
-                    <li>• Severe anisometropia detected (&gt;=2.0D) - prioritize specialist review.</li>
                   )}
                 </ul>
               </div>
@@ -938,3 +1027,4 @@ export default function Results() {
     </div>
   );
 }
+

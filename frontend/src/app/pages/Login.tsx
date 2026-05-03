@@ -1,14 +1,14 @@
-import { useState } from "react";
-import { Link, useNavigate, useLocation } from "react-router";
+﻿import { useState } from "react";
+import { Link, useNavigate } from "react-router";
 import { motion } from "motion/react";
 import { Eye, EyeOff, Mail, Lock, LogIn } from "lucide-react";
 import BokehBackground from "../components/BokehBackground";
 import GoogleLoginButton from "../components/GoogleLoginButton";
 import { useAuth } from "../context/AuthContext";
+import { API_URL } from "../lib/apiConfig";
 
 export default function Login() {
   const navigate = useNavigate();
-  const location = useLocation();
   const { login } = useAuth();
   const [showPassword, setShowPassword] = useState(false);
   const [rememberMe, setRememberMe] = useState(false);
@@ -16,6 +16,21 @@ export default function Login() {
   const [errors, setErrors] = useState<{ email?: string; password?: string; general?: string }>({});
   const [loading, setLoading] = useState(false);
   const [loadingStage, setLoadingStage] = useState<"initial" | "verifying" | "finalizing">("initial");
+  const [otpRequested, setOtpRequested] = useState(false);
+  const [otpCode, setOtpCode] = useState("");
+  const [otpLoading, setOtpLoading] = useState(false);
+  const [otpMessage, setOtpMessage] = useState("");
+  const googleClientId = ((import.meta.env.VITE_GOOGLE_CLIENT_ID as string | undefined) || "").trim();
+  const allowedOrigins = ((import.meta.env.VITE_GOOGLE_ALLOWED_ORIGINS as string | undefined) || "")
+    .split(",")
+    .map((origin) => origin.trim())
+    .filter(Boolean);
+  const currentOrigin = typeof window !== "undefined" ? window.location.origin : "";
+  const googleOriginAllowed = !allowedOrigins.length || allowedOrigins.includes(currentOrigin);
+  const authBaseUrl = ((import.meta.env.VITE_AUTH_API_URL as string | undefined) || API_URL)
+    .trim()
+    .replace(/\/+$/, "");
+  const googleReady = Boolean(googleClientId && googleOriginAllowed && authBaseUrl);
 
   const validate = () => {
     const errs: typeof errors = {};
@@ -49,7 +64,7 @@ export default function Login() {
       setLoadingStage("finalizing");
 
       // Make API call
-      const res = await fetch("http://localhost:5000/api/auth/login", {
+      const res = await fetch(`${API_URL}/auth/login`, {
         method: "POST",
         headers: { "Content-Type": "application/json" },
         body: JSON.stringify({ email: form.email, password: form.password }),
@@ -60,8 +75,7 @@ export default function Login() {
         return;
       }
       login(data.name, data.email, data.token, undefined, rememberMe);
-      const from = (location.state as { from?: { pathname: string } })?.from?.pathname ?? "/";
-      navigate(from, { replace: true });
+      navigate("/dashboard", { replace: true });
     } catch {
       setErrors({ general: "Could not reach server. Please try again." });
     } finally {
@@ -70,11 +84,64 @@ export default function Login() {
     }
   };
 
-  return (
-    <div className="relative min-h-[calc(100vh-80px)] flex items-center justify-center overflow-hidden px-4 py-12">
-      <BokehBackground />
+  const requestOtp = async () => {
+    setErrors({});
+    if (!form.email || !/^[^\s@]+@[^\s@]+\.[^\s@]+$/.test(form.email)) {
+      setErrors({ email: "Enter a valid email address." });
+      return;
+    }
+    setOtpLoading(true);
+    setOtpMessage("");
+    try {
+      const res = await fetch(`${authBaseUrl}/auth/request-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email }),
+      });
+      if (res.ok) {
+        setOtpRequested(true);
+        setOtpMessage("A one-time code was sent to your email. It expires in 10 minutes.");
+      } else {
+        const data = await res.json().catch(() => ({}));
+        setErrors({ general: data.error || "Could not send code. Try again later." });
+      }
+    } catch {
+      setErrors({ general: "Unable to reach server. Please try again." });
+    } finally {
+      setOtpLoading(false);
+    }
+  };
 
-      {/* Subtle grid overlay */}
+  const verifyOtp = async () => {
+    setErrors({});
+    if (!otpCode || otpCode.length < 4) {
+      setErrors({ general: "Enter the 6-digit code sent to your email." });
+      return;
+    }
+    setOtpLoading(true);
+    try {
+      const res = await fetch(`${authBaseUrl}/auth/verify-otp`, {
+        method: "POST",
+        headers: { "Content-Type": "application/json" },
+        body: JSON.stringify({ email: form.email, otp: otpCode }),
+      });
+      const data = await res.json().catch(() => ({}));
+      if (!res.ok) {
+        setErrors({ general: data.error || "Verification failed. Check the code and try again." });
+        return;
+      }
+      login(data.name, data.email, data.token, undefined, rememberMe);
+      navigate("/dashboard", { replace: true });
+    } catch {
+      setErrors({ general: "Unable to reach server. Please try again." });
+    } finally {
+      setOtpLoading(false);
+    }
+  };
+
+  return (
+    <div className="relative min-h-screen flex items-center justify-center overflow-hidden">
+      <BokehBackground />
       <div
         className="absolute inset-0 pointer-events-none opacity-[0.03]"
         style={{
@@ -83,11 +150,8 @@ export default function Login() {
           backgroundSize: "48px 48px",
         }}
       />
-
       <motion.div
         className="relative z-10 w-full max-w-md"
-        initial={{ opacity: 0, y: 32 }}
-        animate={{ opacity: 1, y: 0 }}
         transition={{ duration: 0.5, ease: "easeOut" }}
       >
         {/* Card */}
@@ -221,14 +285,67 @@ export default function Login() {
             </motion.button>
           </form>
 
-          {/* Google Login */}
-          <GoogleLoginButton onError={(msg) => setErrors({ general: msg })} />
+          {/* Email OTP flow */}
+          <div className="mt-4 space-y-3">
+            {!otpRequested ? (
+              <button
+                type="button"
+                onClick={requestOtp}
+                disabled={otpLoading}
+                className="w-full py-2 rounded-full border border-[var(--border)] bg-white text-[var(--primary-green)] font-semibold text-sm hover:bg-[var(--background-mint)] transition-colors flex items-center justify-center gap-2"
+              >
+                {otpLoading ? "Sending code…" : "Continue with email (send code)"}
+              </button>
+            ) : (
+              <div className="space-y-2">
+                <div className="text-sm text-[var(--text-muted)]">{otpMessage}</div>
+                <div className="relative">
+                  <input
+                    value={otpCode}
+                    onChange={(e) => setOtpCode(e.target.value)}
+                    placeholder="Enter 6-digit code"
+                    className="w-full pl-3 pr-3 py-2 rounded-xl border text-[var(--text-dark)] text-sm bg-[var(--background-mint)] placeholder-[var(--text-muted)] outline-none"
+                  />
+                </div>
+                <div className="flex gap-2">
+                  <button
+                    onClick={verifyOtp}
+                    disabled={otpLoading}
+                    className="flex-1 py-2 rounded-full bg-[var(--primary-green)] text-white font-semibold text-sm"
+                  >
+                    {otpLoading ? "Verifying…" : "Verify code & continue"}
+                  </button>
+                  <button
+                    onClick={() => { setOtpRequested(false); setOtpCode(""); setOtpMessage(""); }}
+                    type="button"
+                    className="py-2 px-3 rounded-xl border border-[var(--border)] bg-white text-[var(--text-muted)] text-sm"
+                  >
+                    Cancel
+                  </button>
+                </div>
+              </div>
+            )}
+          </div>
 
           {/* Divider */}
           <div className="flex items-center gap-3 my-6">
             <div className="flex-1 h-px bg-[var(--border)]" />
             <span className="text-xs text-[var(--text-muted)]">or</span>
             <div className="flex-1 h-px bg-[var(--border)]" />
+          </div>
+
+          {/* Google Login */}
+          <GoogleLoginButton onError={(msg) => setErrors({ general: msg })} />
+
+          <div className="mt-4 rounded-2xl border border-[var(--border)] bg-[var(--background-mint)] px-4 py-3 text-xs text-[var(--text-muted)] space-y-2">
+            <p className="font-semibold text-[var(--text-dark)]">Auth diagnostics</p>
+            <div className="grid gap-1">
+              <p>Frontend origin: <span className="font-medium text-[var(--text-dark)]">{currentOrigin || "unknown"}</span></p>
+              <p>Backend URL: <span className="font-medium text-[var(--text-dark)]">{authBaseUrl || "missing"}</span></p>
+              <p>Google Client ID: <span className="font-medium text-[var(--text-dark)]">{googleClientId ? "set" : "missing"}</span></p>
+              <p>Google origin allowed: <span className="font-medium text-[var(--text-dark)]">{googleOriginAllowed ? "yes" : "no"}</span></p>
+              <p>Google login status: <span className="font-medium text-[var(--text-dark)]">{googleReady ? "ready" : "blocked by config"}</span></p>
+            </div>
           </div>
 
           {/* Sign up link */}
@@ -251,3 +368,4 @@ export default function Login() {
     </div>
   );
 }
+

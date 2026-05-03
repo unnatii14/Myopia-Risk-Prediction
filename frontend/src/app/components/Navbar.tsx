@@ -39,8 +39,9 @@ export default function Navbar() {
 
   const handleSectionClick = (sectionId: string) => {
     setMobileMenuOpen(false);
-    if (location.pathname !== "/") {
-      navigate("/");
+    const landingPath = user ? "/landing" : "/";
+    if (location.pathname !== landingPath) {
+      navigate(landingPath);
       setTimeout(() => {
         const element = document.getElementById(sectionId);
         element?.scrollIntoView({ behavior: "smooth" });
@@ -65,7 +66,7 @@ export default function Navbar() {
       >
         <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8">
           <div className="flex items-center justify-between h-20">
-            <Link to="/" className="flex items-center gap-2 group">
+            <Link to={user ? "/dashboard" : "/"} className="flex items-center gap-2 group">
               <div className="w-10 h-10 rounded-full bg-[var(--primary-green)] flex items-center justify-center">
                 <Eye className="w-5 h-5 text-white" />
               </div>
@@ -78,18 +79,20 @@ export default function Navbar() {
             </Link>
 
             <div className="hidden md:flex items-center gap-8">
-              <button
-                onClick={() => handleSectionClick("how-it-works")}
-                className="text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors"
-              >
-                How It Works
-              </button>
-              <button
-                onClick={() => handleSectionClick("research")}
-                className="text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors"
-              >
-                Research
-              </button>
+              <>
+                <button
+                  onClick={() => handleSectionClick("how-it-works")}
+                  className="text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors"
+                >
+                  How It Works
+                </button>
+                <button
+                  onClick={() => handleSectionClick("research")}
+                  className="text-[var(--text-dark)] hover:text-[var(--primary-green)] transition-colors"
+                >
+                  Research
+                </button>
+              </>
 
               {/* Tools dropdown */}
               <div className="relative" ref={toolsMenuRef}>
@@ -164,6 +167,20 @@ export default function Navbar() {
                           <p className="text-xs text-[var(--text-muted)]">When will myopia start?</p>
                         </div>
                       </Link>
+                      <div className="h-px bg-[var(--border)]" />
+                      <Link
+                        to="/image-predictor"
+                        onClick={() => setToolsMenuOpen(false)}
+                        className="flex items-center gap-3 px-4 py-3 hover:bg-[var(--background-mint)] transition-colors"
+                      >
+                        <div className="w-8 h-8 rounded-full bg-[var(--primary-green)]/10 flex items-center justify-center flex-shrink-0">
+                          <Eye className="w-4 h-4" style={{ color: "var(--primary-green)" }} />
+                        </div>
+                        <div>
+                          <p className="text-sm font-semibold text-[var(--text-dark)]">Image Classifier</p>
+                          <p className="text-xs text-[var(--text-muted)]">Upload image and predict myopia</p>
+                        </div>
+                      </Link>
                     </motion.div>
                   )}
                 </AnimatePresence>
@@ -212,6 +229,15 @@ export default function Navbar() {
                           <p className="text-sm font-bold text-[var(--text-dark)] truncate">{user.name}</p>
                           <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
                         </div>
+                        <Link
+                          to="/dashboard"
+                          onClick={() => setUserMenuOpen(false)}
+                          className="flex items-center gap-2 w-full px-4 py-3 text-sm text-[var(--text-dark)] hover:bg-[var(--background-mint)] transition-colors"
+                        >
+                          <Activity className="w-4 h-4" style={{ color: "var(--primary-green)" }} />
+                          Dashboard
+                        </Link>
+                        <div className="h-px bg-[var(--border)]" />
                         <button
                           onClick={() => { setUserMenuOpen(false); logout(); navigate("/"); }}
                           className="flex items-center gap-2 w-full px-4 py-3 text-sm text-[var(--warning-coral)] hover:bg-red-50 transition-colors"
@@ -261,18 +287,20 @@ export default function Navbar() {
             className="md:hidden bg-white border-b border-[var(--border)] overflow-hidden fixed top-20 left-0 right-0 z-40 shadow-lg"
           >
             <div className="px-4 py-6 space-y-4">
-              <button
-                onClick={() => handleSectionClick("how-it-works")}
-                className="block w-full text-left px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] rounded-xl transition-colors"
-              >
-                How It Works
-              </button>
-              <button
-                onClick={() => handleSectionClick("research")}
-                className="block w-full text-left px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] rounded-xl transition-colors"
-              >
-                Research
-              </button>
+              <>
+                <button
+                  onClick={() => handleSectionClick("how-it-works")}
+                  className="block w-full text-left px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] rounded-xl transition-colors"
+                >
+                  How It Works
+                </button>
+                <button
+                  onClick={() => handleSectionClick("research")}
+                  className="block w-full text-left px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] rounded-xl transition-colors"
+                >
+                  Research
+                </button>
+              </>
               <Link
                 to="/faq"
                 onClick={() => setMobileMenuOpen(false)}
@@ -334,6 +362,17 @@ export default function Navbar() {
                   <div>
                     <p className="text-sm font-semibold">Onset Predictor</p>
                     <p className="text-xs text-[var(--text-muted)]">When will myopia start?</p>
+                  </div>
+                </Link>
+                <Link
+                  to="/image-predictor"
+                  onClick={() => setMobileMenuOpen(false)}
+                  className="flex items-center gap-3 px-4 py-3 text-[var(--text-dark)] hover:bg-[var(--background-mint)] transition-colors border-t border-[var(--border)]"
+                >
+                  <Eye className="w-4 h-4 flex-shrink-0" style={{ color: "var(--primary-green)" }} />
+                  <div>
+                    <p className="text-sm font-semibold">Image Classifier</p>
+                    <p className="text-xs text-[var(--text-muted)]">Upload image and predict myopia</p>
                   </div>
                 </Link>
               </div>

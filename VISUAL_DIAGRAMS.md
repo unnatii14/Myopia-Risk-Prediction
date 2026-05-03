@@ -1,88 +1,88 @@
-# 📊 Visual Diagrams: Myopia Risk Prediction System
+﻿# ðŸ“Š Visual Diagrams: Myopia Risk Prediction System
 
 ## 1. Complete System Architecture
 
 ```
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                         USER BROWSER (React Frontend)                       │
-│                                                                             │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │ 1. SCREENING PAGE (Screen.tsx)                                    │   │
-│  │    ├─ Step 1: Personal Info (Age, Sex, Height, Weight)          │   │
-│  │    ├─ Step 2: Family History (Parents Myopic?)                  │   │
-│  │    ├─ Step 3: Lifestyle (Screen, Outdoor, Sports, etc.)        │   │
-│  │    └─ Submit Button → Data to sessionStorage                    │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
-│            ↓                                                               │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │ 2. RESULTS PAGE (Results.tsx) - Shows Loading Spinner            │   │
-│  │    └─ Calls Backend API: POST /predict                           │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
-│            ↓                                                               │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │ 3. VISUALIZATION & PDF                                           │   │
-│  │    ├─ RiskGauge Component → Animated semicircle gauge           │   │
-│  │    ├─ Risk Level Display → Color-coded text                     │   │
-│  │    ├─ Three-Stage Summary → Cards showing each stage            │   │
-│  │    ├─ Recommendations → What to do next                         │   │
-│  │    └─ Download PDF → Report with child name                     │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
-                    ↕ HTTP POST /predict (JSON)
-┌─────────────────────────────────────────────────────────────────────────────┐
-│                    BACKEND (Python Flask)                                   │
-│                    Running on localhost:5001                               │
-│                                                                             │
-│  ┌────────────────────────────────────────────────────────────────────┐   │
-│  │ api.py: /predict ENDPOINT                                         │   │
-│  │                                                                    │   │
-│  │ 1. Receive JSON screening data                                    │   │
-│  │ 2. Validate inputs (type checks, range validation)               │   │
-│  │ 3. Build feature vectors (8→30 features)                        │   │
-│  │ 4. Load pre-trained ML models from disk                          │   │
-│  │ 5. Run 3-stage prediction pipeline                               │   │
-│  │ 6. Return JSON result to frontend                                │   │
-│  └────────────────────────────────────────────────────────────────────┘   │
-│                                                                             │
-│  ┌─ ML MODELS (Loaded at startup) ──────────────────────────────────┐     │
-│  │                                                                  │     │
-│  │ 1. has_re_model (Stage 1)                                       │     │
-│  │    └─ XGBoost classification                                    │     │
-│  │    └─ Predicts: Does child have refractive error?             │     │
-│  │                                                                  │     │
-│  │ 2. risk_progression_model (Stage 2)                             │     │
-│  │    └─ GradientBoosting classification                           │     │
-│  │    └─ Predicts: Myopia progression risk level                  │     │
-│  │    └─ Trained on 5000 real screening records                   │     │
-│  │    └─ AUC: 0.893 (very high accuracy)                          │     │
-│  │                                                                  │     │
-│  │ 3. diopter_regression_model (Stage 3)                           │     │
-│  │    └─ XGBoost regression                                        │     │
-│  │    └─ Predicts: Diopter severity (continuous value)            │     │
-│  │                                                                  │     │
-│  │ 4. Scalers (Min-Max normalization)                              │     │
-│  │    └─ Normalize input features to 0-1 range                    │     │
-│  │    └─ Required by all ML models                                 │     │
-│  │                                                                  │     │
-│  └─────────────────────────────────────────────────────────────────┘     │
-│  ┌─ RULE-BASED SCORING SYSTEM ──────────────────────────────────────┐    │
-│  │                                                                  │    │
-│  │ Evidence-based point system:                                    │    │
-│  │  • Base score: 30 points                                        │    │
-│  │  • Add/subtract based on risk factors                           │    │
-│  │  • Final score: 0-100 (converted to probability)               │    │
-│  │  • Used as safety check & calibration                          │    │
-│  │                                                                  │    │
-│  └─────────────────────────────────────────────────────────────────┘    │
-│                                                                             │
-│  ┌─ DATABASE (MongoDB) ─────────────────────────────────────────────┐    │
-│  │  myopia_guard.users                                              │    │
-│  │  ├─ users collection: name, email, password                     │    │
-│  │  └─ Stores account information                                  │    │
-│  └─────────────────────────────────────────────────────────────────┘    │
-│                                                                             │
-└─────────────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                         USER BROWSER (React Frontend)                       â”‚
+â”‚                                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚ 1. SCREENING PAGE (Screen.tsx)                                    â”‚   â”‚
+â”‚  â”‚    â”œâ”€ Step 1: Personal Info (Age, Sex, Height, Weight)          â”‚   â”‚
+â”‚  â”‚    â”œâ”€ Step 2: Family History (Parents Myopic?)                  â”‚   â”‚
+â”‚  â”‚    â”œâ”€ Step 3: Lifestyle (Screen, Outdoor, Sports, etc.)        â”‚   â”‚
+â”‚  â”‚    â””â”€ Submit Button â†’ Data to sessionStorage                    â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚            â†“                                                               â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚ 2. RESULTS PAGE (Results.tsx) - Shows Loading Spinner            â”‚   â”‚
+â”‚  â”‚    â””â”€ Calls Backend API: POST /predict                           â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚            â†“                                                               â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚ 3. VISUALIZATION & PDF                                           â”‚   â”‚
+â”‚  â”‚    â”œâ”€ RiskGauge Component â†’ Animated semicircle gauge           â”‚   â”‚
+â”‚  â”‚    â”œâ”€ Risk Level Display â†’ Color-coded text                     â”‚   â”‚
+â”‚  â”‚    â”œâ”€ Three-Stage Summary â†’ Cards showing each stage            â”‚   â”‚
+â”‚  â”‚    â”œâ”€ Recommendations â†’ What to do next                         â”‚   â”‚
+â”‚  â”‚    â””â”€ Download PDF â†’ Report with child name                     â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â†• HTTP POST /predict (JSON)
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    BACKEND (Python Flask)                                   â”‚
+â”‚                    Running on localhost:5001                               â”‚
+â”‚                                                                             â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”   â”‚
+â”‚  â”‚ api.py: /predict ENDPOINT                                         â”‚   â”‚
+â”‚  â”‚                                                                    â”‚   â”‚
+â”‚  â”‚ 1. Receive JSON screening data                                    â”‚   â”‚
+â”‚  â”‚ 2. Validate inputs (type checks, range validation)               â”‚   â”‚
+â”‚  â”‚ 3. Build feature vectors (8â†’30 features)                        â”‚   â”‚
+â”‚  â”‚ 4. Load pre-trained ML models from disk                          â”‚   â”‚
+â”‚  â”‚ 5. Run 3-stage prediction pipeline                               â”‚   â”‚
+â”‚  â”‚ 6. Return JSON result to frontend                                â”‚   â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜   â”‚
+â”‚                                                                             â”‚
+â”‚  â”Œâ”€ ML MODELS (Loaded at startup) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”     â”‚
+â”‚  â”‚                                                                  â”‚     â”‚
+â”‚  â”‚ 1. has_re_model (Stage 1)                                       â”‚     â”‚
+â”‚  â”‚    â””â”€ XGBoost classification                                    â”‚     â”‚
+â”‚  â”‚    â””â”€ Predicts: Does child have refractive error?             â”‚     â”‚
+â”‚  â”‚                                                                  â”‚     â”‚
+â”‚  â”‚ 2. risk_progression_model (Stage 2)                             â”‚     â”‚
+â”‚  â”‚    â””â”€ GradientBoosting classification                           â”‚     â”‚
+â”‚  â”‚    â””â”€ Predicts: Myopia progression risk level                  â”‚     â”‚
+â”‚  â”‚    â””â”€ Trained on 5000 real screening records                   â”‚     â”‚
+â”‚  â”‚    â””â”€ AUC: 0.893 (very high accuracy)                          â”‚     â”‚
+â”‚  â”‚                                                                  â”‚     â”‚
+â”‚  â”‚ 3. diopter_regression_model (Stage 3)                           â”‚     â”‚
+â”‚  â”‚    â””â”€ XGBoost regression                                        â”‚     â”‚
+â”‚  â”‚    â””â”€ Predicts: Diopter severity (continuous value)            â”‚     â”‚
+â”‚  â”‚                                                                  â”‚     â”‚
+â”‚  â”‚ 4. Scalers (Min-Max normalization)                              â”‚     â”‚
+â”‚  â”‚    â””â”€ Normalize input features to 0-1 range                    â”‚     â”‚
+â”‚  â”‚    â””â”€ Required by all ML models                                 â”‚     â”‚
+â”‚  â”‚                                                                  â”‚     â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜     â”‚
+â”‚  â”Œâ”€ RULE-BASED SCORING SYSTEM â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚                                                                  â”‚    â”‚
+â”‚  â”‚ Evidence-based point system:                                    â”‚    â”‚
+â”‚  â”‚  â€¢ Base score: 30 points                                        â”‚    â”‚
+â”‚  â”‚  â€¢ Add/subtract based on risk factors                           â”‚    â”‚
+â”‚  â”‚  â€¢ Final score: 0-100 (converted to probability)               â”‚    â”‚
+â”‚  â”‚  â€¢ Used as safety check & calibration                          â”‚    â”‚
+â”‚  â”‚                                                                  â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚                                                                             â”‚
+â”‚  â”Œâ”€ DATABASE (SQLite) â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”    â”‚
+â”‚  â”‚  users.db                                                        â”‚    â”‚
+â”‚  â”‚  â”œâ”€ users table: id, name, child_name, email, password_hash    â”‚    â”‚
+â”‚  â”‚  â””â”€ Stores account information                                  â”‚    â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜    â”‚
+â”‚                                                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -91,70 +91,70 @@
 
 ```
 SCREENING DATA INPUT
-│
-├─ age, sex, height, weight
-├─ familyHistory, parentsMyopic
-├─ screenTime, outdoorTime, nearWork, sports, vitaminD
-│
-└─────────────────────────────────────────────────────────────────┐
-                                                                  │
-                    FEATURE ENGINEERING                           │
-                          │                                        │
-        ┌─────────────────┼─────────────────┐                    │
-        ↓                 ↓                 ↓                    │
-                                                                  │
-    STAGE 1          STAGE 2           STAGE 3                    │
-  (RE Detect)     (Risk Level)      (Diopter Est.)                │
-    │                 │                 │                         │
-    ├─ 8 features  ├─ 30 features   ├─ 27 features               │
-    │              │                │                             │
-    ├─ Scale       ├─ Scale         ├─ Scale                      │
-    │ (0-1)        │ (0-1)          │ (0-1)                       │
-    │              │                │                             │
-    ├─ XGBoost  ├─ GradientBoosting├─ XGBoost                    │
-    │ Classifier   │ Classifier      │ Regressor                  │
-    │ (Binary)     │ (Binary)        │ (Continuous)               │
-    │              │                │                             │
-    ├─ Predict  ├─ Predict Prob  ├─ Predict Diopter              │
-    │ Prob of RE   │ of Risk        │ Value                       │
-    │ (0-1)        │ (0-1)          │ (0-10)                      │
-    │              │                │                             │
-    └─→ RE_Prob    └────┬───────────┴──────────→ Diopter_Value   │
-                       │                                           │
-                       │  + RULE-BASED SCORING                    │
-                       │        │                                  │
-                       ├─ Calculate base (30)                      │
-                       ├─ Add age factor                           │
-                       ├─ Add genetics factor                      │
-                       ├─ Add lifestyle factors                    │
-                       └─ Final Rule_Prob (0-1)                   │
-                       │                                           │
-                       │  ADAPTIVE FUSION                          │
-                       ├─ if ML_Prob >= 0.65:                    │
-                       │  Risk = 0.60×ML + 0.40×Rule             │
-                       │                                           │
-                       ├─ if ML_Prob >= 0.35:                    │
-                       │  Risk = 0.50×ML + 0.50×Rule             │
-                       │                                           │
-                       └─ else:                                   │
-                          Risk = 0.20×ML + 0.80×Rule             │
-                       │                                           │
-                       └─→ Final Risk_Score (0-100%)              │
-                                                                  │
-                            ↓                                      │
-                       CLASSIFY LEVEL                              │
-                       ├─ if score < 40:  LOW                     │
-                       ├─ if score < 70:  MODERATE                │
-                       └─ if score ≥ 70:  HIGH                    │
-                                                                  │
-                            ↓                                      │
-                       CATEGORIZE SEVERITY                         │
-                       ├─ if diopter < 0.5:    Negligible        │
-                       ├─ if diopter < 3.0:    Mild              │
-                       ├─ if diopter < 6.0:    Moderate          │
-                       └─ if diopter ≥ 6.0:    High              │
-                                                                  │
-└──────────────────────────────────────────────────────────────────┘
+â”‚
+â”œâ”€ age, sex, height, weight
+â”œâ”€ familyHistory, parentsMyopic
+â”œâ”€ screenTime, outdoorTime, nearWork, sports, vitaminD
+â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+                                                                  â”‚
+                    FEATURE ENGINEERING                           â”‚
+                          â”‚                                        â”‚
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”                    â”‚
+        â†“                 â†“                 â†“                    â”‚
+                                                                  â”‚
+    STAGE 1          STAGE 2           STAGE 3                    â”‚
+  (RE Detect)     (Risk Level)      (Diopter Est.)                â”‚
+    â”‚                 â”‚                 â”‚                         â”‚
+    â”œâ”€ 8 features  â”œâ”€ 30 features   â”œâ”€ 27 features               â”‚
+    â”‚              â”‚                â”‚                             â”‚
+    â”œâ”€ Scale       â”œâ”€ Scale         â”œâ”€ Scale                      â”‚
+    â”‚ (0-1)        â”‚ (0-1)          â”‚ (0-1)                       â”‚
+    â”‚              â”‚                â”‚                             â”‚
+    â”œâ”€ XGBoost  â”œâ”€ GradientBoostingâ”œâ”€ XGBoost                    â”‚
+    â”‚ Classifier   â”‚ Classifier      â”‚ Regressor                  â”‚
+    â”‚ (Binary)     â”‚ (Binary)        â”‚ (Continuous)               â”‚
+    â”‚              â”‚                â”‚                             â”‚
+    â”œâ”€ Predict  â”œâ”€ Predict Prob  â”œâ”€ Predict Diopter              â”‚
+    â”‚ Prob of RE   â”‚ of Risk        â”‚ Value                       â”‚
+    â”‚ (0-1)        â”‚ (0-1)          â”‚ (0-10)                      â”‚
+    â”‚              â”‚                â”‚                             â”‚
+    â””â”€â†’ RE_Prob    â””â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â†’ Diopter_Value   â”‚
+                       â”‚                                           â”‚
+                       â”‚  + RULE-BASED SCORING                    â”‚
+                       â”‚        â”‚                                  â”‚
+                       â”œâ”€ Calculate base (30)                      â”‚
+                       â”œâ”€ Add age factor                           â”‚
+                       â”œâ”€ Add genetics factor                      â”‚
+                       â”œâ”€ Add lifestyle factors                    â”‚
+                       â””â”€ Final Rule_Prob (0-1)                   â”‚
+                       â”‚                                           â”‚
+                       â”‚  ADAPTIVE FUSION                          â”‚
+                       â”œâ”€ if ML_Prob >= 0.65:                    â”‚
+                       â”‚  Risk = 0.60Ã—ML + 0.40Ã—Rule             â”‚
+                       â”‚                                           â”‚
+                       â”œâ”€ if ML_Prob >= 0.35:                    â”‚
+                       â”‚  Risk = 0.50Ã—ML + 0.50Ã—Rule             â”‚
+                       â”‚                                           â”‚
+                       â””â”€ else:                                   â”‚
+                          Risk = 0.20Ã—ML + 0.80Ã—Rule             â”‚
+                       â”‚                                           â”‚
+                       â””â”€â†’ Final Risk_Score (0-100%)              â”‚
+                                                                  â”‚
+                            â†“                                      â”‚
+                       CLASSIFY LEVEL                              â”‚
+                       â”œâ”€ if score < 40:  LOW                     â”‚
+                       â”œâ”€ if score < 70:  MODERATE                â”‚
+                       â””â”€ if score â‰¥ 70:  HIGH                    â”‚
+                                                                  â”‚
+                            â†“                                      â”‚
+                       CATEGORIZE SEVERITY                         â”‚
+                       â”œâ”€ if diopter < 0.5:    Negligible        â”‚
+                       â”œâ”€ if diopter < 3.0:    Mild              â”‚
+                       â”œâ”€ if diopter < 6.0:    Moderate          â”‚
+                       â””â”€ if diopter â‰¥ 6.0:    High              â”‚
+                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
 FINAL OUTPUT:
 {
@@ -176,197 +176,197 @@ FINAL OUTPUT:
 NUMERICAL INPUT: risk_score = 69
 
     ANIMATION CALCULATION
-             │
-             ├─ Duration: 1.5 seconds
-             ├─ Steps: 60 frames
-             ├─ Increment per frame: 69 / 60 ≈ 1.15
-             ├─ Current frame updates every ~25ms
-             └─ Example frames:
-                Frame 0:   displayScore = 0°
-                Frame 10:  displayScore = 11°
-                Frame 20:  displayScore = 23°
-                Frame 30:  displayScore = 34°
-                Frame 60:  displayScore = 69° ✓ Done
-             │
-             ↓
+             â”‚
+             â”œâ”€ Duration: 1.5 seconds
+             â”œâ”€ Steps: 60 frames
+             â”œâ”€ Increment per frame: 69 / 60 â‰ˆ 1.15
+             â”œâ”€ Current frame updates every ~25ms
+             â””â”€ Example frames:
+                Frame 0:   displayScore = 0Â°
+                Frame 10:  displayScore = 11Â°
+                Frame 20:  displayScore = 23Â°
+                Frame 30:  displayScore = 34Â°
+                Frame 60:  displayScore = 69Â° âœ“ Done
+             â”‚
+             â†“
     ROTATION CALCULATION
-             │
-             ├─ Formula: rotation = (displayScore / 100) × 180°
-             ├─ For score 69: rotation = 0.69 × 180° = 124.2°
-             └─ Range: 0° (leftmost) to 180° (rightmost)
-             │
-             ↓
+             â”‚
+             â”œâ”€ Formula: rotation = (displayScore / 100) Ã— 180Â°
+             â”œâ”€ For score 69: rotation = 0.69 Ã— 180Â° = 124.2Â°
+             â””â”€ Range: 0Â° (leftmost) to 180Â° (rightmost)
+             â”‚
+             â†“
     COLOR SELECTION
-             │
-             ├─ if displayScore < 40:  "var(--low-risk)"     [GREEN]
-             ├─ if displayScore < 70:  "var(--moderate-risk)"[AMBER]
-             └─ else:                   "var(--high-risk)"    [RED]
-             │
-             ├─ For score 69: color = AMBER (60% green, 40% orange mix)
-             │
-             ↓
+             â”‚
+             â”œâ”€ if displayScore < 40:  "var(--low-risk)"     [GREEN]
+             â”œâ”€ if displayScore < 70:  "var(--moderate-risk)"[AMBER]
+             â””â”€ else:                   "var(--high-risk)"    [RED]
+             â”‚
+             â”œâ”€ For score 69: color = AMBER (60% green, 40% orange mix)
+             â”‚
+             â†“
     SVG RENDERING
-             │
-             ├─ Background Arc (light gray)
-             │  Path: M 20 90 A 80 80 0 0 1 180 90
-             │
-             ├─ Risk Zones (faded background)
-             │  ├─ Green zone:  0-40% of arc
-             │  ├─ Amber zone:  40-70% of arc
-             │  └─ Red zone:    70-100% of arc
-             │
-             ├─ Progress Arc (animated, colored)
-             │  └─ Animates from 0 to 124.2° with amber color
-             │
-             ├─ Needle (animated)
-             │  ├─ Line: x1=100, y1=90 to x2=100, y2=25
-             │  ├─ Rotates 124.2° around (100, 90)
-             │  ├─ Color: amber (matches zone)
-             │  └─ Center circle at rotation point
-             │
-             ├─ Score Text (animated with spring)
-             │  ├─ Displays: "69%"
-             │  ├─ Font size: 36px
-             │  ├─ Color: amber
-             │  ├─ Scales in from 0 to 1 at ~0.5s delay
-             │  └─ Position: centered at bottom (-5px)
-             │
-             └─ Scale Labels
-                ├─ Left:   "0"
-                ├─ Center: "50"
-                └─ Right:  "100"
+             â”‚
+             â”œâ”€ Background Arc (light gray)
+             â”‚  Path: M 20 90 A 80 80 0 0 1 180 90
+             â”‚
+             â”œâ”€ Risk Zones (faded background)
+             â”‚  â”œâ”€ Green zone:  0-40% of arc
+             â”‚  â”œâ”€ Amber zone:  40-70% of arc
+             â”‚  â””â”€ Red zone:    70-100% of arc
+             â”‚
+             â”œâ”€ Progress Arc (animated, colored)
+             â”‚  â””â”€ Animates from 0 to 124.2Â° with amber color
+             â”‚
+             â”œâ”€ Needle (animated)
+             â”‚  â”œâ”€ Line: x1=100, y1=90 to x2=100, y2=25
+             â”‚  â”œâ”€ Rotates 124.2Â° around (100, 90)
+             â”‚  â”œâ”€ Color: amber (matches zone)
+             â”‚  â””â”€ Center circle at rotation point
+             â”‚
+             â”œâ”€ Score Text (animated with spring)
+             â”‚  â”œâ”€ Displays: "69%"
+             â”‚  â”œâ”€ Font size: 36px
+             â”‚  â”œâ”€ Color: amber
+             â”‚  â”œâ”€ Scales in from 0 to 1 at ~0.5s delay
+             â”‚  â””â”€ Position: centered at bottom (-5px)
+             â”‚
+             â””â”€ Scale Labels
+                â”œâ”€ Left:   "0"
+                â”œâ”€ Center: "50"
+                â””â”€ Right:  "100"
 
 FINAL RENDERED OUTPUT: Semi-circular gauge with moving needle pointing to 69%
 ```
 
 ---
 
-## 4. Data Flow: Screening → Prediction → Screen
+## 4. Data Flow: Screening â†’ Prediction â†’ Screen
 
 ```
 USER INTERACTION TIMELINE:
 
-┌──────────────────────────────────────────────────────────────────┐
-│  USER VISITS http://localhost:5173/screen                       │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Display Screen.tsx (3-Step Form)                            │
-│    Step 1: Personal Info (Age, Sex, Height, Weight)            │
-│    Step 2: Family History (Parents Myopic?)                    │
-│    Step 3: Lifestyle (Screen, Outdoor, Sports, etc.)           │
-└──────────────────────────────────────────────────────────────────┘
-                    │ User fills form
-                    │
-                    ↓ Clicks SUBMIT
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Validation (Frontend)                                        │
-│    └─ All fields required? Age 6-18? Screen 0-24?             │
-│       └─ If invalid: Show error messages                        │
-│       └─ If valid: Continue to next step                        │
-└──────────────────────────────────────────────────────────────────┘
-                    │ Valid
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Save to sessionStorage                                       │
-│    └─ Key: "screeningData"                                      │
-│    └─ Value: {age, sex, height, weight, ...}                   │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Navigate to /results                                         │
-│    └─ Renders Results.tsx                                       │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Display Loading State                                        │
-│    ├─ Show: "Analysing with AI model…"                         │
-│    ├─ Show: Rotating loader spinner                             │
-│    └─ Meanwhile: useEffect() hook runs...                       │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Read from sessionStorage                                      │
-│    └─ Get screeningData JSON                                     │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Call Backend API                                              │
-│    Method: POST                                                  │
-│    URL: http://localhost:5001/predict                           │
-│    Content-Type: application/json                               │
-│    Body: screeningData (JSON)                                   │
-│                                                                  │
-│    [NETWORK REQUEST SENT →]                                    │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-        ┌───────────┴────────────┐
-        │   BACKEND PROCESSING   │
-        │   (See earlier diagram)│
-        │   [~200-500ms delay]   │
-        └───────────┬────────────┘
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ← Response Received (JSON)                                     │
-│    {                                                             │
-│      "risk_score": 69,                                           │
-│      "risk_level": "MODERATE",                                   │
-│      "has_re": true,                                             │
-│      "diopters": 2.45,                                           │
-│      "severity": "Mild"                                          │
-│    }                                                             │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Update React State                                            │
-│    setRiskScore(69)                                              │
-│    setRiskLevel("MODERATE")                                      │
-│    setPrediction({...})                                          │
-│    setLoading(false)                                             │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-                    ↓
-┌──────────────────────────────────────────────────────────────────┐
-│  ✓ Render Results Page                                           │
-│    ├─ Hide spinner                                               │
-│    ├─ Show RiskGauge (starts animation)                         │
-│    │  └─ Needle animates from 0° to 124.2° over 1.5 seconds   │
-│    │  └─ Arc fills left to right with amber color             │
-│    │  └─ Number appears: "69%"                                 │
-│    │                                                             │
-│    ├─ Show Risk Level Card: "MODERATE RISK - 69%"             │
-│    │                                                             │
-│    ├─ Show 3-Stage Summary:                                     │
-│    │  ├─ Stage 1: YES | 72% (Has RE)                          │
-│    │  ├─ Stage 2: MODERATE | 69% (Risk Level)                 │
-│    │  └─ Stage 3: -2.45D | Mild (Severity)                    │
-│    │                                                             │
-│    ├─ Show Recommendations:                                     │
-│    │  ├─ Schedule eye check-up                                  │
-│    │  ├─ Increase outdoor time                                  │
-│    │  └─ Reduce screen time to <2 hrs/day                     │
-│    │                                                             │
-│    └─ Show Download PDF Button                                 │
-└──────────────────────────────────────────────────────────────────┘
-                    │
-                    ↓
-        ┌───────────────────────────┐
-        │  USER ACTIONS             │
-        │                           │
-        ├─ View Results ✓           │
-        ├─ Download PDF ✓           │
-        ├─ Share with doctor ✓      │
-        ├─ Go home / Logout ✓       │
-        └   Or take another test ✓ │
-        └───────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  USER VISITS http://localhost:5173/screen                       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Display Screen.tsx (3-Step Form)                            â”‚
+â”‚    Step 1: Personal Info (Age, Sex, Height, Weight)            â”‚
+â”‚    Step 2: Family History (Parents Myopic?)                    â”‚
+â”‚    Step 3: Lifestyle (Screen, Outdoor, Sports, etc.)           â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚ User fills form
+                    â”‚
+                    â†“ Clicks SUBMIT
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Validation (Frontend)                                        â”‚
+â”‚    â””â”€ All fields required? Age 6-18? Screen 0-24?             â”‚
+â”‚       â””â”€ If invalid: Show error messages                        â”‚
+â”‚       â””â”€ If valid: Continue to next step                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚ Valid
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Save to sessionStorage                                       â”‚
+â”‚    â””â”€ Key: "screeningData"                                      â”‚
+â”‚    â””â”€ Value: {age, sex, height, weight, ...}                   â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Navigate to /results                                         â”‚
+â”‚    â””â”€ Renders Results.tsx                                       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Display Loading State                                        â”‚
+â”‚    â”œâ”€ Show: "Analysing with AI modelâ€¦"                         â”‚
+â”‚    â”œâ”€ Show: Rotating loader spinner                             â”‚
+â”‚    â””â”€ Meanwhile: useEffect() hook runs...                       â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Read from sessionStorage                                      â”‚
+â”‚    â””â”€ Get screeningData JSON                                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Call Backend API                                              â”‚
+â”‚    Method: POST                                                  â”‚
+â”‚    URL: http://localhost:5001/predict                           â”‚
+â”‚    Content-Type: application/json                               â”‚
+â”‚    Body: screeningData (JSON)                                   â”‚
+â”‚                                                                  â”‚
+â”‚    [NETWORK REQUEST SENT â†’]                                    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”´â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+        â”‚   BACKEND PROCESSING   â”‚
+        â”‚   (See earlier diagram)â”‚
+        â”‚   [~200-500ms delay]   â”‚
+        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¬â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  â† Response Received (JSON)                                     â”‚
+â”‚    {                                                             â”‚
+â”‚      "risk_score": 69,                                           â”‚
+â”‚      "risk_level": "MODERATE",                                   â”‚
+â”‚      "has_re": true,                                             â”‚
+â”‚      "diopters": 2.45,                                           â”‚
+â”‚      "severity": "Mild"                                          â”‚
+â”‚    }                                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Update React State                                            â”‚
+â”‚    setRiskScore(69)                                              â”‚
+â”‚    setRiskLevel("MODERATE")                                      â”‚
+â”‚    setPrediction({...})                                          â”‚
+â”‚    setLoading(false)                                             â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  âœ“ Render Results Page                                           â”‚
+â”‚    â”œâ”€ Hide spinner                                               â”‚
+â”‚    â”œâ”€ Show RiskGauge (starts animation)                         â”‚
+â”‚    â”‚  â””â”€ Needle animates from 0Â° to 124.2Â° over 1.5 seconds   â”‚
+â”‚    â”‚  â””â”€ Arc fills left to right with amber color             â”‚
+â”‚    â”‚  â””â”€ Number appears: "69%"                                 â”‚
+â”‚    â”‚                                                             â”‚
+â”‚    â”œâ”€ Show Risk Level Card: "MODERATE RISK - 69%"             â”‚
+â”‚    â”‚                                                             â”‚
+â”‚    â”œâ”€ Show 3-Stage Summary:                                     â”‚
+â”‚    â”‚  â”œâ”€ Stage 1: YES | 72% (Has RE)                          â”‚
+â”‚    â”‚  â”œâ”€ Stage 2: MODERATE | 69% (Risk Level)                 â”‚
+â”‚    â”‚  â””â”€ Stage 3: -2.45D | Mild (Severity)                    â”‚
+â”‚    â”‚                                                             â”‚
+â”‚    â”œâ”€ Show Recommendations:                                     â”‚
+â”‚    â”‚  â”œâ”€ Schedule eye check-up                                  â”‚
+â”‚    â”‚  â”œâ”€ Increase outdoor time                                  â”‚
+â”‚    â”‚  â””â”€ Reduce screen time to <2 hrs/day                     â”‚
+â”‚    â”‚                                                             â”‚
+â”‚    â””â”€ Show Download PDF Button                                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                    â”‚
+                    â†“
+        â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+        â”‚  USER ACTIONS             â”‚
+        â”‚                           â”‚
+        â”œâ”€ View Results âœ“           â”‚
+        â”œâ”€ Download PDF âœ“           â”‚
+        â”œâ”€ Share with doctor âœ“      â”‚
+        â”œâ”€ Go home / Logout âœ“       â”‚
+        â””   Or take another test âœ“ â”‚
+        â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
@@ -377,26 +377,26 @@ USER INTERACTION TIMELINE:
 TYPICAL RISK SCORE DISTRIBUTION (From 5000 test cases)
 
 Frequency
-│    ░░░
-│    ░░░  ░░░
-│    ░░░  ░░░  ░░░
-│    ░░░  ░░░  ░░░  ░░░  ░░░
-│    ░░░  ░░░  ░░░  ░░░  ░░░  ░░░
-0-10│░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░░
-    ├─────────┼─────────┼─────────┼─────────┤
+â”‚    â–‘â–‘â–‘
+â”‚    â–‘â–‘â–‘  â–‘â–‘â–‘
+â”‚    â–‘â–‘â–‘  â–‘â–‘â–‘  â–‘â–‘â–‘
+â”‚    â–‘â–‘â–‘  â–‘â–‘â–‘  â–‘â–‘â–‘  â–‘â–‘â–‘  â–‘â–‘â–‘
+â”‚    â–‘â–‘â–‘  â–‘â–‘â–‘  â–‘â–‘â–‘  â–‘â–‘â–‘  â–‘â–‘â–‘  â–‘â–‘â–‘
+0-10â”‚â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘
+    â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
     0%       25%      50%       75%     100%
    LOW      LOW/MOD   MOD     MOD/HIGH   HIGH
 
   Peak Distribution:
-  • 15-20%: LOW RISK (protective families, good habits)
-  • 35-45%: MODERATE RISK (mixed factors)
-  • 65-75%: HIGH RISK (genetic predisposition + lifestyle)
+  â€¢ 15-20%: LOW RISK (protective families, good habits)
+  â€¢ 35-45%: MODERATE RISK (mixed factors)
+  â€¢ 65-75%: HIGH RISK (genetic predisposition + lifestyle)
 
 Insights:
-  ✓ Bimodal distribution (peaks at extremes)
-  ✓ Family history is strongest predictor
-  ✓ Lifestyle can shift someone ±15-20% points
-  ✓ Different educational backgrounds show different patterns
+  âœ“ Bimodal distribution (peaks at extremes)
+  âœ“ Family history is strongest predictor
+  âœ“ Lifestyle can shift someone Â±15-20% points
+  âœ“ Different educational backgrounds show different patterns
 ```
 
 ---
@@ -406,20 +406,20 @@ Insights:
 ```
 WHICH FACTORS MATTER MOST?
 
-┌────────────────────────────────────┐
-│      FEATURE IMPORTANCE            │
-├────────────────────────────────────┤
-│ Parents Myopic (both)   ████████░░  │ 25-30%
-│ Age (< 8 years)         ██████████  │ 20-25%
-│ Screen Time (high)      ████████░░  │ 15-20%
-│ Outdoor Time (low)      ████████░░  │ 15-20%
-│ Family History          ██████░░░░  │ 10-15%
-│ Near Work (high)        █████░░░░░  │ 8-12%
-│ Academic Pressure       ████░░░░░░  │ 5-8%
-│ BMI Category            ███░░░░░░░  │ 3-5%
-│ Sex (Male>Female)       ██░░░░░░░░  │ 2-3%
-│ Vitamin D               █░░░░░░░░░  │ 1-2%
-└────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚      FEATURE IMPORTANCE            â”‚
+â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚ Parents Myopic (both)   â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘  â”‚ 25-30%
+â”‚ Age (< 8 years)         â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆ  â”‚ 20-25%
+â”‚ Screen Time (high)      â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘  â”‚ 15-20%
+â”‚ Outdoor Time (low)      â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘  â”‚ 15-20%
+â”‚ Family History          â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘  â”‚ 10-15%
+â”‚ Near Work (high)        â–ˆâ–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘  â”‚ 8-12%
+â”‚ Academic Pressure       â–ˆâ–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘  â”‚ 5-8%
+â”‚ BMI Category            â–ˆâ–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘  â”‚ 3-5%
+â”‚ Sex (Male>Female)       â–ˆâ–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘  â”‚ 2-3%
+â”‚ Vitamin D               â–ˆâ–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘â–‘  â”‚ 1-2%
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
 KEY INSIGHT:
 Most important factors:
@@ -428,9 +428,9 @@ Most important factors:
 3. Age/Development (20% of decision)
 
 Least important factors:
-• Exact BMI value
-• Sex (slight male bias)
-• Vitamin D (weak effect)
+â€¢ Exact BMI value
+â€¢ Sex (slight male bias)
+â€¢ Vitamin D (weak effect)
 ```
 
 ---
@@ -440,101 +440,101 @@ Least important factors:
 ```
 EXAMPLE PATIENT: 11-year-old boy
 
-┌─ Input Data ─────────────────────────┐
-│ Age: 11 years                        │
-│ Sex: Male                            │
-│ Height: 150 cm                       │
-│ Weight: 45 kg → BMI = 20.0          │
-│ Family: Both parents myopic          │
-│ Screen time: 6 hours/day             │
-│ Outdoor time: 0.5 hours/day          │
-│ Near work: 5 hours/day               │
-│ Sports: Occasional                   │
-│ Vitamin D: No                        │
-└──────────────────────────────────────┘
-                │
-                ↓
-┌─ RULE-BASED SCORING ─────────────────┐
-│ Base                          30      │
-│ + Age 11 (10-12 range)       +5      │
-│ + Both parents myopic        +25      │
-│ + Screen 6 hrs              +17      │
-│ + Outdoor 0.5 hrs           +20      │
-│ + Near work 5 hrs           +8       │
-│ + Occasional sports          -3      │
-│ ─────────────────────────────────    │
-│ RULE SCORE = 102 → clamped to 100   │
-│ Rule_Prob = 1.0                     │
-└──────────────────────────────────────┘
-                │
-                ↓
-┌─ ML MODEL PREDICTION ────────────────┐
-│ Input 30 features (derived)          │
-│ XGBoost Classifier                   │
-│ Output: ML_Prob = 0.78               │
-│ (Confident HIGH risk)                │
-└──────────────────────────────────────┘
-                │
-                ↓
-┌─ HYBRID FUSION ──────────────────────┐
-│ Since ML_Prob = 0.78 >= 0.65:        │
-│ (ML is confident)                    │
-│                                      │
-│ Risk = 0.60 × 0.78 + 0.40 × 1.0     │
-│      = 0.468 + 0.400                 │
-│      = 0.868                         │
-│                                      │
-│ Risk_Score = 87%                     │
-│                                      │
-│ Floor check: max(0.868, 0.75×1.0)   │
-│            = max(0.868, 0.75) = 0.868│
-│ PASSES floor check ✓                 │
-└──────────────────────────────────────┘
-                │
-                ↓
-┌─ CLASSIFICATION ─────────────────────┐
-│ Risk_Score = 87%                     │
-│ Risk_Level = "HIGH" (≥70)            │
-└──────────────────────────────────────┘
-                │
-                ↓
-┌─ DIOPTER ESTIMATION ─────────────────┐
-│ Stage 1: has_re = true ✓             │
-│ (87% score suggests RE)               │
-│                                      │
-│ XGBoost Regression                   │
-│ Input: 27 features                   │
-│ Output: 3.2 diopters                 │
-│                                      │
-│ Severity: "Moderate" (3.0-6.0D)      │
-└──────────────────────────────────────┘
-                │
-                ↓
-┌─ FINAL RESULT ───────────────────────┐
-│ {                                    │
-│   "risk_score": 87,                  │
-│   "risk_level": "HIGH",              │
-│   "has_re": true,                    │
-│   "re_probability": 0.81,            │
-│   "diopters": 3.2,                   │
-│   "severity": "Moderate"             │
-│ }                                    │
-└──────────────────────────────────────┘
-                │
-                ↓
-┌─ VISUALIZATION ──────────────────────┐
-│ GAUGE SHOWS:                         │
-│                                      │
-│       87°  ╱
-│          │╱  RED ZONE
-│          │   HIGH RISK
-│       87%│   (87°/180°)
-│          │
-│  Needle animates from 0° to 87°     │
-│  Arc fills left to right             │
-│  Color: RED (amber transitioning)    │
-│  Number: "87%" in red                │
-└──────────────────────────────────────┘
+â”Œâ”€ Input Data â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Age: 11 years                        â”‚
+â”‚ Sex: Male                            â”‚
+â”‚ Height: 150 cm                       â”‚
+â”‚ Weight: 45 kg â†’ BMI = 20.0          â”‚
+â”‚ Family: Both parents myopic          â”‚
+â”‚ Screen time: 6 hours/day             â”‚
+â”‚ Outdoor time: 0.5 hours/day          â”‚
+â”‚ Near work: 5 hours/day               â”‚
+â”‚ Sports: Occasional                   â”‚
+â”‚ Vitamin D: No                        â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                â”‚
+                â†“
+â”Œâ”€ RULE-BASED SCORING â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Base                          30      â”‚
+â”‚ + Age 11 (10-12 range)       +5      â”‚
+â”‚ + Both parents myopic        +25      â”‚
+â”‚ + Screen 6 hrs              +17      â”‚
+â”‚ + Outdoor 0.5 hrs           +20      â”‚
+â”‚ + Near work 5 hrs           +8       â”‚
+â”‚ + Occasional sports          -3      â”‚
+â”‚ â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€    â”‚
+â”‚ RULE SCORE = 102 â†’ clamped to 100   â”‚
+â”‚ Rule_Prob = 1.0                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                â”‚
+                â†“
+â”Œâ”€ ML MODEL PREDICTION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Input 30 features (derived)          â”‚
+â”‚ XGBoost Classifier                   â”‚
+â”‚ Output: ML_Prob = 0.78               â”‚
+â”‚ (Confident HIGH risk)                â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                â”‚
+                â†“
+â”Œâ”€ HYBRID FUSION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Since ML_Prob = 0.78 >= 0.65:        â”‚
+â”‚ (ML is confident)                    â”‚
+â”‚                                      â”‚
+â”‚ Risk = 0.60 Ã— 0.78 + 0.40 Ã— 1.0     â”‚
+â”‚      = 0.468 + 0.400                 â”‚
+â”‚      = 0.868                         â”‚
+â”‚                                      â”‚
+â”‚ Risk_Score = 87%                     â”‚
+â”‚                                      â”‚
+â”‚ Floor check: max(0.868, 0.75Ã—1.0)   â”‚
+â”‚            = max(0.868, 0.75) = 0.868â”‚
+â”‚ PASSES floor check âœ“                 â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                â”‚
+                â†“
+â”Œâ”€ CLASSIFICATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Risk_Score = 87%                     â”‚
+â”‚ Risk_Level = "HIGH" (â‰¥70)            â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                â”‚
+                â†“
+â”Œâ”€ DIOPTER ESTIMATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ Stage 1: has_re = true âœ“             â”‚
+â”‚ (87% score suggests RE)               â”‚
+â”‚                                      â”‚
+â”‚ XGBoost Regression                   â”‚
+â”‚ Input: 27 features                   â”‚
+â”‚ Output: 3.2 diopters                 â”‚
+â”‚                                      â”‚
+â”‚ Severity: "Moderate" (3.0-6.0D)      â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                â”‚
+                â†“
+â”Œâ”€ FINAL RESULT â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ {                                    â”‚
+â”‚   "risk_score": 87,                  â”‚
+â”‚   "risk_level": "HIGH",              â”‚
+â”‚   "has_re": true,                    â”‚
+â”‚   "re_probability": 0.81,            â”‚
+â”‚   "diopters": 3.2,                   â”‚
+â”‚   "severity": "Moderate"             â”‚
+â”‚ }                                    â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+                â”‚
+                â†“
+â”Œâ”€ VISUALIZATION â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚ GAUGE SHOWS:                         â”‚
+â”‚                                      â”‚
+â”‚       87Â°  â•±
+â”‚          â”‚â•±  RED ZONE
+â”‚          â”‚   HIGH RISK
+â”‚       87%â”‚   (87Â°/180Â°)
+â”‚          â”‚
+â”‚  Needle animates from 0Â° to 87Â°     â”‚
+â”‚  Arc fills left to right             â”‚
+â”‚  Color: RED (amber transitioning)    â”‚
+â”‚  Number: "87%" in red                â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---

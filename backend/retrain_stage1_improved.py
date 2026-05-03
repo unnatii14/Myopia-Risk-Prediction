@@ -1,6 +1,6 @@
-"""
+﻿"""
 Retrain Stage 1 (Has_RE) Model with Enhanced Feature Engineering
-Improves AUC from 0.50 → 0.92 through interaction features
+Improves AUC from 0.50 â†’ 0.92 through interaction features
 """
 
 import pandas as pd
@@ -243,7 +243,7 @@ else:
     best_acc = acc_xgb
     best_f1 = f1_xgb
 
-print(f"\n✅ Selected: {best_model_name}")
+print(f"\nâœ… Selected: {best_model_name}")
 print(f"   AUC: {best_auc:.4f}")
 print(f"   Accuracy: {best_acc:.4f}")
 print(f"   F1-Score: {best_f1:.4f}")
@@ -311,16 +311,16 @@ feature_metadata = {
 with open(features_path, 'w') as f:
     json.dump(feature_metadata, f, indent=2)
 
-print(f"\n✅ Saved: {model_path}")
-print(f"✅ Saved: {scaler_path}")
-print(f"✅ Saved: {features_path}")
+print(f"\nâœ… Saved: {model_path}")
+print(f"âœ… Saved: {scaler_path}")
+print(f"âœ… Saved: {features_path}")
 
 print("\n" + "="*80)
 print("SUCCESS! STAGE 1 MODEL IMPROVED")
 print("="*80)
-print(f"\n📊 Performance Summary:")
+print(f"\nðŸ“Š Performance Summary:")
 print(f"   Original AUC: 0.50 (random guessing)")
 print(f"   Improved AUC: {best_auc:.4f}")
 print(f"   Improvement:  +{(best_auc - 0.50) / 0.50 * 100:.1f}%")
-print(f"\n🎯 Model is now PRODUCTION READY!")
-print(f"\n📝 Next step: Update backend/api.py to use these features")
+print(f"\nðŸŽ¯ Model is now PRODUCTION READY!")
+print(f"\nðŸ“ Next step: Update backend/api.py to use these features")

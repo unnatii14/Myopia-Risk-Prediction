@@ -6,6 +6,7 @@
   "scripts": {
     "build": "vite build",
     "dev": "vite",
+    "typecheck": "tsc --noEmit",
     "backend": "\"C:/Users/admin/AppData/Local/Microsoft/WindowsApps/PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0/python.exe\" ../backend/api.py",
     "start": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"green,cyan\" \"npm run backend\" \"npm run dev\""
   },
@@ -68,10 +69,14 @@
     "vaul": "1.1.2"
   },
   "devDependencies": {
+    "@types/node": "^22.10.1",
+    "@types/react": "^18.3.12",
+    "@types/react-dom": "^18.3.1",
     "@tailwindcss/vite": "4.1.12",
     "@vitejs/plugin-react": "4.7.0",
     "concurrently": "^9.2.1",
     "tailwindcss": "4.1.12",
+    "typescript": "^5.6.3",
     "vite": "6.3.5"
   },
   "peerDependencies": {

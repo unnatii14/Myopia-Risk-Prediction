@@ -1,4 +1,4 @@
-"""
+﻿"""
 Retrain ALL models with current sklearn version to fix version mismatch warnings
 Fixes both Stage 1 scaler warnings and Stage 3 diopter model errors
 """
@@ -238,7 +238,7 @@ r2 = r2_score(y_diop_test, y_diop_pred)
 print(f"\nStage 3 Performance:")
 print(f"  MAE:  {mae:.3f} diopters")
 print(f"  RMSE: {rmse:.3f} diopters")
-print(f"  R²:   {r2:.3f}")
+print(f"  RÂ²:   {r2:.3f}")
 
 # ============================================================================
 # SAVE ALL MODELS
@@ -260,17 +260,17 @@ os.makedirs(save_dir, exist_ok=True)
 # Save Stage 1
 joblib.dump(re_model, f"{save_dir}/has_re_model_improved.pkl")
 joblib.dump(re_scaler, f"{save_dir}/has_re_scaler.pkl")
-print(f"✅ Saved: Stage 1 model (AUC {re_auc:.4f})")
+print(f"âœ… Saved: Stage 1 model (AUC {re_auc:.4f})")
 
 # Save Stage 2
 joblib.dump(risk_model, f"{save_dir}/risk_progression_model.pkl")
 joblib.dump(risk_scaler, f"{save_dir}/scaler_classification.pkl")
-print(f"✅ Saved: Stage 2 model (AUC {risk_auc:.4f})")
+print(f"âœ… Saved: Stage 2 model (AUC {risk_auc:.4f})")
 
 # Save Stage 3
 joblib.dump(diopter_model, f"{save_dir}/diopter_regression_model.pkl")
 joblib.dump(diopter_scaler, f"{save_dir}/scaler_regression.pkl")
-print(f"✅ Saved: Stage 3 model (MAE {mae:.3f}D)")
+print(f"âœ… Saved: Stage 3 model (MAE {mae:.3f}D)")
 
 # Save feature lists
 with open(f"{save_dir}/has_re_features.json", 'w') as f:
@@ -323,15 +323,15 @@ metadata = {
 with open(f"{save_dir}/model_metadata.json", 'w') as f:
     json.dump(metadata, f, indent=2)
 
-print(f"✅ Saved: Model metadata")
+print(f"âœ… Saved: Model metadata")
 
 print("\n" + "="*80)
 print("SUCCESS! ALL MODELS RETRAINED WITH SKLEARN " + sklearn.__version__)
 print("="*80)
-print(f"\n📊 Summary:")
+print(f"\nðŸ“Š Summary:")
 print(f"   Stage 1 (Has RE):         AUC {re_auc:.4f}")
 print(f"   Stage 2 (Risk):           AUC {risk_auc:.4f}")
 print(f"   Stage 3 (Diopters):       MAE {mae:.3f}D")
-print(f"\n✅ All sklearn version warnings should be gone!")
-print(f"✅ Stage 3 diopter model will now load correctly!")
-print(f"\n📝 Restart your API: python api.py")
+print(f"\nâœ… All sklearn version warnings should be gone!")
+print(f"âœ… Stage 3 diopter model will now load correctly!")
+print(f"\nðŸ“ Restart your API: python api.py")

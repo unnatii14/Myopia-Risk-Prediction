@@ -433,8 +433,11 @@ export default function Landing() {
             viewport={{ once: true }}
             className="text-center"
           >
-            <p className="text-[var(--text-muted)] mb-8 font-medium text-lg">
-              Backed by peer-reviewed research from leading eye institutions
+            <p className="text-[var(--text-muted)] mb-4 font-medium text-lg">
+              Research papers referenced in building this project
+            </p>
+            <p className="text-sm text-[var(--text-muted)] mb-8">
+              These institutions are not affiliated with or endorsing this project.
             </p>
             <div className="flex flex-wrap justify-center items-center gap-4">
               {[

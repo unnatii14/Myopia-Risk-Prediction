@@ -1,16 +1,20 @@
-import { createBrowserRouter } from "react-router";
+﻿import { createBrowserRouter } from "react-router";
 import Landing from "./pages/Landing";
+import Dashboard from "./pages/Dashboard";
+import HomeRedirect from "./components/HomeRedirect";
 import Screen from "./pages/Screen";
 import Results from "./pages/Results";
 import Progression from "./pages/Progression";
 import AxialElongation from "./pages/AxialElongation";
 import OnsetPredictor from "./pages/OnsetPredictor";
+import ImagePredictor from "./pages/ImagePredictor";
 import FAQ from "./pages/FAQ";
 import About from "./pages/About";
 import NotFound from "./pages/NotFound";
 import RootLayout from "./layouts/RootLayout";
 import Login from "./pages/Login";
 import Signup from "./pages/Signup";
+import ForgotPassword from "./pages/ForgotPassword";
 import PrivateRoute from "./components/PrivateRoute";
 
 export const router = createBrowserRouter([
@@ -20,12 +24,16 @@ export const router = createBrowserRouter([
     children: [
       {
         index: true,
-        Component: Landing,
+        Component: HomeRedirect,
       },
       // Protected — must be logged in
       {
         Component: PrivateRoute,
         children: [
+          {
+            path: "dashboard",
+            Component: Dashboard,
+          },
           {
             path: "screen",
             Component: Screen,
@@ -46,19 +54,31 @@ export const router = createBrowserRouter([
             path: "onset",
             Component: OnsetPredictor,
           },
+          {
+            path: "image-predictor",
+            Component: ImagePredictor,
+          },
         ],
       },
       {
-        path: "faq",
-        Component: FAQ,
+        path: "landing",
+        Component: Landing,
       },
       {
         path: "about",
         Component: About,
       },
       {
+        path: "faq",
+        Component: FAQ,
+      },
+      {
         path: "login",
         Component: Login,
+      },
+      {
+        path: "forgot-password",
+        Component: ForgotPassword,
       },
       {
         path: "signup",
@@ -71,3 +91,4 @@ export const router = createBrowserRouter([
     ],
   },
 ]);
+

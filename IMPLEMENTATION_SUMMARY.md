@@ -1,4 +1,4 @@
-# Google OAuth Implementation Summary
+﻿# Google OAuth Implementation Summary
 
 I've successfully added "Continue with Google" authentication to your Myopia Risk Prediction application. Here's what was changed:
 
@@ -28,7 +28,7 @@ I've successfully added "Continue with Google" authentication to your Myopia Ris
 1. **Updated dependencies**: `backend/requirements.txt`
    - Added `google-auth>=2.25.0` for token verification
 
-2. **Enhanced auth module**: `server/routes/auth.js`
+2. **Enhanced auth module**: `backend/auth.py`
    - Added imports for Google OAuth token verification
    - New endpoint: **POST `/api/auth/google`**
      - Receives Google JWT token from frontend
@@ -53,11 +53,11 @@ I've successfully added "Continue with Google" authentication to your Myopia Ris
 8. User logged in automatically!
 
 ### Key Features:
-- ✅ Auto-creates accounts for first-time Google users
-- ✅ Existing email/password accounts can still login normally
-- ✅ Google users can later login via email/password if they set one
-- ✅ Token verification happens server-side (secure)
-- ✅ No sensitive data passes through frontend
+- âœ… Auto-creates accounts for first-time Google users
+- âœ… Existing email/password accounts can still login normally
+- âœ… Google users can later login via email/password if they set one
+- âœ… Token verification happens server-side (secure)
+- âœ… No sensitive data passes through frontend
 
 ## Setup Instructions
 
@@ -84,19 +84,19 @@ See `GOOGLE_AUTH_SETUP.md` for detailed setup instructions:
 
 ```
 Frontend:
-  ✓ src/app/layouts/RootLayout.tsx (added GoogleOAuthProvider)
-  ✓ src/app/pages/Login.tsx (added Google button)
-  ✓ src/app/pages/Signup.tsx (added Google button)
-  ✓ package.json (added @react-oauth/google dependency)
-  ✓ .env.example (created with GOOGLE_CLIENT_ID)
+  âœ“ src/app/layouts/RootLayout.tsx (added GoogleOAuthProvider)
+  âœ“ src/app/pages/Login.tsx (added Google button)
+  âœ“ src/app/pages/Signup.tsx (added Google button)
+  âœ“ package.json (added @react-oauth/google dependency)
+  âœ“ .env.example (created with GOOGLE_CLIENT_ID)
 
 Backend:
-  ✓ auth.py (added /google endpoint)
-   ✓ package.json (added google-auth-library)
-  ✓ .env.example (added GOOGLE_CLIENT_ID)
+  âœ“ auth.py (added /google endpoint)
+  âœ“ requirements.txt (added google-auth)
+  âœ“ .env.example (added GOOGLE_CLIENT_ID)
 
 Docs:
-  ✓ GOOGLE_AUTH_SETUP.md (complete setup guide)
+  âœ“ GOOGLE_AUTH_SETUP.md (complete setup guide)
 ```
 
 ## Testing

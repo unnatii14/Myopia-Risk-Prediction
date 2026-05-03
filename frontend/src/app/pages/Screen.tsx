@@ -1,4 +1,4 @@
-import { useState } from "react";
+﻿import React, { useState, useEffect } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import {
@@ -6,6 +6,8 @@ import {
   ChevronRight, ChevronLeft
 } from "lucide-react";
 import { Slider } from "../components/ui/slider";
+import { useAuth } from "../context/AuthContext";
+import { fetchLatestScreening } from "../lib/historyApi";
 
 interface FormData {
   // Step 0 (NEW)
@@ -16,12 +18,11 @@ interface FormData {
   progressionRate?: "slow" | "moderate" | "fast" | "";
 
   // Step 1
+  childName: string;
   age: number;
   sex: "male" | "female" | "";
   height: number;
   weight: number;
-  leftEyeSE?: number;
-  rightEyeSE?: number;
 
   // Step 2
   familyHistory: boolean | null;
@@ -41,12 +42,11 @@ const initialFormData: FormData = {
   diagnosisAge: undefined,
   myopiaControl: undefined,
   progressionRate: "",
+  childName: "",
   age: 10,
   sex: "",
   height: 0,
   weight: 0,
-  leftEyeSE: undefined,
-  rightEyeSE: undefined,
   familyHistory: null,
   parentsMyopic: "",
   screenTime: 4,
@@ -58,25 +58,63 @@ const initialFormData: FormData = {
 
 export default function Screen() {
   const navigate = useNavigate();
+  const { user } = useAuth();
   const [currentStep, setCurrentStep] = useState(0);
   const [formData, setFormData] = useState<FormData>(initialFormData);
   const [direction, setDirection] = useState(1);
+  const [touched, setTouched] = useState<Record<string, boolean>>({});
 
-  const totalSteps = 4;
+  // Pre-fill child name and age from last screening
+  useEffect(() => {
+    if (!user?.token) return;
+    fetchLatestScreening(user.token).then((rec) => {
+      if (!rec) return;
+      setFormData((prev) => ({
+        ...prev,
+        childName: rec.child_name || prev.childName,
+        age: (rec.input_data?.age as number) || prev.age,
+        sex: (rec.input_data?.sex as FormData["sex"]) || prev.sex,
+        height: (rec.input_data?.height as number) || prev.height,
+        weight: (rec.input_data?.weight as number) || prev.weight,
+      }));
+    }).catch(() => {});
+  }, [user?.token]);
+
+  const totalSteps = 3;
 
   const updateFormData = (field: keyof FormData, value: any) => {
     setFormData((prev) => ({ ...prev, [field]: value }));
+    setTouched((prev) => ({ ...prev, [String(field)]: true }));
+  };
+
+  const isStepValid = (step: number) => {
+    if (step === 0) {
+      return formData.existingMyopiaStatus !== "";
+    }
+    if (step === 1) {
+      const childNameValid = formData.childName.trim().length > 0;
+      const heightValid = formData.height >= 50 && formData.height <= 220;
+      const weightValid = formData.weight >= 10 && formData.weight <= 200;
+      const sexValid = formData.sex !== "";
+      return childNameValid && heightValid && weightValid && sexValid;
+    }
+    if (step === 2) {
+      const famValid = formData.familyHistory !== null;
+      const parentsValid = formData.parentsMyopic !== "";
+      return famValid && parentsValid;
+    }
+    return true;
   };
 
   const nextStep = () => {
-    if (currentStep < totalSteps) {
+    if (currentStep < totalSteps && isStepValid(currentStep)) {
       setDirection(1);
       setCurrentStep((prev) => prev + 1);
     }
   };
 
   const prevStep = () => {
-    if (currentStep > 1) {
+    if (currentStep > 0) {
       setDirection(-1);
       setCurrentStep((prev) => prev - 1);
     }
@@ -148,7 +186,7 @@ export default function Screen() {
                         : "bg-gray-100 text-gray-400"
                     }`}
                   >
-                    {i < currentStep ? "✓" : i}
+                    {i < currentStep ? "✓" : i + 1}
                   </motion.div>
                   <span className={`text-xs mt-2 font-medium text-center hidden sm:block leading-tight max-w-[64px] transition-colors ${
                     i === currentStep ? "text-[var(--primary-green)]" : "text-[var(--text-muted)]"
@@ -179,18 +217,21 @@ export default function Screen() {
             {/* STEP 0 - MYOPIA STATUS */}
             {currentStep === 0 && (
               <div className="space-y-8">
-                <div className="flex items-center gap-3 mb-6">
+                <div className="flex items-center gap-3 mb-2">
                   <Eye className="w-8 h-8 text-[var(--primary-green)]" />
                   <h3 className="text-3xl font-bold text-[var(--text-dark)]">
                     Does your child wear glasses?
                   </h3>
                 </div>
+                <p className="text-sm text-[var(--text-muted)] mb-4">
+                  Your answer determines what we assess: <strong>No glasses</strong> → we predict risk of developing myopia. <strong>Distance vision glasses</strong> → we assess progression risk. <strong>Near work glasses only</strong> → this tool is designed for myopia (distance vision) screening.
+                </p>
 
                 <div className="grid gap-4">
                   {[
-                    { value: "none", label: "No glasses", emoji: "✅", desc: "Child has not been diagnosed with myopia" },
-                    { value: "near", label: "Yes, for near work only", emoji: "📖", desc: "Hyperopia or astigmatism (not myopia)" },
-                    { value: "distance", label: "Yes, for distance vision", emoji: "👓", desc: "Child has myopia diagnosis" },
+                    { value: "none", label: "No glasses", emoji: "✅", desc: "Child has not been diagnosed with myopia — we'll assess risk of developing it" },
+                    { value: "near", label: "Yes, for near work only", emoji: "📖", desc: "For reading/close-up (hyperopia or astigmatism) — this is NOT myopia" },
+                    { value: "distance", label: "Yes, for distance vision", emoji: "👓", desc: "Child cannot see far clearly — myopia is already diagnosed" },
                   ].map((option) => (
                     <button
                       key={option.value}
@@ -211,6 +252,19 @@ export default function Screen() {
                     </button>
                   ))}
                 </div>
+
+                {/* Warning for hyperopia/near case */}
+                {formData.existingMyopiaStatus === "near" && (
+                  <div className="p-5 bg-amber-50 border-2 border-amber-300 rounded-2xl">
+                    <p className="font-semibold text-amber-800 mb-2">⚠️ Different condition — please read</p>
+                    <p className="text-sm text-amber-700 mb-3">
+                      Glasses for <strong>near work only</strong> suggest <strong>hyperopia</strong> (farsightedness) or astigmatism — not myopia (nearsightedness). This tool is designed to screen for <strong>myopia risk</strong>.
+                    </p>
+                    <p className="text-sm text-amber-700">
+                      You can still continue — the lifestyle risk factors (screen time, outdoor time, family history) are still relevant for predicting whether your child may also develop myopia. However, the result should be interpreted carefully.
+                    </p>
+                  </div>
+                )}
 
                 {/* Conditional fields for existing myopia */}
                 {formData.existingMyopiaStatus === "distance" && (
@@ -325,6 +379,23 @@ export default function Screen() {
                   />
                 </div>
 
+                {/* Child Name */}
+                <div>
+                  <label className="block text-sm font-medium mb-2">Child Name</label>
+                  <input
+                    type="text"
+                    value={formData.childName}
+                    onChange={(e) => updateFormData("childName", e.target.value)}
+                    className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
+                    placeholder="Enter child name"
+                  />
+                  {touched["childName"] && !formData.childName.trim() && (
+                    <p className="mt-1 text-xs text-[var(--warning-coral)]">
+                      Child name is required for the report.
+                    </p>
+                  )}
+                </div>
+
                 {/* Sex */}
                 <div>
                   <label className="block text-sm font-medium mb-4">Sex</label>
@@ -362,6 +433,11 @@ export default function Screen() {
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
                       placeholder="140"
                     />
+                    {touched["height"] && (formData.height < 50 || formData.height > 220) && (
+                      <p className="mt-1 text-xs text-[var(--warning-coral)]">
+                        Please enter a realistic height between 50 and 220 cm.
+                      </p>
+                    )}
                   </div>
                   <div>
                     <label className="block text-sm font-medium mb-2">
@@ -374,63 +450,26 @@ export default function Screen() {
                       className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
                       placeholder="35"
                     />
+                    {touched["weight"] && (formData.weight < 10 || formData.weight > 200) && (
+                      <p className="mt-1 text-xs text-[var(--warning-coral)]">
+                        Please enter a realistic weight between 10 and 200 kg.
+                      </p>
+                    )}
                   </div>
                 </div>
 
-                {getBMI() && (
+                {getBMI() && (formData.height >= 50 && formData.height <= 220 && formData.weight >= 10 && formData.weight <= 200) && (
                   <div className="p-4 bg-[var(--secondary-green)]/10 rounded-xl">
                     <p className="text-sm text-[var(--text-muted)]">
                       BMI: <span className="font-bold text-[var(--primary-green)]">{getBMI()}</span>
                     </p>
                   </div>
                 )}
-
-                <div className="p-4 bg-[var(--background-mint)]/40 rounded-xl border border-[var(--secondary-green)]/20">
-                  <label className="block text-sm font-medium mb-3">
-                    Optional: Cycloplegic refraction (Spherical Equivalent)
-                  </label>
-                  <div className="grid grid-cols-2 gap-4">
-                    <div>
-                      <label className="block text-xs text-[var(--text-muted)] mb-2">
-                        Left Eye (D)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.25"
-                        value={formData.leftEyeSE ?? ""}
-                        onChange={(e) =>
-                          updateFormData(
-                            "leftEyeSE",
-                            e.target.value === "" ? undefined : Number(e.target.value)
-                          )
-                        }
-                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
-                        placeholder="e.g. -1.25"
-                      />
-                    </div>
-                    <div>
-                      <label className="block text-xs text-[var(--text-muted)] mb-2">
-                        Right Eye (D)
-                      </label>
-                      <input
-                        type="number"
-                        step="0.25"
-                        value={formData.rightEyeSE ?? ""}
-                        onChange={(e) =>
-                          updateFormData(
-                            "rightEyeSE",
-                            e.target.value === "" ? undefined : Number(e.target.value)
-                          )
-                        }
-                        className="w-full px-4 py-3 rounded-xl border-2 border-gray-200 focus:border-[var(--primary-green)] outline-none"
-                        placeholder="e.g. -0.25"
-                      />
-                    </div>
+                {!isStepValid(1) && (
+                  <div className="p-3 rounded-lg bg-amber-50 border border-amber-200 text-amber-800 text-sm">
+                    Please complete this section with valid values to continue.
                   </div>
-                  <p className="text-xs text-[var(--text-muted)] mt-2">
-                    If both eyes are entered, the app checks anisometropia (difference between eyes).
-                  </p>
-                </div>
+                )}
               </div>
             )}
 
@@ -652,7 +691,12 @@ export default function Screen() {
           {currentStep < totalSteps ? (
             <button
               onClick={nextStep}
-              className="flex items-center gap-2 px-6 py-3 bg-[var(--primary-green)] text-white rounded-full hover:bg-[var(--secondary-green)] transition-all font-medium shadow-lg"
+              disabled={!isStepValid(currentStep)}
+              className={`flex items-center gap-2 px-6 py-3 rounded-full transition-all font-medium shadow-lg ${
+                isStepValid(currentStep)
+                  ? "bg-[var(--primary-green)] text-white hover:bg-[var(--secondary-green)]"
+                  : "bg-gray-200 text-gray-500 cursor-not-allowed"
+              }`}
             >
               Next
               <ChevronRight className="w-5 h-5" />

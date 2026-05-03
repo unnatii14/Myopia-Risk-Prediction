@@ -7,7 +7,7 @@ export default function Footer() {
         {/* Disclaimer */}
         <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl">
           <p className="text-sm text-[var(--text-dark)]">
-            <strong>Disclaimer:</strong> This is not a medical diagnosis. This AI-powered tool provides a risk assessment based on lifestyle factors and family history. Please consult a qualified ophthalmologist for proper eye examination and diagnosis.
+            <strong>Disclaimer:</strong> This is not a medical diagnosis. This tool provides a risk assessment based on lifestyle factors and family history using a machine learning model trained on Indian children's data. Please consult a qualified ophthalmologist for proper eye examination and diagnosis.
           </p>
         </div>
 

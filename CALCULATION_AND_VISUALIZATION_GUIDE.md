@@ -1,192 +1,177 @@
-# 🧮 Myopia Risk Prediction: Complete Calculation & Visualization Guide
+﻿# ðŸ§® Myopia Risk Prediction: Complete Calculation & Visualization Guide
 
-## 📊 Complete Data Flow
+## ðŸ“Š Complete Data Flow
 
 ```
-┌─────────────────────────────────────────────────────────────────────┐
-│                    1. DATA COLLECTION (Screening)                   │
-│─────────────────────────────────────────────────────────────────────│
-│  Screen.tsx - 3-Step Questionnaire                                  │
-│                                                                     │
-│  Step 1: PERSONAL INFO                                             │
-│  ├─ Age (6-18 years)                                              │
-│  ├─ Sex (Male/Female)                                             │
-│  ├─ Height (cm)                                                   │
-│  └─ Weight (kg) → calculates BMI                                 │
-│                                                                     │
-│  Step 2: FAMILY HISTORY                                           │
-│  ├─ Has myopia in family? (Yes/No)                               │
-│  └─ How many parents myopic? (None/One/Both)                    │
-│                                                                     │
-│  Step 3: LIFESTYLE FACTORS                                        │
-│  ├─ Screen time per day (0-12 hours) [SLIDER]                   │
-│  ├─ Near work per day (0-12 hours) [SLIDER]                     │
-│  ├─ Outdoor time per day (0-8 hours) [SLIDER]                   │
-│  ├─ Sports frequency (Rare/Occasional/Regular)                   │
-│  └─ Vitamin D supplementation? (Yes/No)                          │
-│                                                                     │
-│  User clicks SUBMIT → Data stored in sessionStorage               │
-│  User navigated to /results page                                  │
-└─────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚                    1. DATA COLLECTION (Screening)                   â”‚
+â”‚â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”‚
+â”‚  Screen.tsx - 3-Step Questionnaire                                  â”‚
+â”‚                                                                     â”‚
+â”‚  Step 1: PERSONAL INFO                                             â”‚
+â”‚  â”œâ”€ Age (6-18 years)                                              â”‚
+â”‚  â”œâ”€ Sex (Male/Female)                                             â”‚
+â”‚  â”œâ”€ Height (cm)                                                   â”‚
+â”‚  â””â”€ Weight (kg) â†’ calculates BMI                                 â”‚
+â”‚                                                                     â”‚
+â”‚  Step 2: FAMILY HISTORY                                           â”‚
+â”‚  â”œâ”€ Has myopia in family? (Yes/No)                               â”‚
+â”‚  â””â”€ How many parents myopic? (None/One/Both)                    â”‚
+â”‚                                                                     â”‚
+â”‚  Step 3: LIFESTYLE FACTORS                                        â”‚
+â”‚  â”œâ”€ Screen time per day (0-12 hours) [SLIDER]                   â”‚
+â”‚  â”œâ”€ Near work per day (0-12 hours) [SLIDER]                     â”‚
+â”‚  â”œâ”€ Outdoor time per day (0-8 hours) [SLIDER]                   â”‚
+â”‚  â”œâ”€ Sports frequency (Rare/Occasional/Regular)                   â”‚
+â”‚  â””â”€ Vitamin D supplementation? (Yes/No)                          â”‚
+â”‚                                                                     â”‚
+â”‚  User clicks SUBMIT â†’ Data stored in sessionStorage               â”‚
+â”‚  User navigated to /results page                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
-                              ↓
+                              â†“
 
-┌─────────────────────────────────────────────────────────────────────┐
-│              2. DATA TRANSMISSION TO BACKEND (API)                  │
-│─────────────────────────────────────────────────────────────────────│
-│  POST http://localhost:5001/predict                               │
-│                                                                     │
-│  Payload (JSON):                                                   │
-│  {                                                                  │
-│    "age": 10,                                                       │
-│    "sex": "male",                                                   │
-│    "height": 145,                                                   │
-│    "weight": 38,                                                    │
-│    "familyHistory": true,                                           │
-│    "parentsMyopic": "one",                                          │
-│    "screenTime": 5,                                                 │
-│    "nearWork": 3,                                                   │
-│    "outdoorTime": 1.5,                                              │
-│    "sports": "occasional",                                          │
-│    "vitaminD": false,                                               │
-│    "leftEyeSE": -1.25,                                              │
-│    "rightEyeSE": -0.25                                              │
-│  }                                                                  │
-└─────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚              2. DATA TRANSMISSION TO BACKEND (API)                  â”‚
+â”‚â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”‚
+â”‚  POST http://localhost:5001/predict                               â”‚
+â”‚                                                                     â”‚
+â”‚  Payload (JSON):                                                   â”‚
+â”‚  {                                                                  â”‚
+â”‚    "age": 10,                                                       â”‚
+â”‚    "sex": "male",                                                   â”‚
+â”‚    "height": 145,                                                   â”‚
+â”‚    "weight": 38,                                                    â”‚
+â”‚    "familyHistory": true,                                           â”‚
+â”‚    "parentsMyopic": "one",                                          â”‚
+â”‚    "screenTime": 5,                                                 â”‚
+â”‚    "nearWork": 3,                                                   â”‚
+â”‚    "outdoorTime": 1.5,                                              â”‚
+â”‚    "sports": "occasional",                                          â”‚
+â”‚    "vitaminD": false                                                â”‚
+â”‚  }                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
-                              ↓
+                              â†“
 
-┌─────────────────────────────────────────────────────────────────────┐
-│               3. BACKEND ML PROCESSING (3-STAGE PIPELINE)           │
-│─────────────────────────────────────────────────────────────────────│
-│                                                                     │
-│  Input Validation:                                                 │
-│  ├─ Check data types (age 6-18, screen time 0-24, etc.)          │
-│  ├─ Check ranges and missing values                               │
-│  └─ Return 400 error if invalid                                   │
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐
-│  │ STAGE 1: REFRACTIVE ERROR DETECTION                          │
-│  ├──────────────────────────────────────────────────────────────┤
-│  │ Question: Does the child have refractive error (RE)?        │
-│  │ Model: XGBoost Classification                               │
-│  │ Input: 8 features (age, BMI, family history, etc.)         │
-│  │ Output: Probability (0-1)                                   │
-│  │                                                              │
-│  │ re_probability = model.predict_proba()[1]                  │
-│  │ has_re = (re_probability >= 0.5)                           │
-│  │                                                              │
-│  │ Example: RE_Prob = 0.68 → Child LIKELY has RE              │
-│  └──────────────────────────────────────────────────────────────┘
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐
-│  │ STAGE 2: PROGRESSION RISK ASSESSMENT (HYBRID)               │
-│  ├──────────────────────────────────────────────────────────────┤
-│  │ Question: What is the progression risk?                    │
-│  │ Answer: LOW (0-40%) | MODERATE (40-70%) | HIGH (70-100%)  │
-│  │                                                              │
-│  │ TWO PARALLEL METHODS:                                       │
-│  │                                                              │
-│  │ A) ML MODEL (GradientBoosting)                              │
-│  │    ├─ AUC: 0.893 (very accurate)                           │
-│  │    ├─ Trained on 5000 real screening records              │
-│  │    ├─ Input: 30 clinical features                          │
-│  │    └─ Output: ML_Probability (0-1)                         │
-│  │                                                              │
-│  │ B) RULE-BASED SCORING (Evidence-Based WHO Guidelines)     │
-│  │    ├─ Base Score: 30 (neutral starting point)             │
-│  │    ├─ Add points based on risk factors (see below)        │
-│  │    └─ Output: Rule_Probability (0-1)                       │
-│  │                                                              │
-│  │ ADAPTIVE HYBRID FUSION:                                    │
-│  │                                                              │
-│  │ if ML_Prob >= 0.65:        (ML confident HIGH)             │
-│  │    Risk = 0.60×ML + 0.40×Rule  (Trust ML 60%)            │
-│  │                                                              │
-│  │ elif ML_Prob >= 0.35:      (ML neutral)                    │
-│  │    Risk = 0.50×ML + 0.50×Rule  (50/50 blend)            │
-│  │                                                              │
-│  │ else:                       (ML giving LOW)                │
-│  │    Risk = 0.20×ML + 0.80×Rule  (Lean on rules 80%)      │
-│  │                                                              │
-│  │ Floor: Risk = max(Risk, 0.75×Rule)  (safety check)        │
-│  │                                                              │
-│  │ Risk_Percentage = int(Risk × 100)                          │
-│  │                                                              │
-│  │ Example:                                                    │
-│  │  ML_Prob = 0.72 (confident HIGH)                          │
-│  │  Rule_Prob = 0.65 (also HIGH)                             │
-│  │  Risk = 0.60 × 0.72 + 0.40 × 0.65 = 0.688                │
-│  │  Risk_Score = 69% → MODERATE RISK                         │
-│  └──────────────────────────────────────────────────────────────┘
-│                                                                     │
-│  ┌──────────────────────────────────────────────────────────────┐
-│  │ STAGE 3: DIOPTER SEVERITY ESTIMATE (Regression)            │
-│  ├──────────────────────────────────────────────────────────────┤
-│  │ Question: How severe is the myopia? (in diopters)         │
-│  │ Only calculated if Stage 1 = TRUE (has RE)                │
-│  │                                                              │
-│  │ Model: XGBoost Regression                                  │
-│  │ Input: 27 features (subset of all features)               │
-│  │ Output: Diopter value (absolute value)                     │
-│  │                                                              │
-│  │ Diopter Examples:                                           │
-│  │  0.0 to 0.5D → Negligible                                  │
-│  │  0.5 to 3.0D → Mild       (minor correction needed)        │
-│  │  3.0 to 6.0D → Moderate   (noticeable problem)             │
-│  │  > 6.0D      → High       (significant correction)         │
-│  │                                                              │
-│  │ Fallback if model fails:                                    │
-│  │  Risk >= 70% → estimate 3.5D                              │
-│  │  Risk >= 50% → estimate 2.0D                              │
-│  │  Risk < 50%  → estimate 1.0D                              │
-│  └──────────────────────────────────────────────────────────────┘
-│                                                                     │
-│  Return Result (JSON):                                            │
-│  {                                                                  │
-│    "risk_score": 69,                                               │
-│    "risk_level": "MODERATE",                                       │
-│    "risk_probability": 0.688,                                      │
-│    "has_re": true,                                                 │
-│    "re_probability": 0.68,                                         │
-│    "diopters": 2.45,                                               │
-│    "severity": "Mild",                                             │
-│    "anisometropia_diopters": 1.00,                                 │
-│    "anisometropia_flag": true,                                     │
-│    "severe_anisometropia_flag": false,                             │
-│    "amblyopia_risk_note": "Clinically meaningful anisometropia..." │
-│  }                                                                  │
-└─────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚               3. BACKEND ML PROCESSING (3-STAGE PIPELINE)           â”‚
+â”‚â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”‚
+â”‚                                                                     â”‚
+â”‚  Input Validation:                                                 â”‚
+â”‚  â”œâ”€ Check data types (age 6-18, screen time 0-24, etc.)          â”‚
+â”‚  â”œâ”€ Check ranges and missing values                               â”‚
+â”‚  â””â”€ Return 400 error if invalid                                   â”‚
+â”‚                                                                     â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  â”‚ STAGE 1: REFRACTIVE ERROR DETECTION                          â”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  â”‚ Question: Does the child have refractive error (RE)?        â”‚
+â”‚  â”‚ Model: XGBoost Classification                               â”‚
+â”‚  â”‚ Input: 8 features (age, BMI, family history, etc.)         â”‚
+â”‚  â”‚ Output: Probability (0-1)                                   â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ re_probability = model.predict_proba()[1]                  â”‚
+â”‚  â”‚ has_re = (re_probability >= 0.5)                           â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ Example: RE_Prob = 0.68 â†’ Child LIKELY has RE              â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+â”‚                                                                     â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  â”‚ STAGE 2: PROGRESSION RISK ASSESSMENT (HYBRID)               â”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  â”‚ Question: What is the progression risk?                    â”‚
+â”‚  â”‚ Answer: LOW (0-40%) | MODERATE (40-70%) | HIGH (70-100%)  â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ TWO PARALLEL METHODS:                                       â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ A) ML MODEL (GradientBoosting)                              â”‚
+â”‚  â”‚    â”œâ”€ AUC: 0.893 (very accurate)                           â”‚
+â”‚  â”‚    â”œâ”€ Trained on 5000 real screening records              â”‚
+â”‚  â”‚    â”œâ”€ Input: 30 clinical features                          â”‚
+â”‚  â”‚    â””â”€ Output: ML_Probability (0-1)                         â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ B) RULE-BASED SCORING (Evidence-Based WHO Guidelines)     â”‚
+â”‚  â”‚    â”œâ”€ Base Score: 30 (neutral starting point)             â”‚
+â”‚  â”‚    â”œâ”€ Add points based on risk factors (see below)        â”‚
+â”‚  â”‚    â””â”€ Output: Rule_Probability (0-1)                       â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ ADAPTIVE HYBRID FUSION:                                    â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ if ML_Prob >= 0.65:        (ML confident HIGH)             â”‚
+â”‚  â”‚    Risk = 0.60Ã—ML + 0.40Ã—Rule  (Trust ML 60%)            â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ elif ML_Prob >= 0.35:      (ML neutral)                    â”‚
+â”‚  â”‚    Risk = 0.50Ã—ML + 0.50Ã—Rule  (50/50 blend)            â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ else:                       (ML giving LOW)                â”‚
+â”‚  â”‚    Risk = 0.20Ã—ML + 0.80Ã—Rule  (Lean on rules 80%)      â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ Floor: Risk = max(Risk, 0.75Ã—Rule)  (safety check)        â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ Risk_Percentage = int(Risk Ã— 100)                          â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ Example:                                                    â”‚
+â”‚  â”‚  ML_Prob = 0.72 (confident HIGH)                          â”‚
+â”‚  â”‚  Rule_Prob = 0.65 (also HIGH)                             â”‚
+â”‚  â”‚  Risk = 0.60 Ã— 0.72 + 0.40 Ã— 0.65 = 0.688                â”‚
+â”‚  â”‚  Risk_Score = 69% â†’ MODERATE RISK                         â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+â”‚                                                                     â”‚
+â”‚  â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚  â”‚ STAGE 3: DIOPTER SEVERITY ESTIMATE (Regression)            â”‚
+â”‚  â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¤
+â”‚  â”‚ Question: How severe is the myopia? (in diopters)         â”‚
+â”‚  â”‚ Only calculated if Stage 1 = TRUE (has RE)                â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ Model: XGBoost Regression                                  â”‚
+â”‚  â”‚ Input: 27 features (subset of all features)               â”‚
+â”‚  â”‚ Output: Diopter value (absolute value)                     â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ Diopter Examples:                                           â”‚
+â”‚  â”‚  0.0 to 0.5D â†’ Negligible                                  â”‚
+â”‚  â”‚  0.5 to 3.0D â†’ Mild       (minor correction needed)        â”‚
+â”‚  â”‚  3.0 to 6.0D â†’ Moderate   (noticeable problem)             â”‚
+â”‚  â”‚  > 6.0D      â†’ High       (significant correction)         â”‚
+â”‚  â”‚                                                              â”‚
+â”‚  â”‚ Fallback if model fails:                                    â”‚
+â”‚  â”‚  Risk >= 70% â†’ estimate 3.5D                              â”‚
+â”‚  â”‚  Risk >= 50% â†’ estimate 2.0D                              â”‚
+â”‚  â”‚  Risk < 50%  â†’ estimate 1.0D                              â”‚
+â”‚  â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
+â”‚                                                                     â”‚
+â”‚  Return Result (JSON):                                            â”‚
+â”‚  {                                                                  â”‚
+â”‚    "risk_score": 69,                                               â”‚
+â”‚    "risk_level": "MODERATE",                                       â”‚
+â”‚    "risk_probability": 0.688,                                      â”‚
+â”‚    "has_re": true,                                                 â”‚
+â”‚    "re_probability": 0.68,                                         â”‚
+â”‚    "diopters": 2.45,                                               â”‚
+â”‚    "severity": "Mild"                                              â”‚
+â”‚  }                                                                  â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 
-### Clinical Safety Check: Anisometropia
+                              â†“
 
-- If both `leftEyeSE` and `rightEyeSE` are provided, backend computes:
-  - `anisometropia_diopters = abs(leftEyeSE - rightEyeSE)`
-- Thresholds used:
-  - `< 1.0D`: low concern
-  - `>= 1.0D`: clinically meaningful anisometropia (amblyopia risk screening advised)
-  - `>= 2.0D`: severe anisometropia (priority pediatric ophthalmology review)
-
-                              ↓
-
-┌─────────────────────────────────────────────────────────────────────┐
-│          4. FRONTEND DISPLAY & VISUALIZATION (Results.tsx)         │
-│─────────────────────────────────────────────────────────────────────│
-│                                                                     │
-│  Response received from backend                                    │
-│  │                                                                 │
-│  ├─ Display RISK GAUGE (semi-circular gauge with needle)         │
-│  ├─ Display RISK LEVEL (text: "MODERATE RISK")                   │
-│  ├─ Display STAGES SUMMARY (3 cards showing each stage)          │
-│  ├─ Display RECOMMENDATIONS (what to do)                         │
-│  └─ Display DOWNLOAD PDF BUTTON                                  │
-│                                                                     │
-└─────────────────────────────────────────────────────────────────────┘
+â”Œâ”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”
+â”‚          4. FRONTEND DISPLAY & VISUALIZATION (Results.tsx)         â”‚
+â”‚â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”‚
+â”‚                                                                     â”‚
+â”‚  Response received from backend                                    â”‚
+â”‚  â”‚                                                                 â”‚
+â”‚  â”œâ”€ Display RISK GAUGE (semi-circular gauge with needle)         â”‚
+â”‚  â”œâ”€ Display RISK LEVEL (text: "MODERATE RISK")                   â”‚
+â”‚  â”œâ”€ Display STAGES SUMMARY (3 cards showing each stage)          â”‚
+â”‚  â”œâ”€ Display RECOMMENDATIONS (what to do)                         â”‚
+â”‚  â””â”€ Display DOWNLOAD PDF BUTTON                                  â”‚
+â”‚                                                                     â”‚
+â””â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”˜
 ```
 
 ---
 
-## 🎯 RISK CALCULATION BREAKDOWN
+## ðŸŽ¯ RISK CALCULATION BREAKDOWN
 
 ### Rule-Based Risk Scoring System
 
@@ -196,46 +181,46 @@ The system assigns points based on clinical evidence. Higher score = Higher risk
 BASE SCORE: 30 (neutral starting point)
 
 AGE FACTOR (Younger = Higher Risk):
-├─ Age ≤ 8 years    → +15 points
-├─ Age 8-10 years   → +10 points
-├─ Age 10-12 years  → +5 points
-└─ Age > 12 years   → +0 points
+â”œâ”€ Age â‰¤ 8 years    â†’ +15 points
+â”œâ”€ Age 8-10 years   â†’ +10 points
+â”œâ”€ Age 10-12 years  â†’ +5 points
+â””â”€ Age > 12 years   â†’ +0 points
 
 GENETICS/FAMILY HISTORY (Most Important):
-├─ Both parents myopic      → +25 points (STRONGEST FACTOR)
-├─ One parent myopic        → +15 points
-├─ Family history but unclear → +8 points
-└─ No family history        → +0 points
+â”œâ”€ Both parents myopic      â†’ +25 points (STRONGEST FACTOR)
+â”œâ”€ One parent myopic        â†’ +15 points
+â”œâ”€ Family history but unclear â†’ +8 points
+â””â”€ No family history        â†’ +0 points
 
 SCREEN TIME (Daily Device Usage):
-├─ > 8 hours/day    → +22 points
-├─ 6-8 hours/day    → +17 points
-├─ 4-6 hours/day    → +12 points
-├─ 2-4 hours/day    → +6 points
-└─ < 2 hours/day    → +0 points
+â”œâ”€ > 8 hours/day    â†’ +22 points
+â”œâ”€ 6-8 hours/day    â†’ +17 points
+â”œâ”€ 4-6 hours/day    â†’ +12 points
+â”œâ”€ 2-4 hours/day    â†’ +6 points
+â””â”€ < 2 hours/day    â†’ +0 points
 
 OUTDOOR TIME (STRONGEST PROTECTIVE FACTOR):
-├─ 0 hours/day      → +25 points (severe deficit)
-├─ < 0.5 hours/day  → +20 points
-├─ 0.5-1 hour/day   → +15 points
-├─ 1-2 hours/day    → +8 points
-└─ ≥ 3 hours/day    → -10 points (protective!)
+â”œâ”€ 0 hours/day      â†’ +25 points (severe deficit)
+â”œâ”€ < 0.5 hours/day  â†’ +20 points
+â”œâ”€ 0.5-1 hour/day   â†’ +15 points
+â”œâ”€ 1-2 hours/day    â†’ +8 points
+â””â”€ â‰¥ 3 hours/day    â†’ -10 points (protective!)
 
 NEAR WORK (Focus Strain):
-├─ > 6 hours/day    → +15 points
-├─ 4-6 hours/day    → +8 points
-└─ < 4 hours/day    → +0 points
+â”œâ”€ > 6 hours/day    â†’ +15 points
+â”œâ”€ 4-6 hours/day    â†’ +8 points
+â””â”€ < 4 hours/day    â†’ +0 points
 
 ACADEMIC PRESSURE:
-├─ Competitive exam prep → +10 points
-├─ Tuition classes       → +5 points
-├─ Private/International school → +3 points
-└─ Government school     → +0 points
+â”œâ”€ Competitive exam prep â†’ +10 points
+â”œâ”€ Tuition classes       â†’ +5 points
+â”œâ”€ Private/International school â†’ +3 points
+â””â”€ Government school     â†’ +0 points
 
 PROTECTIVE FACTORS (Reduce Risk):
-├─ Regular sports/exercise → -8 points
-├─ Takes Vitamin D supplement → -5 points
-└─ No protective factors → +0 points
+â”œâ”€ Regular sports/exercise â†’ -8 points
+â”œâ”€ Takes Vitamin D supplement â†’ -5 points
+â””â”€ No protective factors â†’ +0 points
 
 FINAL CALCULATION:
 Score = min(max(Total, 0), 100)
@@ -255,15 +240,15 @@ Outdoor time (1-2 hrs):        +8  (Score: 85)
 Near work (3 hrs):             +0  (Score: 85)
 Regular sports:                -8  (Score: 77)
 No Vitamin D:                  +0  (Score: 77)
-─────────────────────────────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 FINAL SCORE:                   77% RISK
 
-Result: "HIGH RISK" (≥70%)
+Result: "HIGH RISK" (â‰¥70%)
 ```
 
 ---
 
-## 📈 How The Graph/Gauge Appears
+## ðŸ“ˆ How The Graph/Gauge Appears
 
 ### RiskGauge Component (Visual)
 
@@ -271,31 +256,31 @@ Result: "HIGH RISK" (≥70%)
              RISK GAUGE VISUALIZATION
 
           LOW RISK ZONE (0-40%) [GREEN]
-               ╱───────────────╲
-              │      SAFE       │
-              │    ZONE        │
-       ╴─────┤               ├─────╴
-       ╴─────┤   ╱╲    ╱    ├─────╴
-              │  ╱  ╲  ╱    │
-              │ │   ││    │
-              │ │   ││    │
-              │ │   ││    │
-              └─┼───┼┼────┘
-                │   ││
-                │   ││  NEEDLE
-              MODERATE (40-70%)    │
-                 HIGH (70-100%)    │
+               â•±â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â•²
+              â”‚      SAFE       â”‚
+              â”‚    ZONE        â”‚
+       â•´â”€â”€â”€â”€â”€â”¤               â”œâ”€â”€â”€â”€â”€â•´
+       â•´â”€â”€â”€â”€â”€â”¤   â•±â•²    â•±    â”œâ”€â”€â”€â”€â”€â•´
+              â”‚  â•±  â•²  â•±    â”‚
+              â”‚ â”‚   â”‚â”‚    â”‚
+              â”‚ â”‚   â”‚â”‚    â”‚
+              â”‚ â”‚   â”‚â”‚    â”‚
+              â””â”€â”¼â”€â”€â”€â”¼â”¼â”€â”€â”€â”€â”˜
+                â”‚   â”‚â”‚
+                â”‚   â”‚â”‚  NEEDLE
+              MODERATE (40-70%)    â”‚
+                 HIGH (70-100%)    â”‚
 
 
 ANIMATED FEATURES:
-1. Semi-circular gauge from 0° to 180°
+1. Semi-circular gauge from 0Â° to 180Â°
 2. Three color zones:
    - GREEN (0-40%):     Safe, low risk
    - AMBER (40-70%):    Moderate concern
    - RED (70-100%):     High risk, needs attention
 
 3. Animated needle that rotates:
-   - Calculation: rotation = (score / 100) × 180°
+   - Calculation: rotation = (score / 100) Ã— 180Â°
    - Animation time: 1.5 seconds
    - Easing: easeOut (smooth, natural motion)
 
@@ -315,11 +300,11 @@ ANIMATED FEATURES:
 ```javascript
 // In RiskGauge.tsx
 
-// Calculate rotation angle (0° to 180°)
+// Calculate rotation angle (0Â° to 180Â°)
 const rotation = (displayScore / 100) * 180;
 
 // Example: score=69%
-// rotation = (69 / 100) × 180 = 124.2°
+// rotation = (69 / 100) Ã— 180 = 124.2Â°
 
 // Color logic
 const getColor = (score) => {
@@ -330,7 +315,7 @@ const getColor = (score) => {
 
 // Animation
 <motion.g
-  animate={{ rotate: rotation }}         // Rotates to 124.2°
+  animate={{ rotate: rotation }}         // Rotates to 124.2Â°
   transition={{ duration: 1.5, ease: "easeOut" }}
   style={{ transformOrigin: "100px 90px" }}  // Pivot point
 >
@@ -340,7 +325,7 @@ const getColor = (score) => {
 
 ---
 
-## 🔄 Complete Workflow Example
+## ðŸ”„ Complete Workflow Example
 
 ### Scenario: 9-year-old girl with family history of myopia
 
@@ -367,9 +352,9 @@ Payload: {...all fields above...}
 **Step 3A: Stage 1 - Refractive Error**
 ```
 ML Model Input: (age, BMI, sports, etc.)
-↓
+â†“
 ML Model predicts: RE_Probability = 0.72
-↓
+â†“
 has_re = true (0.72 >= 0.5)
 ```
 
@@ -383,14 +368,14 @@ Rule-Based Score:
   + (Outdoor 1h) 15
   + (Near 4h) 8
   + (Occasional sports) -3
-  ─────────────
-  Total: 97 → clamped to 100 → Rule_Prob = 1.0
+  â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
+  Total: 97 â†’ clamped to 100 â†’ Rule_Prob = 1.0
 
 ML Model: ML_Prob = 0.75 (confident HIGH)
 
 Hybrid Fusion:
 Since ML_Prob >= 0.65 (confident):
-  Risk = 0.60 × 0.75 + 0.40 × 1.0
+  Risk = 0.60 Ã— 0.75 + 0.40 Ã— 1.0
   Risk = 0.45 + 0.40 = 0.85
   Risk_Score = 85%
 
@@ -401,9 +386,9 @@ Result: "HIGH RISK" (85 >= 70)
 ```
 Since has_re = true:
   Regression Model Input: (27 features)
-  ↓
+  â†“
   Predicted Diopters = 2.8D
-  ↓
+  â†“
   Severity = "Mild" (2.8 is between 0.5-3.0)
 ```
 
@@ -420,46 +405,46 @@ Frontend receives:
 }
 
 Visual Output:
-- Gauge animates to 85° over 1.5 seconds
+- Gauge animates to 85Â° over 1.5 seconds
 - Needle points to RED zone
 - Number shows "85%" in red
 - Card displays "HIGH RISK - 85%"
 - Three-stage summary shows:
-  ✓ Stage 1: YES (72%)
-  ✓ Stage 2: HIGH (85%)
-  ✓ Stage 3: -2.8D (Mild)
+  âœ“ Stage 1: YES (72%)
+  âœ“ Stage 2: HIGH (85%)
+  âœ“ Stage 3: -2.8D (Mild)
 ```
 
 ---
 
-## 📊 Gauge Zones Explained
+## ðŸ“Š Gauge Zones Explained
 
 ```
-RISK GAUGE: 0% ├────────┤ 100%
+RISK GAUGE: 0% â”œâ”€â”€â”€â”€â”€â”€â”€â”€â”¤ 100%
 
 0%          40%        70%        100%
-│           │          │          │
-├──GREEN────┼─AMBER────┼─RED──────┤
-│           │          │          │
+â”‚           â”‚          â”‚          â”‚
+â”œâ”€â”€GREENâ”€â”€â”€â”€â”¼â”€AMBERâ”€â”€â”€â”€â”¼â”€REDâ”€â”€â”€â”€â”€â”€â”¤
+â”‚           â”‚          â”‚          â”‚
 LOW         MODERATE   HIGH       EXTREME
 RISK        RISK       RISK       RISK
-│           │          │          │
-└─ Safe     └─ Watch   └─ Action  └─ Critical
-  ✓ No act   ⚠ Monitor  🔴 Consult ☠ Medical
-  ✓ Healthy ⚠ Yearly   🔴 Eye Dr  ☠ Emergency
-            follow-up  🔴 Glasses
-                       🔴 Eye
+â”‚           â”‚          â”‚          â”‚
+â””â”€ Safe     â””â”€ Watch   â””â”€ Action  â””â”€ Critical
+  âœ“ No act   âš  Monitor  ðŸ”´ Consult â˜  Medical
+  âœ“ Healthy âš  Yearly   ðŸ”´ Eye Dr  â˜  Emergency
+            follow-up  ðŸ”´ Glasses
+                       ðŸ”´ Eye
                         exercises
 ```
 
 ---
 
-## 🧬 Key Factors by Impact Weight
+## ðŸ§¬ Key Factors by Impact Weight
 
 ```
 FACTOR IMPORTANCE (by ML Algorithm)
 
-Strongest Positive Predictors (↑ Risk):
+Strongest Positive Predictors (â†‘ Risk):
 1. Parent myopia (GENETIC)        [25-30% weight]
 2. Age (younger)                  [20-25% weight]
 3. Screen time (high)             [15-20% weight]
@@ -467,79 +452,79 @@ Strongest Positive Predictors (↑ Risk):
 5. Near work hours (high)         [10-15% weight]
 6. Academic pressure              [5-10% weight]
 
-Protective Factors (↓ Risk):
-1. Outdoor time (≥2 hrs/day)      [-25 points]
+Protective Factors (â†“ Risk):
+1. Outdoor time (â‰¥2 hrs/day)      [-25 points]
 2. Regular sports/exercise        [-8 points]
 3. Vitamin D supplementation      [-5 points]
 
 KEY INSIGHT:
-📌 Outdoor time is the STRONGEST PROTECTIVE factor
-📌 Even 30 mins outdoors daily reduces progression risk by ~15%
-📌 Family history dominates (25+ points alone)
+ðŸ“Œ Outdoor time is the STRONGEST PROTECTIVE factor
+ðŸ“Œ Even 30 mins outdoors daily reduces progression risk by ~15%
+ðŸ“Œ Family history dominates (25+ points alone)
 ```
 
 ---
 
-## 🎓 Understanding Risk Levels
+## ðŸŽ“ Understanding Risk Levels
 
 ```
 RISK LEVEL INTERPRETATION:
 
 LOW RISK (0-40%)
-├─ What it means: Child unlikely to develop/progress myopia
-├─ Probability: 40% or less
-├─ Recommendation: Continue healthy habits, annual eye checks
-└─ Action: No intervention needed
+â”œâ”€ What it means: Child unlikely to develop/progress myopia
+â”œâ”€ Probability: 40% or less
+â”œâ”€ Recommendation: Continue healthy habits, annual eye checks
+â””â”€ Action: No intervention needed
 
 MODERATE RISK (40-70%)
-├─ What it means: Moderate chance of myopia progression
-├─ Probability: 40-70%
-├─ Recommendation: Schedule eye exam, reduce screen time
-└─ Action: Monitor closely, lifestyle modifications
+â”œâ”€ What it means: Moderate chance of myopia progression
+â”œâ”€ Probability: 40-70%
+â”œâ”€ Recommendation: Schedule eye exam, reduce screen time
+â””â”€ Action: Monitor closely, lifestyle modifications
 
 HIGH RISK (70-100%)
-├─ What it means: High likelihood of myopia development
-├─ Probability: 70% or higher
-├─ Recommendation: See ophthalmologist urgently
-└─ Action: May need glasses, contact lenses, or corrective
+â”œâ”€ What it means: High likelihood of myopia development
+â”œâ”€ Probability: 70% or higher
+â”œâ”€ Recommendation: See ophthalmologist urgently
+â””â”€ Action: May need glasses, contact lenses, or corrective
          exercises
 ```
 
 ---
 
-## 📥 Data Used in Prediction
+## ðŸ“¥ Data Used in Prediction
 
 ### Collected from User Input:
 ```
 8 Direct Inputs:
-│
-├─ Personal: age, sex, height, weight
-├─ Genetic: family history, parents myopic
-└─ Lifestyle: screen time, outdoor time, near work,
+â”‚
+â”œâ”€ Personal: age, sex, height, weight
+â”œâ”€ Genetic: family history, parents myopic
+â””â”€ Lifestyle: screen time, outdoor time, near work,
               sports, vitamin D
 
 30 Features Computed:
-│
-├─ Basic metrics: BMI, age_groups
-├─ Combinations: age×screen, screen+near, screen/outdoor ratio
-├─ Encoded categories: sex (binary), parents (0/1/2)
-├─ Derived: family_load (genetics strength measure)
-└─ Classification bins: BMI category, age category
+â”‚
+â”œâ”€ Basic metrics: BMI, age_groups
+â”œâ”€ Combinations: ageÃ—screen, screen+near, screen/outdoor ratio
+â”œâ”€ Encoded categories: sex (binary), parents (0/1/2)
+â”œâ”€ Derived: family_load (genetics strength measure)
+â””â”€ Classification bins: BMI category, age category
 ```
 
 ### Example Feature Vector (27 features for diopter regression):
 
 ```
 Feature Name                    | Value
-────────────────────────────────┼─────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€
 Age                            | 9
 BMI                            | 17.5
 Screen_Time_Hours              | 5
 Near_Work_Hours                | 4
 Outdoor_Time_Hours             | 1
-Age_Screen                     | 45 (9×5)
+Age_Screen                     | 45 (9Ã—5)
 Screen_Near_Total              | 9 (5+4)
-Screen_Outdoor_Ratio           | 5.0 (5÷1)
+Screen_Outdoor_Ratio           | 5.0 (5Ã·1)
 High_Risk_Parent               | 1 (both parents)
 Family_Load                    | 2 (genetics)
 Location_Type_Urban            | 1
@@ -549,42 +534,42 @@ Comp_Exam_Binary               | 0
 Vitamin_D_Binary               | 0
 Sports_Encoded                 | 1 (occasional)
 [State one-hot encoding]       | 25 binary flags
-────────────────────────────────┼─────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”¼â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
 TOTAL FEATURES                 | 27
 ```
 
 ---
 
-## 💡 Why Hybrid (ML + Rules)?
+## ðŸ’¡ Why Hybrid (ML + Rules)?
 
 ```
 ML MODEL ALONE:
-  ✓ Very accurate (AUC 0.893)
-  ✓ Learns complex patterns
-  ✗ Can be unpredictable on extreme inputs
-  ✗ "Black box" - hard to explain
+  âœ“ Very accurate (AUC 0.893)
+  âœ“ Learns complex patterns
+  âœ— Can be unpredictable on extreme inputs
+  âœ— "Black box" - hard to explain
 
 RULES ALONE:
-  ✓ Transparent (clinicians understand every point)
-  ✓ Follows WHO evidence-based guidelines
-  ✗ Misses complex interactions
-  ✗ Overly rigid
+  âœ“ Transparent (clinicians understand every point)
+  âœ“ Follows WHO evidence-based guidelines
+  âœ— Misses complex interactions
+  âœ— Overly rigid
 
 HYBRID APPROACH:
-  ✓ Uses ML when it's confident (≥0.65 prob)
-  ✓ Blends both when ML is uncertain (0.35-0.65)
-  ✓ Falls back to rules when ML gives low scores
-  ✓ ALWAYS enforces rule minimum (safety check)
+  âœ“ Uses ML when it's confident (â‰¥0.65 prob)
+  âœ“ Blends both when ML is uncertain (0.35-0.65)
+  âœ“ Falls back to rules when ML gives low scores
+  âœ“ ALWAYS enforces rule minimum (safety check)
 
 Result: Best of both worlds!
-├─ Accurate AND explainable
-├─ Trustworthy AND evidence-based
-└─ Safe AND intelligent
+â”œâ”€ Accurate AND explainable
+â”œâ”€ Trustworthy AND evidence-based
+â””â”€ Safe AND intelligent
 ```
 
 ---
 
-## 📋 Summary of Calculations
+## ðŸ“‹ Summary of Calculations
 
 | Stage | Input | ML Model | Output | Human-Readable |
 |-------|-------|----------|--------|-----------------|
@@ -592,5 +577,5 @@ Result: Best of both worlds!
 | **2** | 30 features | GradientBoosting + Rules | % 0-100 | Risk Level & Score |
 | **3** | 27 features | XGBoost Regression | Diopter value | Severity Category |
 
-This is a complete end-to-end AI system that combines best practices in machine learning, clinical evidence, and user experience! 🎯
+This is a complete end-to-end AI system that combines best practices in machine learning, clinical evidence, and user experience! ðŸŽ¯
 

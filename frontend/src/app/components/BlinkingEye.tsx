@@ -186,6 +186,7 @@ export default function BlinkingEye() {
           {/* ─── Pupil with dilation animation ─── */}
           <motion.circle
             cx="200" cy="150"
+            r="24"
             fill="url(#pupilGrad)"
             animate={{ r: [24, 28, 24] }}
             transition={{ duration: 4, repeat: Infinity, ease: "easeInOut" }}

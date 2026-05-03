@@ -14,7 +14,7 @@ export default function FAQ() {
     },
     {
       question: "How accurate is this AI tool?",
-      answer: "Our AI model is based on XGBoost machine learning algorithm trained on over 5,000 Indian school children's data. It has an Area Under Curve (AUC) of 0.88, which indicates very good predictive accuracy. However, this is a screening tool, not a diagnostic tool. It assesses risk based on lifestyle and family history factors. For actual diagnosis of myopia, a comprehensive eye examination by a qualified optometrist or ophthalmologist is required."
+      answer: "This tool uses a two-stage ML pipeline. Stage 1 (refractive error detection) uses XGBoost (AUC 0.94). Stage 2 (progression risk classification) uses GradientBoosting — the primary model — with an AUC of 0.893, which indicates very good predictive accuracy. Both models were trained on 5,000+ Indian school children's records. However, this is a screening tool, not a diagnostic tool. It assesses risk based on lifestyle and family history factors. For actual diagnosis, a comprehensive eye examination by a qualified optometrist or ophthalmologist is required."
     },
     {
       question: "What is atropine and is it safe for children?",
@@ -118,10 +118,12 @@ export default function FAQ() {
             Consult with a qualified ophthalmologist or optometrist for personalized advice
           </p>
           <a
-            href="#"
+            href="https://www.google.com/maps/search/eye+doctor+ophthalmologist+near+me"
+            target="_blank"
+            rel="noopener noreferrer"
             className="inline-block px-8 py-3 bg-white text-[var(--primary-green)] rounded-full font-bold hover:bg-gray-50 transition-colors"
           >
-            Find Eye Care Professional
+            Search Eye Doctors (Google Maps)
           </a>
         </motion.div>
       </div>

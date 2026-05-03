@@ -1,4 +1,4 @@
-"""
+﻿"""
 Stage 1 Model (Has_RE) Deep Analysis & Solutions
 =================================================
 Root Cause Analysis for AUC 0.50 (random guessing)
@@ -38,7 +38,7 @@ has_re = (df['Presence_of_RE'] == 'Yes').astype(int)
 print(f"\nHas RE distribution:")
 print(f"  No  (0): {(has_re == 0).sum()} ({(has_re == 0).sum()/len(df)*100:.1f}%)")
 print(f"  Yes (1): {(has_re == 1).sum()} ({(has_re == 1).sum()/len(df)*100:.1f}%)")
-print("\n✓ Class balance is reasonable (60/40) - NOT the issue")
+print("\nâœ“ Class balance is reasonable (60/40) - NOT the issue")
 
 # ============================================================================
 # FEATURE CORRELATION ANALYSIS
@@ -72,13 +72,13 @@ print(correlations[correlations > 0].head(10))
 print("\nTop negative correlations (protective features):")
 print(correlations[correlations < 0].tail(5))
 
-print("\n⚠️ CRITICAL FINDING:")
+print("\nâš ï¸ CRITICAL FINDING:")
 print("   - Strongest correlation: Screen_Time (0.48) - MODERATE")
 print("   - Second: Age (0.42) - MODERATE") 
 print("   - Third: Near_Work (0.32) - WEAK")
-print("   - Family_History: -0.008 - NEAR ZERO! ⚠️")
-print("\n   → The features have WEAK predictive power for detecting existing RE")
-print("   → This is why the model struggles (AUC 0.50)")
+print("   - Family_History: -0.008 - NEAR ZERO! âš ï¸")
+print("\n   â†’ The features have WEAK predictive power for detecting existing RE")
+print("   â†’ This is why the model struggles (AUC 0.50)")
 
 # ============================================================================
 # THE FUNDAMENTAL PROBLEM
@@ -91,25 +91,25 @@ print("""
 The REAL indicators of whether someone HAS refractive error RIGHT NOW are:
 
 MISSING FROM DATASET:
-  1. ❌ Visual Acuity (e.g., 20/20, 20/40) - STRONGEST INDICATOR
-  2. ❌ Self-reported blurry vision
-  3. ❌ Difficulty reading blackboard
-  4. ❌ Squinting behavior
-  5. ❌ Headaches from eye strain
-  6. ❌ Previous eye exam results
-  7. ❌ Current eyewear usage patterns
+  1. âŒ Visual Acuity (e.g., 20/20, 20/40) - STRONGEST INDICATOR
+  2. âŒ Self-reported blurry vision
+  3. âŒ Difficulty reading blackboard
+  4. âŒ Squinting behavior
+  5. âŒ Headaches from eye strain
+  6. âŒ Previous eye exam results
+  7. âŒ Current eyewear usage patterns
 
 WHAT WE HAVE:
-  ✓ Lifestyle risk factors (screen time, outdoor time, etc.)
-  ✓ Demographics (age, BMI, etc.)
-  ✓ Genetics (family history, parents myopic)
+  âœ“ Lifestyle risk factors (screen time, outdoor time, etc.)
+  âœ“ Demographics (age, BMI, etc.)
+  âœ“ Genetics (family history, parents myopic)
 
 THE PROBLEM:
-  → Lifestyle factors predict FUTURE risk, not CURRENT status
-  → You can have high screen time but NO RE yet
-  → You can have low screen time but HAVE RE already (genetics)
-  → The dataset Structure is: Lifestyle → ALREADY HAS RE? (outcome)
-  → But lifestyle is a PREDICTOR of PROGRESSION, not DETECTION
+  â†’ Lifestyle factors predict FUTURE risk, not CURRENT status
+  â†’ You can have high screen time but NO RE yet
+  â†’ You can have low screen time but HAVE RE already (genetics)
+  â†’ The dataset Structure is: Lifestyle â†’ ALREADY HAS RE? (outcome)
+  â†’ But lifestyle is a PREDICTOR of PROGRESSION, not DETECTION
 """)
 
 # ============================================================================
@@ -121,48 +121,48 @@ print("="*80)
 
 print("""
 OPTION A: FIX THE DATA (Ideal, but requires new data collection)
-─────────────────────────────────────────────────────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   1. Add visual acuity measurements (VA)
   2. Add symptom questionnaires (blurry vision, squinting)
   3. Add retinoscopy/autorefractor readings
-  → This would make Stage 1 actually useful (expected AUC: 0.85+)
+  â†’ This would make Stage 1 actually useful (expected AUC: 0.85+)
 
 OPTION B: REMOVE STAGE 1 ENTIRELY (Pragmatic)
-──────────────────────────────────────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Why: Stage 1 doesn't add value with current features
   What: Use only Stage 2 (Progression Risk) which works great (AUC 0.88)
   
   NEW FLOW:
-    User inputs → Stage 2 directly → Risk Score (Low/Moderate/High)
+    User inputs â†’ Stage 2 directly â†’ Risk Score (Low/Moderate/High)
     
   Rationale:
     - Stage 2 is what users care about: "What's my child's risk?"
     - Whether they HAVE RE now is less important than FUTURE risk
     - Many children don't have RE yet but are high risk (early intervention!)
   
-  ✅ This is the RECOMMENDED approach for your use case
+  âœ… This is the RECOMMENDED approach for your use case
 
 OPTION C: REPURPOSE STAGE 1 (Creative workaround)
-──────────────────────────────────────────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Instead of "Do they have RE?", ask "Are they symptomatic?"
   
   Train a model to predict:
-    - High screen/near work + low outdoor → likely showing SYMPTOMS
+    - High screen/near work + low outdoor â†’ likely showing SYMPTOMS
     - Use as a "urgency flag" for getting professional exam
   
   But this requires relabeling the dataset...
 
 OPTION D: FEATURE ENGINEERING BOOST (Marginal improvement)
-───────────────────────────────────────────────────────────
+â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€â”€
   Try advanced features to squeeze out 5-10% AUC improvement:
-    1. Age × Screen_Time interaction
-    2. Polynomial features (Screen_Time²)
+    1. Age Ã— Screen_Time interaction
+    2. Polynomial features (Screen_TimeÂ²)
     3. Risk_Score thresholding as proxy
     4. Ensemble with RandomForest + XGBoost
   
-  Expected: AUC 0.50 → 0.60 (still not production-ready)
+  Expected: AUC 0.50 â†’ 0.60 (still not production-ready)
   
-  ⚠️ Not recommended - too much effort for marginal gain
+  âš ï¸ Not recommended - too much effort for marginal gain
 """)
 
 # ============================================================================
@@ -282,7 +282,7 @@ best_auc = max(auc_xgb, auc_rf)
 
 if best_auc < 0.65:
     print(f"""
-✅ RECOMMENDATION: REMOVE STAGE 1 ENTIRELY
+âœ… RECOMMENDATION: REMOVE STAGE 1 ENTIRELY
 
 Current Results:
   - XGBoost AUC: {auc_xgb:.4f}
@@ -293,7 +293,7 @@ Verdict: Even with feature engineering, AUC < 0.65 is NOT production-ready
 
 WHAT TO DO:
   1. Remove Stage 1 (Has_RE detection) from the pipeline
-  2. Focus entirely on Stage 2 (Risk Progression) - AUC 0.88 ✅
+  2. Focus entirely on Stage 2 (Risk Progression) - AUC 0.88 âœ…
   3. Update frontend to skip RE detection
   4. Update backend API to remove Stage 1 logic
   5. Update product messaging: "Predict FUTURE risk" not "Detect current RE"
@@ -306,7 +306,7 @@ WHY THIS IS BETTER:
 """)
 else:
     print(f"""
-✅ MARGINAL IMPROVEMENT ACHIEVED!
+âœ… MARGINAL IMPROVEMENT ACHIEVED!
 
 Current Results:
   - XGBoost AUC: {auc_xgb:.4f}
