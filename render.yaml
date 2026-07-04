@@ -10,7 +10,7 @@ services:
       - key: FLASK_DEBUG
         value: "False"
       - key: CORS_ORIGINS
-        value: https://mayopia-frontend.vercel.app
+        value: https://myopiaguard.vercel.app
       - key: MODELS_DIR
         value: models
       - key: SECRET_KEY
