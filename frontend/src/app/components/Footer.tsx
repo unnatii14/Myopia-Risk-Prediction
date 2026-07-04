@@ -4,13 +4,6 @@ export default function Footer() {
   return (
     <footer className="bg-white border-t border-[var(--border)] mt-20">
       <div className="max-w-7xl mx-auto px-4 sm:px-6 lg:px-8 py-12">
-        {/* Disclaimer */}
-        <div className="mb-8 p-4 bg-yellow-50 border border-yellow-200 rounded-2xl">
-          <p className="text-sm text-[var(--text-dark)]">
-            <strong>Disclaimer:</strong> This is not a medical diagnosis. This tool provides a risk assessment based on lifestyle factors and family history using a machine learning model trained on Indian children's data. Please consult a qualified ophthalmologist for proper eye examination and diagnosis.
-          </p>
-        </div>
-
         <div className="grid grid-cols-1 md:grid-cols-3 gap-8 mb-8">
           <div>
             <h4 className="font-semibold mb-4">About MyopiaGuard</h4>

@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { Clock, AlertTriangle, CheckCircle, ShieldAlert, Info } from "lucide-react";
+import BackToDashboard from "../components/BackToDashboard";
 
 // ── Evidence base ─────────────────────────────────────────────
 // Age-specific hyperopic reserve norms (cycloplegic SE, diopters)
@@ -117,6 +118,7 @@ export default function OnsetPredictor() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        <BackToDashboard />
 
         {/* ── Header card ──────────────────────────────────────── */}
         <motion.div

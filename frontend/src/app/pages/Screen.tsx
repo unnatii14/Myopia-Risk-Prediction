@@ -6,6 +6,7 @@ import {
   ChevronRight, ChevronLeft
 } from "lucide-react";
 import { Slider } from "../components/ui/slider";
+import BackToDashboard from "../components/BackToDashboard";
 import { useAuth } from "../context/AuthContext";
 import { fetchLatestScreening } from "../lib/historyApi";
 
@@ -166,6 +167,7 @@ export default function Screen() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
       <div className="max-w-3xl mx-auto">
+        <BackToDashboard />
         {/* Step Progress */}
         <div className="mb-12">
           <h2 className="text-2xl font-bold text-[var(--text-dark)] mb-8">

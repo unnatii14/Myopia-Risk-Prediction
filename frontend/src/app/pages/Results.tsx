@@ -2,6 +2,7 @@ import { useEffect, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { useNavigate } from "react-router";
 import { jsPDF } from "jspdf";
+import BackToDashboard from "../components/BackToDashboard";
 import {
   Download, AlertTriangle, CheckCircle, Sun,
   Smartphone, Users, Calendar, ExternalLink,
@@ -392,6 +393,7 @@ export default function Results() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
       <div className="max-w-5xl mx-auto">
+        <BackToDashboard />
 
         {/* ── Saved-to-history toast ── */}
         <AnimatePresence>

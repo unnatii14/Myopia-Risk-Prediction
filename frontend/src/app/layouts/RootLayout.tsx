@@ -2,6 +2,7 @@ import { Outlet, useLocation } from "react-router";
 import { useEffect } from "react";
 import Navbar from "../components/Navbar";
 import Footer from "../components/Footer";
+import DisclaimerBanner from "../components/DisclaimerBanner";
 
 export default function RootLayout() {
   const location = useLocation();
@@ -14,6 +15,7 @@ export default function RootLayout() {
   return (
     <div className="min-h-screen flex flex-col">
       <Navbar />
+      <DisclaimerBanner />
       <main className="flex-1">
         <Outlet />
       </main>

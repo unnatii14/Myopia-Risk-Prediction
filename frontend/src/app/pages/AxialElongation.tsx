@@ -1,6 +1,7 @@
 import { useState } from "react";
 import { motion } from "motion/react";
 import { Ruler, Info, ChevronDown } from "lucide-react";
+import BackToDashboard from "../components/BackToDashboard";
 
 // ── Evidence base ─────────────────────────────────────────────
 // Annual untreated progression rates (D/year) by age
@@ -196,6 +197,7 @@ export default function AxialElongation() {
   return (
     <div className="min-h-screen bg-gradient-to-br from-[var(--background-mint)] to-white py-12 px-4">
       <div className="max-w-4xl mx-auto">
+        <BackToDashboard />
 
         {/* Header */}
         <motion.div
