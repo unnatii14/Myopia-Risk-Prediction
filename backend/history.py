@@ -7,39 +7,16 @@ Routes:
 """
 
 from flask import Blueprint, request, jsonify
-import sqlite3
 import jwt
 import json
 import os
-from datetime import datetime, timezone
+from db import get_conn, PH, row_as_dict, rows_as_dicts, insert_returning_id, init_screenings_table
 
 history_bp = Blueprint("history", __name__)
 
-BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
-DB_PATH    = os.path.join(BASE_DIR, "users.db")
 JWT_SECRET = os.environ.get("JWT_SECRET", "myopia_dev_secret_key_2024")
 
-
-def _init_history_table():
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS screenings (
-            id          INTEGER PRIMARY KEY AUTOINCREMENT,
-            email       TEXT NOT NULL,
-            child_name  TEXT,
-            screened_at TEXT DEFAULT (datetime('now')),
-            input_data  TEXT NOT NULL,
-            risk_score  INTEGER NOT NULL,
-            risk_level  TEXT NOT NULL,
-            has_re      INTEGER,
-            diopters    REAL,
-            severity    TEXT
-        )
-    """)
-    conn.commit()
-    conn.close()
-
-_init_history_table()
+init_screenings_table()
 
 
 def _get_email_from_token():
@@ -75,14 +52,14 @@ def save_screening():
     if risk_score is None or not risk_level:
         return jsonify({"error": "result.risk_score and result.risk_level are required"}), 400
 
-    conn = sqlite3.connect(DB_PATH)
-    cur = conn.execute(
-        """INSERT INTO screenings
+    conn = get_conn(); cur = conn.cursor()
+    new_id = insert_returning_id(
+        cur,
+        f"""INSERT INTO screenings
            (email, child_name, input_data, risk_score, risk_level, has_re, diopters, severity)
-           VALUES (?, ?, ?, ?, ?, ?, ?, ?)""",
+           VALUES ({PH}, {PH}, {PH}, {PH}, {PH}, {PH}, {PH}, {PH})""",
         (email, child_name, json.dumps(input_data), risk_score, risk_level, has_re, diopters, severity)
     )
-    new_id = cur.lastrowid
     conn.commit()
     conn.close()
 
@@ -95,15 +72,15 @@ def get_history():
     if not email:
         return jsonify({"error": "Unauthorised"}), 401
 
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    rows = conn.execute(
-        """SELECT id, child_name, screened_at, risk_score, risk_level,
+    conn = get_conn(); cur = conn.cursor()
+    cur.execute(
+        f"""SELECT id, child_name, screened_at, risk_score, risk_level,
                   has_re, diopters, severity, input_data
-           FROM screenings WHERE email = ?
+           FROM screenings WHERE email = {PH}
            ORDER BY screened_at DESC LIMIT 50""",
         (email,)
-    ).fetchall()
+    )
+    rows = rows_as_dicts(cur)
     conn.close()
 
     results = []
@@ -111,7 +88,7 @@ def get_history():
         results.append({
             "id":          r["id"],
             "child_name":  r["child_name"],
-            "screened_at": r["screened_at"],
+            "screened_at": str(r["screened_at"]),
             "risk_score":  r["risk_score"],
             "risk_level":  r["risk_level"],
             "has_re":      bool(r["has_re"]),
@@ -129,15 +106,15 @@ def get_latest():
     if not email:
         return jsonify({"error": "Unauthorised"}), 401
 
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    row = conn.execute(
-        """SELECT id, child_name, screened_at, risk_score, risk_level,
+    conn = get_conn(); cur = conn.cursor()
+    cur.execute(
+        f"""SELECT id, child_name, screened_at, risk_score, risk_level,
                   has_re, diopters, severity, input_data
-           FROM screenings WHERE email = ?
+           FROM screenings WHERE email = {PH}
            ORDER BY screened_at DESC LIMIT 1""",
         (email,)
-    ).fetchone()
+    )
+    row = row_as_dict(cur)
     conn.close()
 
     if not row:
@@ -146,7 +123,7 @@ def get_latest():
     return jsonify({
         "id":          row["id"],
         "child_name":  row["child_name"],
-        "screened_at": row["screened_at"],
+        "screened_at": str(row["screened_at"]),
         "risk_score":  row["risk_score"],
         "risk_level":  row["risk_level"],
         "has_re":      bool(row["has_re"]),

@@ -4,7 +4,6 @@ Uses SQLite for user storage, bcrypt for password hashing, JWT for tokens.
 """
 
 from flask import Blueprint, request, jsonify
-import sqlite3
 import bcrypt
 import jwt
 import datetime
@@ -12,33 +11,16 @@ import os
 from google.auth.transport import requests
 from google.oauth2 import id_token
 from config import DEFAULT_JWT_SECRET
+from db import get_conn, PH, row_as_dict, is_integrity_error, init_users_table
 
 auth_bp = Blueprint("auth", __name__)
 
-BASE_DIR   = os.path.dirname(os.path.abspath(__file__))
-DB_PATH    = os.path.join(BASE_DIR, "users.db")
 JWT_SECRET = os.environ.get("JWT_SECRET", "myopia_dev_secret_key_2024")
 
 if os.environ.get("FLASK_ENV", "development").lower() == "production" and JWT_SECRET == DEFAULT_JWT_SECRET:
     raise RuntimeError("JWT_SECRET must be set to a non-default value in production")
 
-
-def _init_db():
-    conn = sqlite3.connect(DB_PATH)
-    conn.execute("""
-        CREATE TABLE IF NOT EXISTS users (
-            id            INTEGER PRIMARY KEY AUTOINCREMENT,
-            name          TEXT    NOT NULL,
-            child_name    TEXT,
-            email         TEXT    UNIQUE NOT NULL,
-            password_hash TEXT    NOT NULL,
-            created_at    TEXT    DEFAULT (datetime('now'))
-        )
-    """)
-    conn.commit()
-    conn.close()
-
-_init_db()
+init_users_table()
 
 
 def _make_token(name: str, email: str) -> str:
@@ -66,15 +48,17 @@ def register():
     pw_hash = bcrypt.hashpw(password.encode(), bcrypt.gensalt()).decode()
 
     try:
-        conn = sqlite3.connect(DB_PATH)
-        conn.execute(
-            "INSERT INTO users (name, child_name, email, password_hash) VALUES (?, ?, ?, ?)",
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute(
+            f"INSERT INTO users (name, child_name, email, password_hash) VALUES ({PH}, {PH}, {PH}, {PH})",
             (name, child_name or None, email, pw_hash),
         )
         conn.commit()
         conn.close()
-    except sqlite3.IntegrityError:
-        return jsonify({"error": "Email already registered"}), 409
+    except Exception as e:
+        if is_integrity_error(e):
+            return jsonify({"error": "Email already registered"}), 409
+        raise
 
     token = _make_token(name, email)
     return jsonify({"token": token, "name": name, "email": email}), 201
@@ -86,9 +70,9 @@ def login():
     email    = (data.get("email") or "").strip().lower()
     password = data.get("password") or ""
 
-    conn = sqlite3.connect(DB_PATH)
-    conn.row_factory = sqlite3.Row
-    row = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+    conn = get_conn(); cur = conn.cursor()
+    cur.execute(f"SELECT * FROM users WHERE email = {PH}", (email,))
+    row = row_as_dict(cur)
     conn.close()
 
     if not row or not bcrypt.checkpw(password.encode(), row["password_hash"].encode()):
@@ -129,9 +113,9 @@ def google_login():
         if not email:
             return jsonify({"error": "Email not found in Google token"}), 400
 
-        conn = sqlite3.connect(DB_PATH)
-        conn.row_factory = sqlite3.Row
-        user = conn.execute("SELECT * FROM users WHERE email = ?", (email,)).fetchone()
+        conn = get_conn(); cur = conn.cursor()
+        cur.execute(f"SELECT * FROM users WHERE email = {PH}", (email,))
+        user = row_as_dict(cur)
 
         if not user:
             placeholder_hash = bcrypt.hashpw(
@@ -139,12 +123,12 @@ def google_login():
                 bcrypt.gensalt()
             ).decode()
             try:
-                conn.execute(
-                    "INSERT INTO users (name, email, password_hash) VALUES (?, ?, ?)",
+                cur.execute(
+                    f"INSERT INTO users (name, email, password_hash) VALUES ({PH}, {PH}, {PH})",
                     (name, email, placeholder_hash),
                 )
                 conn.commit()
-            except sqlite3.IntegrityError:
+            except Exception:
                 conn.close()
                 return jsonify({"error": "Failed to create user"}), 500
 
