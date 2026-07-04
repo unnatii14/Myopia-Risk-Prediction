@@ -47,6 +47,7 @@ interface PredictionResult {
   re_probability: number;
   diopters: number | null;
   severity: string | null;
+  severity_note?: string | null;
 }
 
 export default function Results() {
@@ -131,12 +132,12 @@ export default function Results() {
           : `${riskScore > 60 ? "POSSIBLE" : "UNLIKELY"} | ${Math.round(riskScore * 0.8)}%`
       ],
       ["Stage 2 - Progression Risk", `${riskLevel} | ${riskScore}%`],
-      ["Stage 3 - Est. Severity",
-        prediction?.diopters != null
-          ? `-${prediction.diopters}D (${prediction.severity})`
+      ["Stage 3 - Assessment",
+        prediction?.severity
+          ? prediction.severity
           : prediction && !prediction.has_re
-          ? "No RE detected"
-          : riskLevel === "HIGH" ? "-3.2D (Moderate)" : riskLevel === "MODERATE" ? "-1.5D (Mild)" : "-0.5D (Very Mild)"
+          ? "No refractive error indicated"
+          : riskLevel === "HIGH" ? "High concern" : riskLevel === "MODERATE" ? "Moderate concern" : "Low concern"
       ],
     ];
     doc.setFontSize(11);
@@ -556,14 +557,17 @@ export default function Results() {
 
                 <div className="bg-gradient-to-r from-[var(--background-mint)] to-white p-4 rounded-2xl">
                   <p className="text-xs text-[var(--text-muted)] mb-1">Stage 3</p>
-                  <p className="font-bold text-[var(--text-dark)]">Est. Severity</p>
+                  <p className="font-bold text-[var(--text-dark)]">Assessment</p>
                   <p className="text-sm text-[var(--text-muted)]">
-                    {prediction?.diopters != null
-                      ? `~-${prediction.diopters}D · ${prediction.severity ?? ""}`
+                    {prediction?.severity
+                      ? prediction.severity
                       : prediction && !prediction.has_re
-                      ? "No RE detected"
-                      : riskLevel === "HIGH" ? "~-3.2D · Moderate" : riskLevel === "MODERATE" ? "~-1.5D · Mild" : "~-0.5D · Very Mild"}
+                      ? "No refractive error indicated"
+                      : riskLevel === "HIGH" ? "High concern" : riskLevel === "MODERATE" ? "Moderate concern" : "Low concern"}
                   </p>
+                  {prediction?.severity_note && (
+                    <p className="mt-1 text-xs text-[var(--text-muted)] opacity-80 leading-snug">{prediction.severity_note}</p>
+                  )}
                 </div>
               </div>
             )}

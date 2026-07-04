@@ -511,86 +511,34 @@ def predict():
         else:
             risk_level = "HIGH"
 
-# ── Stage 3: Diopter Estimate (only if RE likely) ─────
+# ── Stage 3: Qualitative concern band (NOT an exact diopter prediction) ─────
+        # NOTE: exact refractive degree (diopters) is intentionally NOT predicted.
+        # On this dataset the lifestyle/demographic features carry no signal for
+        # diopter magnitude (regression R2 < 0, worse than guessing the mean), so
+        # a numeric estimate would be misleading on a health tool. Instead we report
+        # a qualitative band from the two trustworthy classifiers (RE-presence +
+        # progression risk) and defer exact degree to a clinical eye exam.
         diopters = None
         severity = None
+        severity_note = None
         if has_re:
-            if diopter_model is not None and scaler_reg is not None:
-                # IMPORTANT: Regression model uses subset of 27 features (not all 30)
-                # These match what retrain_all_models.py trained on
-                regression_feature_names = [
-                    'Age', 'BMI', 'Screen_Time_Hours', 'Near_Work_Hours', 'Outdoor_Time_Hours',
-                    'Age_Screen', 'Screen_Near_Total', 'Screen_Outdoor_Ratio',
-                    'High_Risk_Parent', 'Family_Load',
-                    'Location_Type_Urban', 'School_Type_Encoded',
-                    'Tuition_Binary', 'Comp_Exam_Binary', 'Vitamin_D_Binary', 'Sports_Encoded',
-                    'State_Delhi', 'State_Gujarat', 'State_Karnataka', 'State_Kerala',
-                    'State_Maharashtra', 'State_Punjab', 'State_Rajasthan', 'State_Tamil Nadu',
-                    'State_Telangana', 'State_Uttar Pradesh', 'State_West Bengal'
-                ]
-                
-                # Build feature dict
-                row_dict = {}
-                age    = float(data.get("age", 10))
-                height = float(data.get("height", 150))
-                weight = float(data.get("weight", 40))
-                bmi    = weight / ((height / 100) ** 2) if height > 0 else 22.0
-                
-                screen_time  = float(data.get("screenTime", 4))
-                near_work    = float(data.get("nearWork", 4))
-                outdoor_time = float(data.get("outdoorTime", 1))
-                
-                family_history = 1 if data.get("familyHistory") else 0
-                parents_map    = {"none": 0, "one": 1, "both": 2}
-                parents_myopia = parents_map.get(data.get("parentsMyopic", "none"), 0)
-                
-                row_dict['Age'] = age
-                row_dict['BMI'] = round(bmi, 2)
-                row_dict['Screen_Time_Hours'] = screen_time
-                row_dict['Near_Work_Hours'] = near_work
-                row_dict['Outdoor_Time_Hours'] = outdoor_time
-                row_dict['Age_Screen'] = age * screen_time
-                row_dict['Screen_Near_Total'] = screen_time + near_work
-                _outdoor_floor = max(outdoor_time, 0.1)
-                row_dict['Screen_Outdoor_Ratio'] = screen_time / _outdoor_floor
-                row_dict['High_Risk_Parent'] = 1 if parents_myopia >= 2 else 0
-                row_dict['Family_Load'] = family_history + parents_myopia
-                row_dict['Location_Type_Urban'] = 1 if data.get("locationType", "urban") == "urban"  else 0
-                
-                school_map = {"government": 0, "private": 1, "international": 2}
-                row_dict['School_Type_Encoded'] = school_map.get(data.get("schoolType", "government"), 0)
-                row_dict['Tuition_Binary'] = 1 if data.get("tuition") else 0
-                row_dict['Comp_Exam_Binary'] = 1 if data.get("competitiveExam") else 0
-                row_dict['Vitamin_D_Binary'] = 1 if data.get("vitaminD") else 0
-                
-                sports_map = {"rare": 0, "occasional": 1, "regular": 2}
-                row_dict['Sports_Encoded'] = sports_map.get(data.get("sports", "occasional"), 1)
-                
-                # State one-hot
-                state = data.get("state", "Maharashtra")
-                for state_col in regression_feature_names:
-                    if state_col.startswith("State_"):
-                        state_name = state_col.replace("State_", "")
-                        row_dict[state_col] = 1 if state == state_name else 0
-                
-                # Build array in correct order
-                X_reg_values = [row_dict.get(col, 0) for col in regression_feature_names]
-                X_reg_input = np.array(X_reg_values, dtype=float).reshape(1, -1)
-                
-                X_reg_scaled = scaler_reg.transform(X_reg_input)
-                diopters = float(diopter_model.predict(X_reg_scaled)[0])
-                diopters = round(abs(diopters), 2)
+            if re_prob >= 0.75 and risk_prob >= 0.70:
+                severity = "High concern"
+            elif re_prob >= 0.50 and risk_prob >= 0.50:
+                severity = "Moderate concern"
             else:
-                # Rule-based fallback estimate
-                if risk_pct >= 70:   diopters = 3.5
-                elif risk_pct >= 50: diopters = 2.0
-                else:                diopters = 1.0
-
-            if diopters is not None:
-                if diopters < 0.5:   severity = "Negligible"
-                elif diopters < 3.0: severity = "Mild"
-                elif diopters < 6.0: severity = "Moderate"
-                else:                severity = "High"
+                severity = "Low concern"
+            severity_note = (
+                "Indicative band based on refractive-error likelihood and progression "
+                "risk. The exact degree of myopia (in diopters) can only be measured "
+                "by an eye examination."
+            )
+        else:
+            severity = "No refractive error indicated"
+            severity_note = (
+                "Screening did not indicate refractive error. This is a risk screen, "
+                "not a substitute for an eye examination."
+            )
 
         result = {
             "risk_score"      : risk_pct,
@@ -600,6 +548,7 @@ def predict():
             "re_probability"  : round(re_prob, 3),
             "diopters"        : diopters,
             "severity"        : severity,
+            "severity_note"   : severity_note,
         }
         
         # Log prediction details

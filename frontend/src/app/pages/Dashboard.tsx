@@ -183,8 +183,8 @@ export default function Dashboard() {
                     <p className="mt-1 font-semibold" style={{ color: latest.has_re ? "#dc2626" : "#16a34a" }}>
                       {latest.has_re ? "Detected" : "Unlikely"}
                     </p>
-                    {latest.diopters && (
-                      <p className="text-xs text-[var(--text-muted)] mt-0.5">~-{latest.diopters}D · {latest.severity}</p>
+                    {latest.severity && (
+                      <p className="text-xs text-[var(--text-muted)] mt-0.5">{latest.severity}</p>
                     )}
                   </div>
 
@@ -374,9 +374,9 @@ export default function Dashboard() {
                       </p>
                     </div>
                     <div className="rounded-xl border px-3 py-2.5" style={{ borderColor: cfg.border, background: cfg.bg }}>
-                      <p className="text-[10px] text-[var(--text-muted)]">Est. Severity</p>
+                      <p className="text-[10px] text-[var(--text-muted)]">Assessment</p>
                       <p className="font-bold text-sm mt-0.5" style={{ color: cfg.color }}>
-                        {selected.diopters ? `-${selected.diopters}D · ${selected.severity}` : selected.has_re ? "—" : "None"}
+                        {selected.severity ? selected.severity : selected.has_re ? "—" : "None"}
                       </p>
                     </div>
                   </div>
