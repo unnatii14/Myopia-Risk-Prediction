@@ -7,7 +7,7 @@
     "build": "vite build",
     "dev": "vite",
     "typecheck": "tsc --noEmit",
-    "backend": "\"C:/Users/admin/AppData/Local/Microsoft/WindowsApps/PythonSoftwareFoundation.Python.3.10_qbz5n2kfra8p0/python.exe\" ../backend/api.py",
+    "backend": "../.venv/Scripts/python.exe ../backend/api.py",
     "start": "concurrently --names \"BACKEND,FRONTEND\" --prefix-colors \"green,cyan\" \"npm run backend\" \"npm run dev\""
   },
   "dependencies": {
