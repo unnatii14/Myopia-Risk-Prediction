@@ -14,10 +14,12 @@ import os
 import time
 import importlib
 import numpy as np
+from image_validation import validate_fundus_image
 import pandas as pd
 from logger import setup_logger, RequestLogger
 from auth import auth_bp
 from history import history_bp
+from contributions import contrib_bp
 from config import get_config, get_cors_origins, validate_production_config
 
 try:
@@ -47,6 +49,7 @@ if fatal_config_issues:
 CORS(app, origins=get_cors_origins())  # Restrict origins to configured allowlist
 app.register_blueprint(auth_bp, url_prefix="/auth")
 app.register_blueprint(history_bp, url_prefix="/history")
+app.register_blueprint(contrib_bp)
 
 # Setup logging
 logger = setup_logger('api', log_file='logs/api.log', level='INFO')
@@ -569,60 +572,6 @@ def predict():
         return jsonify({"error": "Internal server error"}), 500
 
 
-def validate_fundus_image(pil_img):
-    """
-    Heuristic gate: accept only images that look like blue-channel fundus
-    exports (a greyscale retinal disc on a dark surround).
-    Returns (ok: bool, reason: str | None).
-    """
-    img = pil_img.convert("RGB").resize((256, 256))
-    a = np.asarray(img, dtype=np.float32)
-    r, g, b = a[..., 0], a[..., 1], a[..., 2]
-    r_mean, g_mean, b_mean = float(r.mean()), float(g.mean()), float(b.mean())
-
-    # 1. Colour profile — training images are blue-channel exports:
-    #    either greyscale (R = G = B) or blue-tinted (B > G > R).
-    colour_spread = (float(np.mean(np.abs(r - g))) + float(np.mean(np.abs(g - b)))) / 2.0
-    is_greyscale = colour_spread <= 12.0
-    is_blue_dominant = b_mean > g_mean + 5.0 and g_mean > r_mean - 5.0 and b_mean > r_mean + 15.0
-    if not (is_greyscale or is_blue_dominant):
-        if r_mean > b_mean + 15.0:
-            return False, (
-                "This looks like a standard colour (orange/red) fundus photo. "
-                "The model needs the blue-channel export of the scan — ask your "
-                "eye doctor for it, or use images from the linked sample dataset."
-            )
-        return False, (
-            "This doesn't look like a blue-channel fundus image. The model needs "
-            "a dark, blue/greyscale retinal scan — not a colour photo or selfie."
-        )
-
-    grey = a.mean(axis=2)
-
-    # 2. Blank / flat image
-    if float(grey.std()) < 15.0:
-        return False, "The image looks blank or has too little detail to be a retinal scan."
-
-    # 3. Fundus geometry — dark corners around a brighter circular retina
-    k = 38  # ~15% of each side
-    corners = np.concatenate([
-        grey[:k, :k].ravel(), grey[:k, -k:].ravel(),
-        grey[-k:, :k].ravel(), grey[-k:, -k:].ravel(),
-    ])
-    corner_mean = float(corners.mean())
-    centre_mean = float(grey[64:192, 64:192].mean())
-    if corner_mean > 70.0:
-        return False, (
-            "No dark surround detected. Fundus scans show a bright circular retina "
-            "on a black background — this image doesn't match that pattern."
-        )
-    if centre_mean < corner_mean + 15.0:
-        return False, (
-            "The image centre isn't brighter than its edges, which doesn't match "
-            "a retinal scan."
-        )
-
-    return True, None
 
 
 @app.route("/predict-image", methods=["POST"])
@@ -646,10 +595,11 @@ def predict_image():
     try:
         pil_raw = Image.open(file.stream).convert("RGB")
 
-        ok, reason = validate_fundus_image(pil_raw)
-        if not ok:
-            logger.info(f"Image rejected by validation: {reason}")
-            return jsonify({"error": reason, "code": "invalid_image"}), 422
+        # Allow-but-warn: run the model on any readable image, but flag results
+        # from images that don't look like a blue-channel fundus as unreliable.
+        input_ok, input_warning = validate_fundus_image(pil_raw)
+        if not input_ok:
+            logger.info(f"Image flagged as low-reliability input: {input_warning}")
 
         pil_img = pil_raw.resize((224, 224))
         arr = np.asarray(pil_img, dtype=np.float32)
@@ -678,6 +628,8 @@ def predict_image():
             "threshold": 0.5,
             "model_input_size": [224, 224],
             "duration_ms": round(duration_ms, 2),
+            "input_ok": input_ok,
+            "input_warning": None if input_ok else input_warning,
         }
         logger.info(
             f"Image prediction complete: label={label}, prob={myopia_prob:.4f}, duration={duration_ms:.2f}ms"

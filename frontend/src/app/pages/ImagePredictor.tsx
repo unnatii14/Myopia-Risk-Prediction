@@ -1,8 +1,9 @@
 import { useCallback, useMemo, useState } from "react";
 import { motion, AnimatePresence } from "motion/react";
 import { Upload, Loader2, Eye, AlertTriangle, CheckCircle2, XCircle, Camera, Info, RotateCcw } from "lucide-react";
-import { predictMyopiaFromImage, type ImagePredictionResult } from "../lib/imageApi";
+import { predictMyopiaFromImage, contributeImage, type ImagePredictionResult, type ReportedLabel } from "../lib/imageApi";
 import BackToDashboard from "../components/BackToDashboard";
+import { useAuth } from "../context/AuthContext";
 
 export default function ImagePredictor() {
   const [file, setFile] = useState<File | null>(null);
@@ -10,6 +11,19 @@ export default function ImagePredictor() {
   const [error, setError] = useState<string | null>(null);
   const [result, setResult] = useState<ImagePredictionResult | null>(null);
   const [dragging, setDragging] = useState(false);
+  const { user } = useAuth();
+  const [consent, setConsent] = useState(false);
+  const [reportedLabel, setReportedLabel] = useState<ReportedLabel>("unknown");
+  const [donating, setDonating] = useState(false);
+  const [donateMsg, setDonateMsg] = useState<string | null>(null);
+  const [donateErr, setDonateErr] = useState<string | null>(null);
+
+  const resetDonation = () => {
+    setConsent(false);
+    setReportedLabel("unknown");
+    setDonateMsg(null);
+    setDonateErr(null);
+  };
 
   const previewUrl = useMemo(() => {
     if (!file) return null;
@@ -19,6 +33,7 @@ export default function ImagePredictor() {
   const handleFile = (selected: File | null) => {
     setResult(null);
     setError(null);
+    resetDonation();
     setFile(selected);
   };
 
@@ -52,6 +67,32 @@ export default function ImagePredictor() {
     setFile(null);
     setResult(null);
     setError(null);
+    resetDonation();
+  };
+
+  const onDonate = async () => {
+    if (!file || !consent) return;
+    if (!user?.token) {
+      setDonateErr("Please sign in to donate an image.");
+      return;
+    }
+    setDonating(true);
+    setDonateErr(null);
+    try {
+      const res = await contributeImage(
+        user.token,
+        file,
+        true,
+        reportedLabel,
+        result?.label,
+        result?.myopia_probability,
+      );
+      setDonateMsg(res.message);
+    } catch (err) {
+      setDonateErr(err instanceof Error ? err.message : "Failed to donate image");
+    } finally {
+      setDonating(false);
+    }
   };
 
   const isMyopia = result?.label === "MYOPIA";
@@ -202,6 +243,77 @@ export default function ImagePredictor() {
                 </motion.div>
               )}
             </AnimatePresence>
+
+            {/* Donate-to-improve card (consent-gated) */}
+            {result && file && (
+              <motion.div
+                initial={{ opacity: 0, y: 8 }}
+                animate={{ opacity: 1, y: 0 }}
+                className="rounded-2xl border border-[var(--primary-green)]/30 bg-[var(--background-mint)] p-5"
+              >
+                {donateMsg ? (
+                  <div className="flex items-start gap-2 text-sm text-[var(--secondary-green)]">
+                    <CheckCircle2 className="mt-0.5 h-4 w-4 shrink-0" />
+                    <span>{donateMsg}</span>
+                  </div>
+                ) : (
+                  <>
+                    <div className="mb-2 flex items-center gap-2">
+                      <Eye className="h-4 w-4" style={{ color: "var(--primary-green)" }} />
+                      <p className="text-sm font-semibold text-[var(--text-dark)]">Help improve the model</p>
+                    </div>
+                    <p className="text-xs leading-relaxed text-[var(--text-muted)]">
+                      You can donate this retinal image to help train a more accurate model.
+                      It is reviewed by a person before any use, stored securely, and you can
+                      withdraw it any time from your account.
+                    </p>
+
+                    <label className="mt-3 block text-xs font-semibold text-[var(--text-dark)]">
+                      If you know the actual diagnosis (optional)
+                    </label>
+                    <select
+                      value={reportedLabel}
+                      onChange={(e) => setReportedLabel(e.target.value as ReportedLabel)}
+                      className="mt-1 w-full rounded-xl border border-[var(--border)] bg-white px-3 py-2 text-sm text-[var(--text-dark)] outline-none focus:ring-2 focus:ring-[var(--primary-green)]"
+                    >
+                      <option value="unknown">Not sure</option>
+                      <option value="myopia">Diagnosed with myopia</option>
+                      <option value="normal">Confirmed normal</option>
+                    </select>
+
+                    <label className="mt-3 flex items-start gap-2 text-xs text-[var(--text-dark)]">
+                      <input
+                        type="checkbox"
+                        checked={consent}
+                        onChange={(e) => setConsent(e.target.checked)}
+                        className="mt-0.5 h-4 w-4 shrink-0"
+                      />
+                      <span>
+                        I consent to donate this retinal image to help improve the model,
+                        and I confirm I have the right to share it.
+                      </span>
+                    </label>
+
+                    {donateErr && (
+                      <div className="mt-2 flex items-start gap-2 rounded-lg border border-red-200 bg-red-50 p-2 text-xs text-red-700">
+                        <AlertTriangle className="mt-0.5 h-3.5 w-3.5 shrink-0" />
+                        <span>{donateErr}</span>
+                      </div>
+                    )}
+
+                    <button
+                      onClick={onDonate}
+                      disabled={!consent || donating}
+                      className="mt-3 flex w-full items-center justify-center gap-2 rounded-xl px-4 py-2.5 text-sm font-semibold text-white transition-all disabled:cursor-not-allowed disabled:opacity-50"
+                      style={{ background: "var(--primary-green)" }}
+                    >
+                      {donating ? <Loader2 className="h-4 w-4 animate-spin" /> : <CheckCircle2 className="h-4 w-4" />}
+                      {donating ? "Submitting…" : "Donate this image"}
+                    </button>
+                  </>
+                )}
+              </motion.div>
+            )}
           </motion.div>
 
           {/* Right: Result + Info */}
@@ -239,6 +351,17 @@ export default function ImagePredictor() {
                       </p>
                     </div>
                   </div>
+
+                  {result.input_ok === false && (
+                    <div className="mb-4 flex items-start gap-2 rounded-xl border border-amber-300 bg-amber-50 p-3 text-xs text-amber-800">
+                      <AlertTriangle className="mt-0.5 h-4 w-4 shrink-0 text-amber-500" />
+                      <span>
+                        <strong>Result may be unreliable.</strong>{" "}
+                        {result.input_warning || "This image doesn't look like a blue-channel fundus scan, which is what the model was trained on."}{" "}
+                        Treat the number below with caution.
+                      </span>
+                    </div>
+                  )}
 
                   {/* Probability bar */}
                   <div className="mb-4">
