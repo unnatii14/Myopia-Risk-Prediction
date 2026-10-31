@@ -53,6 +53,11 @@ export default function Navbar() {
 
   return (
     <>
+      {user?.isDemo && (
+        <div className="sticky top-0 z-[60] bg-[var(--warning-coral)] text-white text-center text-xs font-semibold py-1.5">
+          Demo Mode — exploring with sample data, nothing is saved
+        </div>
+      )}
       <motion.nav
         className={`sticky top-0 z-50 transition-all duration-300 ${
           scrolled
@@ -209,7 +214,9 @@ export default function Navbar() {
                         className="absolute right-0 top-full mt-2 w-52 bg-white rounded-2xl shadow-xl border border-[var(--border)] overflow-hidden z-50"
                       >
                         <div className="px-4 py-3 border-b border-[var(--border)]">
-                          <p className="text-sm font-bold text-[var(--text-dark)] truncate">{user.name}</p>
+                          <p className="text-sm font-bold text-[var(--text-dark)] truncate">
+                            {user.name} {user.isDemo && <span className="text-[var(--warning-coral)]">(Demo)</span>}
+                          </p>
                           <p className="text-xs text-[var(--text-muted)] truncate">{user.email}</p>
                         </div>
                         <button

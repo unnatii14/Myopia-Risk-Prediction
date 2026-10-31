@@ -5,11 +5,13 @@ interface User {
   email: string;
   childName?: string;
   token: string;
+  isDemo?: boolean;
 }
 
 interface AuthContextType {
   user: User | null;
   login: (name: string, email: string, token: string, childName?: string, rememberMe?: boolean) => void;
+  loginDemo: () => void;
   logout: () => void;
   isTokenValid: () => boolean;
 }
@@ -18,11 +20,16 @@ const AuthContext = createContext<AuthContextType | null>(null);
 
 const STORAGE_KEY = "myopia_auth_user";
 const STORAGE_TIMESTAMP_KEY = "myopia_auth_timestamp";
+const DEMO_STORAGE_KEY = "myopia_demo_user";
 const TOKEN_MAX_AGE_HOURS = 24;
 
 export function AuthProvider({ children }: { children: React.ReactNode }) {
   const [user, setUser] = useState<User | null>(() => {
     try {
+      // Demo session: sessionStorage only, survives a refresh but never the tab closing.
+      const demoStored = sessionStorage.getItem(DEMO_STORAGE_KEY);
+      if (demoStored) return JSON.parse(demoStored) as User;
+
       const stored = localStorage.getItem(STORAGE_KEY);
       if (!stored) return null;
 
@@ -68,15 +75,50 @@ export function AuthProvider({ children }: { children: React.ReactNode }) {
     }
   };
 
+  // Demo mode: sessionStorage only (cleared when the tab closes), never sent to the backend.
+  const loginDemo = () => {
+    const demoUser: User = {
+      name: "Demo Parent",
+      email: "demo@myopiaguard.app",
+      childName: "Demo Child",
+      token: "",
+      isDemo: true,
+    };
+    setUser(demoUser);
+    sessionStorage.setItem(DEMO_STORAGE_KEY, JSON.stringify(demoUser));
+
+    // Seed sample screening data (sessionStorage only) so /results renders
+    // immediately instead of bouncing the evaluator back to the Screen form.
+    sessionStorage.setItem(
+      "screeningData",
+      JSON.stringify({
+        childName: "Demo Child",
+        age: 9,
+        sex: "female",
+        height: 132,
+        weight: 28,
+        familyHistory: true,
+        parentsMyopic: "one",
+        screenTime: 5,
+        nearWork: 4,
+        outdoorTime: 1,
+        sports: "occasional",
+        vitaminD: false,
+        existingMyopiaStatus: "none",
+      })
+    );
+  };
+
   const logout = () => {
     setUser(null);
     localStorage.removeItem(STORAGE_KEY);
     localStorage.removeItem(STORAGE_TIMESTAMP_KEY);
     sessionStorage.removeItem(STORAGE_KEY);
+    sessionStorage.removeItem(DEMO_STORAGE_KEY);
   };
 
   return (
-    <AuthContext.Provider value={{ user, login, logout, isTokenValid }}>
+    <AuthContext.Provider value={{ user, login, loginDemo, logout, isTokenValid }}>
       {children}
     </AuthContext.Provider>
   );

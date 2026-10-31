@@ -9,7 +9,12 @@ import { API_URL } from "../lib/apiConfig";
 
 export default function Signup() {
   const navigate = useNavigate();
-  const { login } = useAuth();
+  const { login, loginDemo } = useAuth();
+
+  const handleExploreDemo = () => {
+    loginDemo();
+    navigate("/results", { replace: true });
+  };
   const [showPassword, setShowPassword] = useState(false);
   const [showConfirm, setShowConfirm] = useState(false);
   const [form, setForm] = useState({
@@ -396,6 +401,15 @@ export default function Signup() {
 
           {/* Google Login */}
           <GoogleLoginButton onError={(msg) => setErrors({ general: msg })} />
+
+          {/* Explore Demo */}
+          <button
+            type="button"
+            onClick={handleExploreDemo}
+            className="w-full mt-3 py-3 rounded-full border-2 border-[var(--primary-green)] text-[var(--primary-green)] hover:bg-[var(--primary-green)] hover:text-white font-semibold text-sm transition-colors"
+          >
+            Explore Demo (no sign-in required)
+          </button>
 
           {/* Log in link */}
           <p className="text-center text-sm text-[var(--text-muted)]">
